@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { ItemPrent, Pop, vindBasis } from "@/avatar/Pop";
 import { vindItem } from "@/avatar/items";
+import { ALLE_REEKSEN } from "@/data/levels";
 import { fanfare, pling } from "@/lib/geluid";
 import { kiesVerrassingen, winItem, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
+import { Pijl } from "./Icoon";
 
 async function confetti(veel: boolean) {
   const { default: knal } = await import("canvas-confetti");
@@ -47,10 +49,20 @@ export function Beloning({
     void confetti(true);
   };
 
+  // "ga verder" start meteen de volgende reeks die nog niet gedaan is.
+  const volgende = ALLE_REEKSEN.find((p) => !spel.klaar.includes(p.reeks.id));
   const verder = (
     <div className="knoppen-rij">
-      <button className="groot-knop klein-tekst" onClick={() => ga({ naam: "kaart" })}>🗺️</button>
-      <button className="groot-knop klein-tekst" onClick={() => ga({ naam: "kast" })}>👗</button>
+      <button className="groot-knop klein-tekst" onClick={() => ga({ naam: "kast" })} aria-label="mijn kast">
+        👗
+      </button>
+      <button
+        className="groot-knop verder-knop"
+        onClick={() => ga(volgende ? { naam: "lezen", reeks: volgende.reeks.id } : { naam: "kaart" })}
+      >
+        ga verder
+        <Pijl className="icoon klein" />
+      </button>
     </div>
   );
 

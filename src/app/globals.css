@@ -163,15 +163,32 @@ button:disabled {
   min-width: 170px;
   height: 140px;
   background: var(--mint);
-  color: #fff;
-  font-size: 88px;
-  -webkit-text-stroke: 3px var(--inkt);
-  paint-order: stroke fill;
 }
 
 .groot-knop.opnieuw {
   background: var(--oranje);
+}
+
+.icoon {
+  display: block;
+  width: 64%;
+  height: 64%;
+}
+
+.icoon.klein {
+  width: 44px;
+  height: 44px;
+}
+
+.groot-knop.verder-knop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 110px;
+  padding: 0 28px 0 34px;
+  background: var(--mint);
   color: #fff;
+  font-size: 44px;
   -webkit-text-stroke: 3px var(--inkt);
   paint-order: stroke fill;
 }

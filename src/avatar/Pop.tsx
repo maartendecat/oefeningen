@@ -191,7 +191,8 @@ function Gezicht({ b }: { b: Basis }) {
       <path d="M100 60 Q102 65 99 66" stroke={b.schaduw} strokeWidth={1.4} />
       <ellipse cx={86} cy={65} rx={4} ry={2.3} fill="#f47bae" opacity={0.35} />
       <ellipse cx={114} cy={65} rx={4} ry={2.3} fill="#f47bae" opacity={0.35} />
-      <path d="M95 71 Q100 69 105 71 Q100 75.5 95 71 Z" fill="#c0476f" />
+      <path d="M93 69 Q100 78.5 107 69 Q100 71 93 69 Z" fill="#c0476f" stroke="#a8325e" strokeWidth={0.8} strokeLinejoin="round" />
+      <path d="M95 70 Q100 71.8 105 70 L104.2 71.8 Q100 73.4 95.8 71.8 Z" fill="#ffffff" />
       <circle cx={79} cy={66} r={2.2} fill="#e8b04a" />
       <circle cx={121} cy={66} r={2.2} fill="#e8b04a" />
     </g>

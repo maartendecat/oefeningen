@@ -6,6 +6,7 @@ import { nogEens, pling } from "@/lib/geluid";
 import { hak, isKlinker, kaal, woorden } from "@/lib/klanken";
 import { reeksKlaar, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
+import { Opnieuw, Vink } from "./Icoon";
 
 export function Lezen({
   spel,
@@ -94,10 +95,10 @@ export function Lezen({
 
       <footer className="knoppen">
         <button className="groot-knop opnieuw" onClick={opnieuw} aria-label="nog eens">
-          ↻
+          <Opnieuw />
         </button>
         <button className="groot-knop goed" onClick={goed} aria-label="goed gelezen">
-          ✓
+          <Vink />
         </button>
       </footer>
     </main>

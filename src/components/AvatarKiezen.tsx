@@ -4,6 +4,7 @@ import { useState } from "react";
 import { BASISSEN, Pop, STRAK, vindBasis } from "@/avatar/Pop";
 import { klik, pling } from "@/lib/geluid";
 import { kiesAvatar, zetNaam, type Spel } from "@/lib/state";
+import { Vink } from "./Icoon";
 
 const MAX_NAAM = 12;
 
@@ -94,7 +95,7 @@ function NaamKiezen({
             aria-label="naam van je avatar"
           />
           <button className="groot-knop goed klein" type="submit" disabled={!schoon} aria-label="klaar">
-            ✓
+            <Vink />
           </button>
         </div>
       </form>
