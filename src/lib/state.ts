@@ -1,91 +1,53 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { ITEMS, STARTKLEREN, UITTREKBAAR, type Categorie } from "@/avatar/items";
+import { ITEMS, UITTREKBAAR } from "@/avatar/items";
+import { lees, nieuwSpel, type Spel } from "./spel";
 
-// Alle voortgang zit in één object in localStorage. Het versienummer laat toe
-// om later de vorm te veranderen zonder oude voortgang kwijt te spelen.
+export type { Aan, Spel } from "./spel";
+
+// De voortgang zit in localStorage: zo werkt de app meteen en ook zonder
+// internet. sync.ts houdt daarnaast een kopie op de server bij.
 
 const SLEUTEL = "oefenen-op-lezen";
-const VERSIE = 1;
-
-export type Aan = Partial<Record<Categorie, string>>;
-
-export type Spel = {
-  versie: typeof VERSIE;
-  avatar: string | null;
-  /** De naam die ze zelf aan haar avatar gaf. Ontbreekt in oudere voortgang. */
-  naam?: string | null;
-  /** Ids van reeksen die minstens één keer uitgespeeld zijn. */
-  klaar: string[];
-  /** Ids van gewonnen items (zonder de startkleren). */
-  kast: string[];
-  aan: Aan;
-  stil: boolean;
-};
-
-export function nieuwSpel(): Spel {
-  return {
-    versie: VERSIE,
-    avatar: null,
-    naam: null,
-    klaar: [],
-    kast: [],
-    aan: { ...STARTKLEREN },
-    stil: false,
-  };
-}
-
-function isSpel(x: unknown): x is Spel {
-  const s = x as Spel;
-  return (
-    !!s &&
-    s.versie === VERSIE &&
-    Array.isArray(s.klaar) &&
-    Array.isArray(s.kast) &&
-    typeof s.aan === "object"
-  );
-}
-
-/**
- * Ruimt kleren op die niet meer bestaan (bv. na het hertekenen van de
- * kleerkast) en zorgt dat de avatar altijd iets aanheeft.
- */
-function herstel(s: Spel): Spel {
-  const bestaat = (id: string) => ITEMS.some((i) => i.id === id && !i.start);
-  const aan: Aan = {};
-  for (const [cat, id] of Object.entries(s.aan) as [Categorie, string][]) {
-    if (ITEMS.some((i) => i.id === id && i.categorie === cat)) aan[cat] = id;
-  }
-  for (const [cat, id] of Object.entries(STARTKLEREN) as [Categorie, string][]) {
-    aan[cat] ??= id;
-  }
-  return { ...s, kast: s.kast.filter(bestaat), aan };
-}
 
 let huidig: Spel | null = null;
 const luisteraars = new Set<() => void>();
+let naWijziging: (() => void) | null = null;
 
 function laad(): Spel {
   if (huidig) return huidig;
   try {
     const ruw = localStorage.getItem(SLEUTEL);
-    const data = ruw ? JSON.parse(ruw) : null;
-    huidig = isSpel(data) ? herstel(data) : nieuwSpel();
+    huidig = (ruw && lees(JSON.parse(ruw))) || nieuwSpel();
   } catch {
     huidig = nieuwSpel();
   }
   return huidig;
 }
 
-export function bewaar(volgend: Spel) {
-  huidig = volgend;
+export function huidigSpel(): Spel {
+  return laad();
+}
+
+/**
+ * Bewaart het spel. Een eigen wijziging krijgt een nieuw tijdstip en wordt
+ * naar de server gestuurd; wat van de server komt, wordt enkel overgenomen.
+ */
+export function bewaar(volgend: Spel, { vanServer = false } = {}) {
+  huidig = vanServer ? volgend : { ...volgend, bijgewerkt: Date.now() };
   try {
-    localStorage.setItem(SLEUTEL, JSON.stringify(volgend));
+    localStorage.setItem(SLEUTEL, JSON.stringify(huidig));
   } catch {
     // Privévenster of volle opslag: het spel werkt verder, enkel zonder geheugen.
   }
   luisteraars.forEach((l) => l());
+  if (!vanServer) naWijziging?.();
+}
+
+/** Laat sync.ts weten wanneer er iets veranderd is. */
+export function bijWijziging(f: () => void) {
+  naWijziging = f;
 }
 
 export function pasAan(f: (s: Spel) => Spel) {
@@ -185,6 +147,7 @@ export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
   });
 }
 
+/** Begint opnieuw; via de synchronisatie geldt dat ook op de server. */
 export function wisAlles() {
   bewaar(nieuwSpel());
 }
@@ -195,9 +158,9 @@ export function exporteer(s: Spel): string {
 
 export function importeer(code: string): boolean {
   try {
-    const data = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
-    if (!isSpel(data)) return false;
-    bewaar(herstel(data));
+    const spel = lees(JSON.parse(decodeURIComponent(escape(atob(code.trim())))));
+    if (!spel) return false;
+    bewaar(spel);
     return true;
   } catch {
     return false;

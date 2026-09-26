@@ -1,0 +1,116 @@
+// Het spelmodel zonder React of browser: de vorm van de voortgang, hoe je
+// die controleert en hoe oude voortgang omgezet wordt. Zowel de browser als
+// de server gebruiken dit bestand.
+
+import { ITEMS, STARTKLEREN, type Categorie } from "@/avatar/items";
+
+/**
+ * Verhoog dit enkel samen met een stap in MIGRATIES, anders kan oude
+ * voortgang niet meer ingelezen worden.
+ */
+export const VERSIE = 1;
+
+export type Aan = Partial<Record<Categorie, string>>;
+
+export type Spel = {
+  versie: number;
+  avatar: string | null;
+  /** De naam die ze zelf aan haar avatar gaf. */
+  naam?: string | null;
+  /** Ids van reeksen die minstens één keer uitgespeeld zijn. */
+  klaar: string[];
+  /** Ids van gewonnen items (zonder de startkleren). */
+  kast: string[];
+  aan: Aan;
+  stil: boolean;
+  /** Tijdstip (ms) van de laatste wijziging; de nieuwste versie wint bij synchroniseren. */
+  bijgewerkt?: number;
+};
+
+export function nieuwSpel(): Spel {
+  return {
+    versie: VERSIE,
+    avatar: null,
+    naam: null,
+    klaar: [],
+    kast: [],
+    aan: { ...STARTKLEREN },
+    stil: false,
+    bijgewerkt: 0,
+  };
+}
+
+/** Nog niets gebeurd: geen avatar gekozen en geen reeks gedaan. */
+export function isLeeg(s: Spel): boolean {
+  return !s.avatar && s.klaar.length === 0 && s.kast.length === 0;
+}
+
+type Ruw = Record<string, unknown>;
+
+/**
+ * Omzettingen van versie n naar n+1, sleutel = n. Een voorbeeld voor als
+ * VERSIE ooit 2 wordt:
+ *
+ *   1: (oud) => ({ ...oud, sterren: {} }),
+ */
+export const MIGRATIES: Record<number, (oud: Ruw) => Ruw> = {};
+
+const isTekstLijst = (x: unknown): x is string[] =>
+  Array.isArray(x) && x.length <= 1000 && x.every((v) => typeof v === "string" && v.length <= 64);
+
+function isGeldig(d: Ruw): boolean {
+  return (
+    (d.avatar === null || typeof d.avatar === "string") &&
+    (d.naam === undefined || d.naam === null || typeof d.naam === "string") &&
+    isTekstLijst(d.klaar) &&
+    isTekstLijst(d.kast) &&
+    !!d.aan &&
+    typeof d.aan === "object" &&
+    !Array.isArray(d.aan)
+  );
+}
+
+/**
+ * Ruimt kleren op die niet meer bestaan (bv. na het hertekenen van de
+ * kleerkast) en zorgt dat de avatar altijd iets aanheeft.
+ */
+export function herstel(s: Spel): Spel {
+  const bestaat = (id: string) => ITEMS.some((i) => i.id === id && !i.start);
+  const aan: Aan = {};
+  for (const [cat, id] of Object.entries(s.aan) as [Categorie, unknown][]) {
+    if (ITEMS.some((i) => i.id === id && i.categorie === cat)) aan[cat] = id as string;
+  }
+  for (const [cat, id] of Object.entries(STARTKLEREN) as [Categorie, string][]) {
+    aan[cat] ??= id;
+  }
+  return {
+    versie: VERSIE,
+    avatar: s.avatar,
+    naam: typeof s.naam === "string" ? s.naam.slice(0, 24) : null,
+    klaar: [...new Set(s.klaar)],
+    kast: [...new Set(s.kast.filter(bestaat))],
+    aan,
+    stil: s.stil === true,
+    bijgewerkt: typeof s.bijgewerkt === "number" ? s.bijgewerkt : 0,
+  };
+}
+
+/**
+ * Leest voortgang uit onbetrouwbare bron (localStorage, server, geplakte
+ * code): zet oude versies om, controleert de vorm en ruimt op. Geeft null
+ * als het niet te redden is, of als het van een nieuwere versie van de app
+ * komt die deze versie nog niet kent.
+ */
+export function lees(data: unknown): Spel | null {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  let d = data as Ruw;
+  if (typeof d.versie !== "number" || d.versie < 1 || d.versie > VERSIE) return null;
+
+  while ((d.versie as number) < VERSIE) {
+    const stap = MIGRATIES[d.versie as number];
+    if (!stap) return null;
+    d = { ...stap(d), versie: (d.versie as number) + 1 };
+  }
+
+  return isGeldig(d) ? herstel(d as unknown as Spel) : null;
+}

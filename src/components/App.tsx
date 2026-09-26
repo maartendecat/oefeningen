@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { isLeeg } from "@/lib/spel";
 import { useSpel } from "@/lib/state";
+import { startSync, useSyncStatus } from "@/lib/sync";
 import { AvatarKiezen } from "./AvatarKiezen";
 import { Beloning } from "./Beloning";
 import { Kaart } from "./Kaart";
@@ -19,10 +21,18 @@ export type Scherm =
 
 export function App() {
   const spel = useSpel();
+  const sync = useSyncStatus();
   const [scherm, zetScherm] = useState<Scherm>({ naam: "kaart" });
+
+  useEffect(() => {
+    void startSync();
+  }, []);
 
   // Op de server (en heel even in de browser) is er nog geen voortgang.
   if (!spel) return <div className="laden" />;
+  // Een lege browser (nieuw toestel, of Safari heeft opgeruimd): eerst kijken
+  // of er voortgang op de server staat, anders begint ze per ongeluk opnieuw.
+  if (isLeeg(spel) && !sync.gestart) return <div className="laden" />;
 
   if (!spel.avatar || !spel.naam || scherm.naam === "pop") {
     return <AvatarKiezen spel={spel} klaar={() => zetScherm({ naam: scherm.naam === "pop" ? "kast" : "kaart" })} />;

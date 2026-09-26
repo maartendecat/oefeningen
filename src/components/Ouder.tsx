@@ -10,7 +10,78 @@ import {
   zetVoortgang,
   type Spel,
 } from "@/lib/state";
+import { koppel, useSyncStatus } from "@/lib/sync";
 import type { Scherm } from "./App";
+
+function Gezinscode({ meld }: { meld: (tekst: string) => void }) {
+  const sync = useSyncStatus();
+  const [invoer, zetInvoer] = useState("");
+  const [bezig, zetBezig] = useState(false);
+
+  if (!sync.beschikbaar) {
+    return (
+      <section className="paneel">
+        <h2>Gezinscode</h2>
+        <p className="uitleg">
+          Op deze server staat geen opslag ingesteld. De voortgang zit enkel in deze browser; gebruik
+          de reservekopie hieronder om ze over te zetten.
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="paneel">
+      <h2>Gezinscode</h2>
+      {sync.code ? (
+        <>
+          <p className="gezinscode">{sync.code}</p>
+          <p className="uitleg">
+            De voortgang wordt ook op de server bewaard onder deze code. Schrijf hem ergens op: op een
+            ander toestel, of als de browser alles vergeten is, vul je hem hieronder in om verder te
+            spelen.
+            {sync.offline && " Nu even geen verbinding; wijzigingen gaan mee zodra die er weer is."}
+          </p>
+        </>
+      ) : (
+        <p className="uitleg">
+          Er is nog geen gezinscode. Die komt er vanzelf zodra er gespeeld wordt.
+          {sync.offline && " (Nu even geen verbinding met de server.)"}
+        </p>
+      )}
+      <form
+        className="koppel"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!invoer.trim()) return;
+          if (!confirm("De voortgang op dit toestel wordt vervangen door die van deze gezinscode. Doorgaan?")) return;
+          zetBezig(true);
+          const uitkomst = await koppel(invoer);
+          zetBezig(false);
+          if (uitkomst === "ok") {
+            zetInvoer("");
+            meld("Gekoppeld: de voortgang is ingeladen.");
+          } else {
+            meld(uitkomst === "onbekend" ? "Die gezinscode bestaat niet." : "Koppelen lukte niet. Is er internet?");
+          }
+        }}
+      >
+        <input
+          className="invoer code-invoer"
+          placeholder="bv. roos-maan-vis-482"
+          value={invoer}
+          onChange={(e) => zetInvoer(e.target.value)}
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+        />
+        <button className="knop" type="submit" disabled={bezig || !invoer.trim()}>
+          Koppel dit toestel
+        </button>
+      </form>
+    </section>
+  );
+}
 
 function Poort({ open }: { open: () => void }) {
   const [som] = useState(() => {
@@ -74,10 +145,12 @@ export function Ouder({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
       ) : (
         <div className="ouder-inhoud">
           {melding && <p className="melding">{melding}</p>}
+          <Gezinscode meld={zetMelding} />
           <section className="paneel">
             <h2>Voortgang</h2>
             <p>
-              {spel.klaar.length} van {reeksIds.length} reeksen gedaan, {spel.kast.length} items gewonnen.
+              {spel.klaar.length} van {reeksIds.length} reeksen gedaan, {spel.kast.length}{" "}
+              {spel.kast.length === 1 ? "item" : "items"} gewonnen.
             </p>
             <p className="uitleg">
               Laat haar starten bij een bepaalde letter. Alle reeksen daarvoor tellen dan als gedaan en
@@ -110,9 +183,9 @@ export function Ouder({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
           </section>
 
           <section className="paneel">
-            <h2>Naar een ander toestel</h2>
+            <h2>Reservekopie</h2>
             <p className="uitleg">
-              De voortgang zit enkel in deze browser. Kopieer deze code en plak ze op het andere toestel.
+              Werkt ook zonder server: kopieer deze code en plak ze op een ander toestel.
             </p>
             <textarea className="invoer code" readOnly value={exporteer(spel)} onFocus={(e) => e.target.select()} />
             <button
@@ -148,7 +221,7 @@ export function Ouder({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
             <button
               className="knop rood"
               onClick={() => {
-                if (confirm("Alle voortgang, kleren en de gekozen avatar wissen?")) {
+                if (confirm("Alle voortgang, kleren en de gekozen avatar wissen? Dat geldt ook voor de andere toestellen met dezelfde gezinscode.")) {
                   wisAlles();
                   ga({ naam: "kaart" });
                 }
