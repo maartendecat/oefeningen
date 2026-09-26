@@ -28,8 +28,9 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
     <main className="scherm kaart">
       <header className="balk">
         <button className="knop-rond pop-knop" onClick={() => { tik(); ga({ naam: "kast" }); }} aria-label="mijn kast">
-          <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} className="pop-mini" />
+          <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} naam={spel.naam} className="pop-mini" />
         </button>
+        <span className="naam-label">{spel.naam}</span>
         <button className="kast-teller" onClick={() => { tik(); ga({ naam: "kast" }); }}>
           👗 {spel.kast.length} / {aantalItems}
         </button>

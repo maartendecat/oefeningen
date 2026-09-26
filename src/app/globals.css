@@ -222,9 +222,84 @@ button:disabled {
   height: auto;
 }
 
-.pop-naam {
+.naam-kiezen {
+  justify-content: flex-start;
+}
+
+.naam-kiezen .balk {
+  width: 100%;
+}
+
+.knop-plek {
+  width: 64px;
+  flex: none;
+}
+
+.naam-vak {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.pop-naam-groot {
+  height: min(46dvh, 440px);
+  width: auto;
+}
+
+.naam-invoer-rij {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.naam-invoer {
+  width: min(64vw, 440px);
+  font-family: inherit;
+  font-size: clamp(44px, 8vw, 72px);
+  text-align: center;
+  color: var(--inkt);
+  background: #fff;
+  border: 5px solid var(--inkt);
+  border-radius: 32px;
+  box-shadow: 0 8px 0 var(--inkt);
+  padding: 8px 20px;
+  outline: none;
+}
+
+.naam-invoer:focus {
+  border-color: var(--roze);
+}
+
+.groot-knop.goed.klein {
+  min-width: 110px;
+  height: 110px;
+  font-size: 72px;
+}
+
+.groot-knop:disabled {
+  opacity: 0.4;
+}
+
+.naam-label {
   font-size: 30px;
   font-weight: 700;
+  padding: 2px 16px;
+  background: #fff;
+  border: 4px solid var(--inkt);
+  border-radius: 999px;
+  box-shadow: 0 5px 0 var(--inkt);
+}
+
+.naam-label:empty {
+  display: none;
+}
+
+.naam-label.groot {
+  font-size: 40px;
+  margin-top: 8px;
 }
 
 /* ---- Levelkaart ---- */

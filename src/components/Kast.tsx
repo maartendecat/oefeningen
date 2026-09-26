@@ -30,7 +30,8 @@ export function Kast({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
 
       <div className="kast-inhoud">
         <div className="kast-pop">
-          <Pop basis={basis} aan={spel.aan} className="pop-groot" />
+          <Pop basis={basis} aan={spel.aan} naam={spel.naam} className="pop-groot" />
+          <span className="naam-label groot">{spel.naam}</span>
         </div>
 
         <div className="kast-rek">

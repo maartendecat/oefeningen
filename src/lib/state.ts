@@ -14,6 +14,8 @@ export type Aan = Partial<Record<Categorie, string>>;
 export type Spel = {
   versie: typeof VERSIE;
   avatar: string | null;
+  /** De naam die ze zelf aan haar pop gaf. Ontbreekt in oudere voortgang. */
+  naam?: string | null;
   /** Ids van reeksen die minstens één keer uitgespeeld zijn. */
   klaar: string[];
   /** Ids van gewonnen items (zonder de startkleren). */
@@ -26,6 +28,7 @@ export function nieuwSpel(): Spel {
   return {
     versie: VERSIE,
     avatar: null,
+    naam: null,
     klaar: [],
     kast: [],
     aan: { ...STARTKLEREN },
@@ -87,6 +90,10 @@ export function useSpel(): Spel | null {
 
 export function kiesAvatar(id: string) {
   pasAan((s) => ({ ...s, avatar: id }));
+}
+
+export function zetNaam(naam: string) {
+  pasAan((s) => ({ ...s, naam }));
 }
 
 export function zetStil(stil: boolean) {

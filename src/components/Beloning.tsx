@@ -58,7 +58,7 @@ export function Beloning({
     return (
       <main className="scherm beloning">
         <h1 className="titel groot">goed zo!</h1>
-        <Pop basis={basis} aan={spel.aan} className="pop-groot dans" />
+        <Pop basis={basis} aan={spel.aan} naam={spel.naam} className="pop-groot dans" />
         {verder}
       </main>
     );
@@ -68,7 +68,7 @@ export function Beloning({
     return (
       <main className="scherm beloning">
         <h1 className="titel groot">joepie!</h1>
-        <Pop basis={basis} aan={spel.aan} className="pop-groot dans" />
+        <Pop basis={basis} aan={spel.aan} naam={spel.naam} className="pop-groot dans" />
         {verder}
       </main>
     );

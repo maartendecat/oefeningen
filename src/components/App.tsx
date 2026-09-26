@@ -24,7 +24,7 @@ export function App() {
   // Op de server (en heel even in de browser) is er nog geen voortgang.
   if (!spel) return <div className="laden" />;
 
-  if (!spel.avatar || scherm.naam === "pop") {
+  if (!spel.avatar || !spel.naam || scherm.naam === "pop") {
     return <AvatarKiezen spel={spel} klaar={() => zetScherm({ naam: scherm.naam === "pop" ? "kast" : "kaart" })} />;
   }
 

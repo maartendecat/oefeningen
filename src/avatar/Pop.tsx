@@ -10,18 +10,17 @@ type Kapsel = "lang" | "staart" | "puffs" | "bob" | "vlechten";
 
 export type Basis = {
   id: string;
-  naam: string;
   huid: string;
   haar: string;
   kapsel: Kapsel;
 };
 
 export const BASISSEN: Basis[] = [
-  { id: "lotte", naam: "lotte", huid: "#f9d4b8", haar: "#f4c95d", kapsel: "lang" },
-  { id: "noor", naam: "noor", huid: "#f1c7a5", haar: "#7a4526", kapsel: "staart" },
-  { id: "amira", naam: "amira", huid: "#8d5a3b", haar: "#2b1a12", kapsel: "puffs" },
-  { id: "fien", naam: "fien", huid: "#fbe0cc", haar: "#e0662d", kapsel: "bob" },
-  { id: "yara", naam: "yara", huid: "#c68b62", haar: "#1f1a1a", kapsel: "vlechten" },
+  { id: "lotte", huid: "#f9d4b8", haar: "#f4c95d", kapsel: "lang" },
+  { id: "noor", huid: "#f1c7a5", haar: "#7a4526", kapsel: "staart" },
+  { id: "amira", huid: "#8d5a3b", haar: "#2b1a12", kapsel: "puffs" },
+  { id: "fien", huid: "#fbe0cc", haar: "#e0662d", kapsel: "bob" },
+  { id: "yara", huid: "#c68b62", haar: "#1f1a1a", kapsel: "vlechten" },
 ];
 
 export function vindBasis(id: string | null): Basis {
@@ -137,10 +136,12 @@ function tekenItem(item: Item | undefined, uid: string, huid: string): ReactNode
 export function Pop({
   basis,
   aan,
+  naam,
   className,
 }: {
   basis: Basis;
   aan: Aan;
+  naam?: string | null;
   className?: string;
 }) {
   const uid = useId().replace(/:/g, "");
@@ -148,7 +149,7 @@ export function Pop({
   const t = (id: string | undefined) => tekenItem(vindItem(id), uid, basis.huid);
 
   return (
-    <svg viewBox="0 0 200 360" className={className} role="img" aria-label={basis.naam}>
+    <svg viewBox="0 0 200 360" className={className} role="img" aria-label={naam || "pop"}>
       <ellipse cx={100} cy={342} rx={56} ry={7} fill="#00000018" />
       <Achterhaar kapsel={basis.kapsel} kleur={basis.haar} />
       <Lijf huid={basis.huid} />
