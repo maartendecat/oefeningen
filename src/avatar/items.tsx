@@ -1,5 +1,5 @@
 // Alle kleren en spulletjes. Elk item tekent zichzelf in het assenstelsel van
-// de pop (viewBox 0 0 200 360), zodat het op elke pop past. `kader` is het
+// de avatar (viewBox 0 0 200 360), zodat het op elke avatar past. `kader` is het
 // stukje dat getoond wordt als los prentje in de kast.
 
 import type { ReactNode } from "react";
@@ -30,13 +30,13 @@ export type Item = {
   id: string;
   naam: string;
   categorie: Categorie;
-  /** Startkleren heeft elke pop van bij het begin. */
+  /** Startkleren heeft elke avatar van bij het begin. */
   start?: boolean;
   kader: string;
   teken: (t: Teken) => ReactNode;
 };
 
-/** Categorieën die ook helemaal uit mogen (anders loopt de pop in haar ondergoed). */
+/** Categorieën die ook helemaal uit mogen (anders loopt de avatar in haar ondergoed). */
 export const UITTREKBAAR: Categorie[] = ["kleedjes", "hoofd", "brillen", "tassen"];
 
 // ---- Vormen ---------------------------------------------------------------

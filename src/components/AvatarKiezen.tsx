@@ -8,7 +8,7 @@ import { kiesAvatar, zetNaam, type Spel } from "@/lib/state";
 const MAX_NAAM = 12;
 
 export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void }) {
-  // Wie al een pop heeft maar nog geen naam, begint meteen bij de naam.
+  // Wie al een avatar heeft maar nog geen naam, begint meteen bij de naam.
   const [stap, zetStap] = useState<"pop" | "naam">(spel.avatar && !spel.naam ? "naam" : "pop");
 
   if (stap === "naam" && spel.avatar) {
@@ -27,7 +27,7 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
 
   return (
     <main className="scherm kiezen">
-      <h1 className="titel">kies je pop</h1>
+      <h1 className="titel">kies je avatar</h1>
       <div className="kiezen-rij">
         {BASISSEN.map((b) => (
           <button
@@ -38,7 +38,7 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
               kiesAvatar(b.id);
               zetStap("naam");
             }}
-            aria-label={`pop ${BASISSEN.indexOf(b) + 1}`}
+            aria-label={`avatar ${BASISSEN.indexOf(b) + 1}`}
           >
             <Pop basis={b} aan={spel.aan} className="pop-klein" />
           </button>
@@ -63,10 +63,10 @@ function NaamKiezen({
   return (
     <main className="scherm kiezen naam-kiezen">
       <header className="balk">
-        <button className="knop-rond" onClick={terug} aria-label="andere pop">
+        <button className="knop-rond" onClick={terug} aria-label="andere avatar">
           ⬅️
         </button>
-        <h1 className="titel">hoe heet je pop?</h1>
+        <h1 className="titel">hoe heet je avatar?</h1>
         <span className="knop-plek" />
       </header>
 
@@ -91,7 +91,7 @@ function NaamKiezen({
             autoComplete="off"
             spellCheck={false}
             enterKeyHint="done"
-            aria-label="naam van je pop"
+            aria-label="naam van je avatar"
           />
           <button className="groot-knop goed klein" type="submit" disabled={!schoon} aria-label="klaar">
             ✓

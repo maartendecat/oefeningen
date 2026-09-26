@@ -14,7 +14,7 @@ export type Aan = Partial<Record<Categorie, string>>;
 export type Spel = {
   versie: typeof VERSIE;
   avatar: string | null;
-  /** De naam die ze zelf aan haar pop gaf. Ontbreekt in oudere voortgang. */
+  /** De naam die ze zelf aan haar avatar gaf. Ontbreekt in oudere voortgang. */
   naam?: string | null;
   /** Ids van reeksen die minstens één keer uitgespeeld zijn. */
   klaar: string[];

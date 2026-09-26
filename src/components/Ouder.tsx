@@ -148,7 +148,7 @@ export function Ouder({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
             <button
               className="knop rood"
               onClick={() => {
-                if (confirm("Alle voortgang, kleren en de gekozen pop wissen?")) {
+                if (confirm("Alle voortgang, kleren en de gekozen avatar wissen?")) {
                   wisAlles();
                   ga({ naam: "kaart" });
                 }

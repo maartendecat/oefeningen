@@ -1,4 +1,4 @@
-// De aankleedpop: een meisje van een jaar of twaalf, getekend in lagen.
+// De avatar om aan te kleden: een meisje van een jaar of twaalf, getekend in lagen.
 // Van achter naar voor: achterhaar, lijf, gezicht, schoenen, onderstuk,
 // truitje of kleedje, voorhaar, bril, hoed en tas.
 
@@ -149,7 +149,7 @@ export function Pop({
   const t = (id: string | undefined) => tekenItem(vindItem(id), uid, basis.huid);
 
   return (
-    <svg viewBox="0 0 200 360" className={className} role="img" aria-label={naam || "pop"}>
+    <svg viewBox="0 0 200 360" className={className} role="img" aria-label={naam || "avatar"}>
       <ellipse cx={100} cy={342} rx={56} ry={7} fill="#00000018" />
       <Achterhaar kapsel={basis.kapsel} kleur={basis.haar} />
       <Lijf huid={basis.huid} />

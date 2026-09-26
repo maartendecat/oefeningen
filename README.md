@@ -3,7 +3,7 @@
 Een leesspelletje voor het eerste leerjaar, volgens de lettervolgorde van
 *Veilig leren lezen* (kim-versie). Het kind leest reeksen van tien woordjes en
 zinnetjes luidop voor, een ouder tikt ✓ of ↻, en na elke reeks mag het kind een
-nieuw kledingstuk kiezen voor de eigen pop.
+nieuw kledingstuk kiezen voor de eigen avatar.
 
 Alles draait in de browser: de voortgang zit in `localStorage`, er is geen
 backend.
@@ -25,8 +25,8 @@ npm run lint
 | `src/data/levels.test.ts` | Bewaakt dat elk woord enkel gekende klanken gebruikt, één klinker heeft en geen medeklinkerclusters bevat, en dat een reeks niet korter wordt naar het einde. |
 | `src/lib/klanken.ts` | Hakt woorden in klanken (`kaas` → `k · aa · s`). |
 | `src/lib/state.ts` | Spelstatus in `localStorage`, plus alle acties. |
-| `src/avatar/` | De aankleedpop (`Pop.tsx`) en alle kleren (`items.tsx`), als SVG. |
-| `src/components/` | De schermen: pop kiezen, levelkaart, lezen, beloning, kast, oudermenu. |
+| `src/avatar/` | De avatar (`Pop.tsx`) en alle kleren (`items.tsx`), als SVG. |
+| `src/components/` | De schermen: avatar kiezen en een naam geven, levelkaart, lezen, beloning, kast, oudermenu. |
 
 ### Nieuwe letters toevoegen
 

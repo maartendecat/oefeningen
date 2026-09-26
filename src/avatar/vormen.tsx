@@ -1,4 +1,4 @@
-// Kleine tekenhulpjes die door de pop en de kleren gedeeld worden.
+// Kleine tekenhulpjes die door de avatar en de kleren gedeeld worden.
 // Alles tekent in hetzelfde assenstelsel: viewBox 0 0 200 360.
 
 import type { ReactNode, SVGProps } from "react";

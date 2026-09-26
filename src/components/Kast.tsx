@@ -23,7 +23,7 @@ export function Kast({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
           🗺️
         </button>
         <h1 className="titel">mijn kast</h1>
-        <button className="knop-rond" onClick={() => ga({ naam: "pop" })} aria-label="andere pop">
+        <button className="knop-rond" onClick={() => ga({ naam: "pop" })} aria-label="andere avatar">
           🔄
         </button>
       </header>
