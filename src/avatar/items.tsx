@@ -247,6 +247,45 @@ export const ITEMS: Item[] = [
     ),
   },
 
+  {
+    id: "streepjestrui",
+    naam: "streepjestrui",
+    categorie: "truitjes",
+    kader: "56 88 88 132",
+    teken: ({ uid }) => (
+      <g>
+        <Streng d={ARM_LINKS} kleur="#fff7ee" dikte={11} />
+        <Streng d={ARM_RECHTS} kleur="#fff7ee" dikte={11} />
+        <Geknipt id={`${uid}-strepen`} d={SHIRT} fill="#fff7ee">
+          {[108, 122, 136, 150, 164].map((y) => (
+            <rect key={y} x={60} y={y} width={80} height={6} fill={DONKER_ROZE} />
+          ))}
+        </Geknipt>
+      </g>
+    ),
+  },
+  {
+    id: "pailletten-topje",
+    naam: "paillettentopje",
+    categorie: "truitjes",
+    kader: "56 88 88 132",
+    teken: () => (
+      <g>
+        <Truitje romp={TANK} kleur="#d6d0f5" mouwen="geen" />
+        {[
+          [90, 118], [106, 124], [96, 138], [112, 146], [88, 154], [104, 158],
+        ].map(([x, y]) => (
+          <path key={`${x}-${y}`} d={vonkPad(x, y, 3.5)} fill="#ffffff" />
+        ))}
+        {[
+          [100, 112], [86, 132], [114, 134], [98, 150],
+        ].map(([x, y]) => (
+          <circle key={`${x}-${y}`} cx={x} cy={y} r={1.6} fill={LILA} />
+        ))}
+      </g>
+    ),
+  },
+
   // Rokjes en broeken
   {
     id: "cargobroek",
@@ -320,6 +359,34 @@ export const ITEMS: Item[] = [
     ),
   },
 
+  {
+    id: "jeansrokje",
+    naam: "jeansrokje",
+    categorie: "onder",
+    kader: "56 150 88 60",
+    teken: () => (
+      <g>
+        <path d={MINI} fill={JEANS} {...OMLIJND} />
+        <Tailleband y={156} kleur="#7aa0d6" />
+        <path d="M100 163 L100 202" stroke="#6d93c6" strokeWidth={1.5} />
+        <circle cx={100} cy={170} r={1.8} fill={OKER} />
+        <path d="M68 196 L132 196" stroke="#ffffff" strokeWidth={2} strokeDasharray="2 2" />
+      </g>
+    ),
+  },
+  {
+    id: "flared-broek",
+    naam: "lila flared broek",
+    categorie: "onder",
+    kader: "60 150 80 206",
+    teken: () => (
+      <g>
+        <path d="M79 160 L121 160 L118 282 L132 348 L104 348 L100 214 L96 348 L68 348 L82 282 Z" fill={LILA} {...OMLIJND} />
+        <Tailleband y={158} kleur="#a39cc9" />
+      </g>
+    ),
+  },
+
   // Kleedjes
   {
     id: "slipdress",
@@ -385,6 +452,44 @@ export const ITEMS: Item[] = [
         ].map(([x, y, k]) => (
           <Bloem key={`${x}-${y}`} cx={x as number} cy={y as number} r={4} kleur={k as string} />
         ))}
+      </g>
+    ),
+  },
+
+  {
+    id: "balletkleed",
+    naam: "balletkleedje",
+    categorie: "kleedjes",
+    kader: "46 90 108 136",
+    teken: () => (
+      <g>
+        <path d="M85 104 L82 96 M115 104 L118 96" stroke={LIJN} strokeWidth={2} />
+        <path d="M80 156 L120 156 L152 214 Q100 226 48 214 Z" fill="#fbd8e8" {...OMLIJND} />
+        <path d="M80 156 L120 156 L142 204 Q100 214 58 204 Z" fill="#f9c6dc" {...OMLIJND} />
+        <path d="M81 104 Q100 110 119 104 L120 160 L80 160 Z" fill={ROZE} {...OMLIJND} />
+        {[
+          [70, 200], [90, 210], [112, 208], [132, 200], [100, 188],
+        ].map(([x, y]) => (
+          <path key={`${x}-${y}`} d={vonkPad(x, y, 3.5)} fill="#ffffff" />
+        ))}
+        <path d={hartPad(100, 128, 5)} fill={DONKER_ROZE} />
+      </g>
+    ),
+  },
+  {
+    id: "tuinjurk",
+    naam: "jeans tuinjurk",
+    categorie: "kleedjes",
+    kader: "52 90 96 160",
+    teken: () => (
+      <g>
+        <Truitje romp={SHIRT} kleur="#ffffff" mouwen="kort" />
+        <path d="M86 110 L84 100 M114 110 L116 100" stroke="#6d93c6" strokeWidth={4} strokeLinecap="round" />
+        <path d="M84 110 L116 110 L119 160 L132 238 Q100 246 68 238 L81 160 Z" fill={JEANS} {...OMLIJND} />
+        <rect x={92} y={120} width={16} height={13} rx={2} fill="#7aa0d6" {...OMLIJND} strokeWidth={1.5} />
+        <circle cx={87} cy={114} r={2} fill={OKER} />
+        <circle cx={113} cy={114} r={2} fill={OKER} />
+        <path d={hartPad(100, 126, 3)} fill={ROZE} />
       </g>
     ),
   },
@@ -455,6 +560,21 @@ export const ITEMS: Item[] = [
         <rect x={67} y={364} width={33} height={5} rx={2.5} fill={OKER} {...OMLIJND} />
         <path d="M72 358 L98 352 M84 348 L98 346" stroke={DONKER_ROZE} strokeWidth={3.5} strokeLinecap="round" />
         <circle cx={84} cy={355} r={2.5} fill={ROZE} {...OMLIJND} strokeWidth={1} />
+      </Paar>
+    ),
+  },
+
+  {
+    id: "glitterlaarsjes",
+    naam: "glitterlaarsjes",
+    categorie: "schoenen",
+    kader: "58 308 84 66",
+    teken: () => (
+      <Paar>
+        <path d={BOOT} fill={ROZE} {...OMLIJND} />
+        <rect x={61} y={358} width={38} height={12} rx={3} fill="#ffffff" {...OMLIJND} />
+        <path d={vonkPad(88, 330, 3.5)} fill="#ffffff" />
+        <path d={vonkPad(80, 346, 2.5)} fill="#ffffff" />
       </Paar>
     ),
   },
@@ -547,6 +667,43 @@ export const ITEMS: Item[] = [
     ),
   },
 
+  {
+    id: "parelhaarband",
+    naam: "parelhaarband",
+    categorie: "hoofd",
+    kader: "70 16 60 34",
+    teken: () => (
+      <g>
+        <Streng d="M78 46 Q100 18 122 46" kleur="#ffffff" dikte={3} />
+        {[0.08, 0.2, 0.32, 0.44, 0.56, 0.68, 0.8, 0.92].map((t) => (
+          <circle
+            key={t}
+            cx={(1 - t) ** 2 * 78 + 2 * (1 - t) * t * 100 + t ** 2 * 122}
+            cy={(1 - t) ** 2 * 46 + 2 * (1 - t) * t * 18 + t ** 2 * 46}
+            r={3}
+            fill="#fdf6ee"
+            {...OMLIJND}
+            strokeWidth={1.2}
+          />
+        ))}
+      </g>
+    ),
+  },
+  {
+    id: "zonnehoed",
+    naam: "zonnehoed",
+    categorie: "hoofd",
+    kader: "48 6 104 50",
+    teken: () => (
+      <g {...OMLIJND}>
+        <ellipse cx={100} cy={42} rx={48} ry={10} fill="#f2d492" />
+        <path d="M80 44 Q80 14 100 14 Q120 14 120 44 Z" fill="#f7e0a8" />
+        <path d="M80 34 Q100 38 120 34 L120 41 Q100 45 80 41 Z" fill={ROZE} />
+        <Bloem cx={116} cy={38} r={3.5} kleur="#ffffff" />
+      </g>
+    ),
+  },
+
   // Brillen (ogen op 91,58 en 109,58)
   {
     id: "zonnebril",
@@ -613,6 +770,23 @@ export const ITEMS: Item[] = [
         <rect x={81} y={51} width={17} height={13} rx={4} />
         <rect x={102} y={51} width={17} height={13} rx={4} />
         <path d="M98 56 L102 56" fill="none" />
+      </g>
+    ),
+  },
+
+  {
+    id: "grote-zonnebril",
+    naam: "grote zonnebril",
+    categorie: "brillen",
+    kader: "76 44 48 28",
+    teken: () => (
+      <g>
+        <path d="M99 56 L101 56" stroke={OKER} strokeWidth={2} />
+        <g fill="#f47bae88" stroke={OKER} strokeWidth={2}>
+          <circle cx={90} cy={58} r={9} />
+          <circle cx={110} cy={58} r={9} />
+        </g>
+        <path d="M85 54 L88 52 M105 54 L108 52" stroke="#ffffff" strokeWidth={1.5} strokeLinecap="round" opacity={0.8} />
       </g>
     ),
   },
@@ -692,6 +866,44 @@ export const ITEMS: Item[] = [
         <path d="M110 152 L136 152 L138 174 L108 174 Z" fill={ROZE} {...OMLIJND} />
         <path d="M110 152 L136 152 L134 162 Q123 166 112 162 Z" fill={DONKER_ROZE} {...OMLIJND} />
         <circle cx={123} cy={162} r={2.2} fill={OKER} />
+      </g>
+    ),
+  },
+  {
+    id: "hondje-in-tas",
+    naam: "hondje in de tas",
+    categorie: "tassen",
+    kader: "112 190 58 78",
+    teken: () => (
+      <g>
+        <Hengsels d="M126 222 Q126 204 133 206 Q144 202 154 222" />
+        <g {...OMLIJND}>
+          <ellipse cx={142} cy={206} rx={4} ry={8} fill="#8a5a3c" transform="rotate(25 142 206)" />
+          <ellipse cx={160} cy={206} rx={4} ry={8} fill="#8a5a3c" transform="rotate(-25 160 206)" />
+          <ellipse cx={151} cy={214} rx={10} ry={9} fill="#f2dcc0" />
+        </g>
+        <circle cx={147} cy={212} r={1.5} fill={LIJN} />
+        <circle cx={155} cy={212} r={1.5} fill={LIJN} />
+        <ellipse cx={151} cy={217} rx={2} ry={1.5} fill={LIJN} />
+        <path d="M120 222 L162 222 L166 264 L116 264 Z" fill={LILA} {...OMLIJND} />
+        <path d={hartPad(141, 242, 7)} fill={ROZE} {...OMLIJND} strokeWidth={1.2} />
+      </g>
+    ),
+  },
+  {
+    id: "ijsje",
+    naam: "ijsje",
+    categorie: "tassen",
+    kader: "120 180 30 58",
+    teken: () => (
+      <g>
+        <g {...OMLIJND}>
+          <circle cx={130} cy={200} r={6} fill={ROZE} />
+          <circle cx={140} cy={200} r={6} fill="#8ce0c0" />
+          <circle cx={135} cy={192} r={6} fill="#fff3d9" />
+          <path d="M127 204 L143 204 L135 234 Z" fill="#e6a85c" />
+        </g>
+        <path d="M131 212 L139 212 M133 220 L137 220" stroke="#b8793a" strokeWidth={1.5} />
       </g>
     ),
   },

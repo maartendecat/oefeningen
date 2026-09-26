@@ -12,6 +12,10 @@ describe("klanken hakken", () => {
 });
 
 describe("leesinhoud", () => {
+  it.each(LEVELS.map((l) => [l.id, l.reeksen.length]))("level %s heeft minstens 4 reeksen", (_, aantal) => {
+    expect(aantal).toBeGreaterThanOrEqual(4);
+  });
+
   it("heeft unieke reeks-ids", () => {
     const ids = ALLE_REEKSEN.map((p) => p.reeks.id);
     expect(new Set(ids).size).toBe(ids.length);

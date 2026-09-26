@@ -43,6 +43,20 @@ export const LEVELS: Level[] = [
           "mis ik", "ik mik.", "ik mis sim.", "mis ik kim?",
         ],
       },
+      {
+        id: "ikms-3",
+        oefeningen: [
+          "ik", "is", "mis", "mik", "kim",
+          "sik", "ik mik", "mis ik", "mis ik sim?", "ik mis kim.",
+        ],
+      },
+      {
+        id: "ikms-4",
+        oefeningen: [
+          "sim", "kik", "sik", "kim", "mis",
+          "ik mis", "ik mik", "ik mis sim.", "mis ik kim?", "ik mik. ik mis.",
+        ],
+      },
     ],
   },
   {
@@ -62,6 +76,20 @@ export const LEVELS: Level[] = [
         oefeningen: [
           "sip", "kip", "pim", "mis", "mik",
           "ik mik.", "kip is sip.", "is pim sip?", "mis ik kip?", "kim is sip.",
+        ],
+      },
+      {
+        id: "p-3",
+        oefeningen: [
+          "kip", "pim", "sip", "kim", "sim",
+          "pim is sip.", "is kip sip?", "ik mis kip.", "mis ik pim?", "kip is sip. pim is sip.",
+        ],
+      },
+      {
+        id: "p-4",
+        oefeningen: [
+          "sip", "pim", "kip", "mis", "sik",
+          "kim is sip.", "is sim sip?", "is pim sip?", "ik mis pim. ik mis kip.", "sim is sip. kim is sip.",
         ],
       },
     ],
@@ -90,6 +118,13 @@ export const LEVELS: Level[] = [
         oefeningen: [
           "maas", "aas", "kaas", "aap", "kaak",
           "ik maak", "sim is aap.", "is pim aap?", "ik mis kaas.", "maak ik kaas?",
+        ],
+      },
+      {
+        id: "aa-4",
+        oefeningen: [
+          "aap", "kaas", "maas", "kaap", "aas",
+          "maak kaas", "ik mis kaas.", "is aap sip?", "sim is aap.", "ik mis aap. aap is sip.",
         ],
       },
     ],
@@ -121,6 +156,13 @@ export const LEVELS: Level[] = [
           "rik is aap maar saar is kip.",
         ],
       },
+      {
+        id: "r-4",
+        oefeningen: [
+          "rik", "saar", "raam", "paar", "raak",
+          "raak raam", "ik mis saar.", "is rik sip?", "maak maar kaas.", "saar is aap maar rik is kip.",
+        ],
+      },
     ],
   },
   {
@@ -150,6 +192,13 @@ export const LEVELS: Level[] = [
           "saar is sip. ik mis sem.", "sem is kip maar kim is aap.",
         ],
       },
+      {
+        id: "e-4",
+        oefeningen: [
+          "rem", "sem", "mes", "pek", "es",
+          "ik rek", "rem maar", "sem is sip.", "ik mis mes.", "sem is aap maar rik is kip.",
+        ],
+      },
     ],
   },
   {
@@ -177,6 +226,13 @@ export const LEVELS: Level[] = [
           "vaar", "ver", "vis", "vaas", "mes",
           "ik vaar ver", "vaak vis ik.", "is vis kaas?", "vaar ik ver?",
           "sem is ver maar ik mis sem.",
+        ],
+      },
+      {
+        id: "v-4",
+        oefeningen: [
+          "vis", "vaas", "ver", "vaar", "vaak",
+          "ik vis", "vis maar", "is vaas ver?", "ik vaar ver.", "ik vaar vaak. is vis ver?",
         ],
       },
     ],
@@ -209,6 +265,13 @@ export const LEVELS: Level[] = [
           "ik ren naar maan maar maan is ver.",
         ],
       },
+      {
+        id: "n-4",
+        oefeningen: [
+          "naam", "maan", "pen", "nek", "ren",
+          "ren naar", "aap en kip", "is maan ver?", "ren naar saar.", "ik ren en ren naar maan.",
+        ],
+      },
     ],
   },
   {
@@ -239,6 +302,13 @@ export const LEVELS: Level[] = [
           "ik vis met net in maas.",
         ],
       },
+      {
+        id: "t-4",
+        oefeningen: [
+          "tim", "pet", "tip", "net", "taak",
+          "tik maar", "tim met pet", "is tim ver?", "ik tik met pen.", "tim en ik ren naar maan.",
+        ],
+      },
     ],
   },
   {
@@ -266,6 +336,13 @@ export const LEVELS: Level[] = [
           "keer", "ree", "keek", "meer", "reep",
           "eet mee", "ree is ver.", "ik keek naar maan.", "ik eet vis met mes.",
           "tim eet peer en ik eet reep.",
+        ],
+      },
+      {
+        id: "ee-4",
+        oefeningen: [
+          "eet", "peer", "reep", "teen", "mee",
+          "eet maar", "ik eet reep.", "tim eet peer.", "neem maar peer.", "ik eet peer en tim eet reep.",
         ],
       },
     ],
@@ -298,6 +375,13 @@ export const LEVELS: Level[] = [
           "ik ben aap maar tim is beer.",
         ],
       },
+      {
+        id: "b-4",
+        oefeningen: [
+          "beer", "baas", "bek", "bes", "baan",
+          "ik ben", "beer eet bes.", "ben ik baas?", "ik ben saar.", "beer is baas maar aap is sip.",
+        ],
+      },
     ],
   },
   {
@@ -326,6 +410,13 @@ export const LEVELS: Level[] = [
           "boom", "boot", "toon", "poot", "oom",
           "is boom ver?", "roos in vaas.", "ik mis oom toon.",
           "ik vaar met oom in boot.", "beer is boos maar aap is sip.",
+        ],
+      },
+      {
+        id: "oo-4",
+        oefeningen: [
+          "roos", "boot", "oor", "noot", "poot",
+          "boom en roos", "ik kook vis.", "is oom boos?", "aap in boom.", "ik vaar met oom toon in boot.",
         ],
       },
     ],
