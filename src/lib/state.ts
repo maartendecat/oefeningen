@@ -47,6 +47,22 @@ function isSpel(x: unknown): x is Spel {
   );
 }
 
+/**
+ * Ruimt kleren op die niet meer bestaan (bv. na het hertekenen van de
+ * kleerkast) en zorgt dat de avatar altijd iets aanheeft.
+ */
+function herstel(s: Spel): Spel {
+  const bestaat = (id: string) => ITEMS.some((i) => i.id === id && !i.start);
+  const aan: Aan = {};
+  for (const [cat, id] of Object.entries(s.aan) as [Categorie, string][]) {
+    if (ITEMS.some((i) => i.id === id && i.categorie === cat)) aan[cat] = id;
+  }
+  for (const [cat, id] of Object.entries(STARTKLEREN) as [Categorie, string][]) {
+    aan[cat] ??= id;
+  }
+  return { ...s, kast: s.kast.filter(bestaat), aan };
+}
+
 let huidig: Spel | null = null;
 const luisteraars = new Set<() => void>();
 
@@ -55,7 +71,7 @@ function laad(): Spel {
   try {
     const ruw = localStorage.getItem(SLEUTEL);
     const data = ruw ? JSON.parse(ruw) : null;
-    huidig = isSpel(data) ? data : nieuwSpel();
+    huidig = isSpel(data) ? herstel(data) : nieuwSpel();
   } catch {
     huidig = nieuwSpel();
   }
@@ -181,7 +197,7 @@ export function importeer(code: string): boolean {
   try {
     const data = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
     if (!isSpel(data)) return false;
-    bewaar(data);
+    bewaar(herstel(data));
     return true;
   } catch {
     return false;

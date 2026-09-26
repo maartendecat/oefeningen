@@ -1,9 +1,35 @@
 // Kleine tekenhulpjes die door de avatar en de kleren gedeeld worden.
-// Alles tekent in hetzelfde assenstelsel: viewBox 0 0 200 360.
+// Alles tekent in hetzelfde assenstelsel: viewBox 0 0 200 400.
 
-import type { ReactNode, SVGProps } from "react";
+import type { ReactNode } from "react";
 
-export const OMLIJNING = "#2b2140";
+/** De contourkleur: een donkere bes, zachter dan zwart. */
+export const LIJN = "#4a1d3a";
+export const LIJNDIKTE = 2;
+
+/** Standaard omlijning voor een groep vormen. */
+export const OMLIJND = {
+  stroke: LIJN,
+  strokeWidth: LIJNDIKTE,
+  strokeLinejoin: "round" as const,
+  strokeLinecap: "round" as const,
+};
+
+/** De armen, van schouder over elleboog naar pols. */
+export const ARM_LINKS = "M78 104 L67 158 L67 204";
+export const ARM_RECHTS = "M122 104 L133 158 L133 204";
+export const MOUW_KORT_LINKS = "M78 104 L73 130";
+export const MOUW_KORT_RECHTS = "M122 104 L127 130";
+
+/** Een dikke lijn met een contour errond: voor armen en mouwen. */
+export function Streng({ d, kleur, dikte }: { d: string; kleur: string; dikte: number }) {
+  return (
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d={d} stroke={LIJN} strokeWidth={dikte + LIJNDIKTE * 2} />
+      <path d={d} stroke={kleur} strokeWidth={dikte} />
+    </g>
+  );
+}
 
 /** Tekent een vorm links en gespiegeld rechts (voor schoenen en zo). */
 export function Paar({ children }: { children: ReactNode }) {
@@ -42,7 +68,7 @@ export function Bloem({
   cy,
   r,
   kleur,
-  hart = "#ffd23f",
+  hart = "#f7d774",
 }: {
   cx: number;
   cy: number;
@@ -66,14 +92,18 @@ export function Bloem({
   );
 }
 
-/** Een vorm met een patroon erin, geknipt op die vorm. */
+/** Een omlijnde vorm met een patroon erin, geknipt op die vorm. */
 export function Geknipt({
   id,
   d,
   fill,
   children,
-  ...rest
-}: { id: string; d: string; fill: string; children: ReactNode } & SVGProps<SVGPathElement>) {
+}: {
+  id: string;
+  d: string;
+  fill: string;
+  children: ReactNode;
+}) {
   return (
     <g>
       <clipPath id={id}>
@@ -81,7 +111,13 @@ export function Geknipt({
       </clipPath>
       <path d={d} fill={fill} />
       <g clipPath={`url(#${id})`}>{children}</g>
-      <path d={d} fill="none" stroke={OMLIJNING} strokeOpacity={0.25} strokeWidth={2} {...rest} />
+      <path d={d} fill="none" {...OMLIJND} />
     </g>
   );
+}
+
+/** Een vonkje voor glitter en glans. */
+export function vonkPad(cx: number, cy: number, r: number): string {
+  const k = r * 0.3;
+  return `M${cx} ${cy - r} L${cx + k} ${cy - k} L${cx + r} ${cy} L${cx + k} ${cy + k} L${cx} ${cy + r} L${cx - k} ${cy + k} L${cx - r} ${cy} L${cx - k} ${cy - k} Z`;
 }

@@ -199,7 +199,7 @@ button:disabled {
 }
 
 .pop-kaartje {
-  width: clamp(128px, 16vw, 180px);
+  width: clamp(128px, 16vw, 170px);
   padding: 12px 8px 8px;
   display: flex;
   flex-direction: column;
@@ -311,11 +311,12 @@ button:disabled {
   background: #ffd6ec;
 }
 
+/* Toont enkel hoofd en schouders: het stuk x 64-136, y 14-86 van de avatar. */
 .pop-mini {
   position: absolute;
-  top: -2px;
-  left: -45%;
-  width: 190%;
+  top: -19%;
+  left: -89%;
+  width: 278%;
   height: auto;
 }
 
@@ -595,16 +596,21 @@ button:disabled {
   align-content: start;
 }
 
+/* De paskamer van de boetiek: een gestreepte luifel boven een roze vloer. */
 .kast-pop {
   position: sticky;
   top: 16px;
   display: grid;
   place-items: center;
-  background: #ffffffaa;
+  background:
+    radial-gradient(ellipse at 50% 100%, #f9c6dc 0 34%, transparent 35%) bottom / 100% 90px no-repeat,
+    repeating-linear-gradient(90deg, #f4a7c8 0 26px, #ffffff 26px 52px) top / 100% 34px no-repeat,
+    #fff7fb;
   border: 4px solid var(--inkt);
   border-radius: 36px;
   box-shadow: var(--schaduw);
-  padding: 16px;
+  padding: 44px 16px 16px;
+  overflow: hidden;
 }
 
 .kast-rek {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BASISSEN, Pop, vindBasis } from "@/avatar/Pop";
+import { BASISSEN, Pop, STRAK, vindBasis } from "@/avatar/Pop";
 import { klik, pling } from "@/lib/geluid";
 import { kiesAvatar, zetNaam, type Spel } from "@/lib/state";
 
@@ -40,7 +40,7 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
             }}
             aria-label={`avatar ${BASISSEN.indexOf(b) + 1}`}
           >
-            <Pop basis={b} aan={spel.aan} className="pop-klein" />
+            <Pop basis={b} aan={spel.aan} kader={spel.aan.tassen ? undefined : STRAK} className="pop-klein" />
           </button>
         ))}
       </div>
