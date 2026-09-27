@@ -902,7 +902,26 @@ button:disabled {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 560px;
+  width: min(100%, 560px);
+  padding: 24px 24px 32px;
+}
+
+/* In het paneel vult het invoerveld de rij, naast de knop, zonder uit te steken. */
+.eerste-profiel .naam-invoer-rij {
+  align-self: stretch;
+  margin-top: 8px;
+}
+
+.eerste-profiel .naam-invoer {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  height: 110px;
+  font-size: clamp(40px, 7vw, 60px);
+}
+
+.eerste-profiel .groot-knop.goed.klein {
+  flex-shrink: 0;
 }
 
 /* Profielbeheer in het oudermenu. */
