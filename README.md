@@ -5,11 +5,13 @@ Een leesspelletje voor het eerste leerjaar, volgens de lettervolgorde van
 zinnetjes luidop voor, een ouder tikt ✓ of ↻, en na elke reeks mag het kind een
 nieuw kledingstuk kiezen voor de eigen avatar.
 
-De voortgang zit in de browser (`localStorage`), zodat de app meteen en ook
-zonder internet werkt. Daarnaast gaat er een kopie naar de server, gekoppeld
-aan een **gezinscode** (bv. `roos-maan-vis-482`) in een HttpOnly-cookie. Zo
-overleeft de voortgang het opruimen van Safari, en kan je op meerdere
-toestellen spelen.
+Een ouder logt in met Google en maakt voor elk kind een profiel, met een
+eigen avatar, voortgang en kast. Bij het openen kiest het kind zelf wie er
+gaat lezen, zoals bij Netflix.
+
+De profielen staan ook in de browser (`localStorage`), zodat de app meteen
+en zonder internet werkt; daarnaast gaat alles naar de server (Upstash
+Redis), per gezin en per profiel. Het gezin is het e-mailadres van de ouder.
 
 ## Ontwikkelen
 
@@ -27,11 +29,12 @@ npm run lint
 | `src/data/levels.ts` | De leesinhoud: levels (één nieuwe klank per level) met reeksen van tien oefeningen. |
 | `src/data/levels.test.ts` | Bewaakt dat elk woord enkel gekende klanken gebruikt, één klinker heeft en geen medeklinkerclusters bevat, en dat een reeks niet korter wordt naar het einde. |
 | `src/lib/klanken.ts` | Hakt woorden in klanken (`kaas` → `k · aa · s`). |
+| `src/lib/auth.ts`, `src/lib/ouder.ts` | Inloggen met Better Auth (stateless, geen gebruikersdatabank); wie is de ingelogde ouder. |
 | `src/lib/spel.ts` | De vorm van de voortgang, controle en migraties (browser én server). |
-| `src/lib/state.ts` | Spelstatus in `localStorage`, plus alle acties. |
-| `src/lib/sync.ts` | Houdt de kopie op de server bij; de recentste versie wint. |
-| `src/app/api/voortgang/` | API: voortgang ophalen/bewaren, en een toestel koppelen aan een gezinscode. |
-| `src/lib/opslag.ts` | Opslag per gezinscode in Upstash Redis (lokaal: in het geheugen). |
+| `src/lib/state.ts` | Profielen in `localStorage`, het actieve profiel, plus alle acties. |
+| `src/lib/sync.ts`, `src/lib/samenvoegen.ts` | Houdt de profielen gelijk met de server; per profiel wint de recentste versie. |
+| `src/app/api/profielen/` | API: profielen van het ingelogde gezin ophalen, bewaren en verwijderen. |
+| `src/lib/opslag.ts` | Opslag per gezin in Upstash Redis (lokaal: in het geheugen). |
 | `src/avatar/` | De avatar (`Pop.tsx`) en alle kleren (`items.tsx`), als SVG. |
 | `src/components/` | De schermen: avatar kiezen en een naam geven, levelkaart, lezen, beloning, kast, oudermenu. |
 
@@ -56,19 +59,31 @@ versie nodig.
 Het tandwieltje op de kaart, beveiligd met een maalsom. Daar kan je:
 - de startletter kiezen (bv. meteen bij de `e` beginnen),
 - het geluid aan- of uitzetten,
-- de gezinscode zien, of dit toestel koppelen aan een bestaande gezinscode,
-- een reservekopie als code kopiëren (werkt ook zonder server),
+- profielen toevoegen, hernoemen en verwijderen,
+- afmelden of het hele account verwijderen,
+- een reservekopie van een profiel als code kopiëren,
 - alles wissen.
 
-## Hosting
+## Lokaal testen
 
-Vercel: importeer de GitHub-repo, Vercel herkent Next.js vanzelf.
+Zonder Google-sleutels toont het loginscherm lokaal een **test-login**, en
+bewaart de dev-server de profielen in zijn geheugen (weg bij herstarten).
+Die test-login bestaat in productie niet.
 
-Voor de opslag op de server: in het Vercel-project, **Storage → Create
-Database → Upstash for Redis** en koppel ze aan het project. Vercel zet dan
-zelf `KV_REST_API_URL` en `KV_REST_API_TOKEN`; herdeploy daarna. Zonder
-databank werkt de app ook, maar dan enkel met opslag in de browser.
+## Hosting (Vercel)
 
-Lokaal is er geen databank nodig: de dev-server bewaart de voortgang dan in
-zijn geheugen (weg bij herstarten). Wil je lokaal tegen de echte databank
-testen, haal de variabelen op met `vercel env pull .env.local`.
+1. Importeer de GitHub-repo; Vercel herkent Next.js vanzelf.
+2. **Databank:** Storage → Create Database → Upstash for Redis, en koppel ze
+   aan het project.
+3. **Google-login:** in de Google Cloud Console een OAuth-client (Web
+   application) aanmaken, met als redirect-URI
+   `https://<jouw-domein>/api/auth/callback/google`. Het OAuth-toestemmings-
+   scherm heeft enkel de standaardscopes (naam, e-mail) nodig; vul als
+   privacybeleid `https://<jouw-domein>/privacy` in.
+4. **Omgevingsvariabelen:** zie `.env.example` (`BETTER_AUTH_SECRET`,
+   `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`), en
+   herdeploy.
+
+Facebook staat klaar: met `FACEBOOK_CLIENT_ID` en `FACEBOOK_CLIENT_SECRET`
+verschijnt de knop vanzelf. Meta vraagt daarvoor wel een privacybeleid
+(`/privacy`) en instructies om gegevens te wissen.

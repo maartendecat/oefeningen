@@ -766,6 +766,200 @@ button:disabled {
   }
 }
 
+/* ---- Inloggen en profielen ---- */
+
+.aanmelden,
+.profielen {
+  align-items: center;
+  justify-content: center;
+}
+
+.profielen > .balk {
+  align-self: stretch;
+}
+
+.aanmelden-avatars {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.aanmelden-paneel {
+  max-width: 520px;
+  text-align: center;
+}
+
+.login-knoppen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.login-knop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 280px;
+  padding: 12px 22px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f1f1f;
+  background: #ffffff;
+  border: 3px solid var(--inkt);
+  border-radius: 999px;
+  box-shadow: 0 4px 0 var(--inkt);
+}
+
+.login-knop:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--inkt);
+}
+
+.login-knop:disabled {
+  opacity: 0.6;
+}
+
+.login-knop.facebook {
+  background: #1877f2;
+  color: #ffffff;
+}
+
+.login-knop.test {
+  background: #fff1b8;
+  font-size: 16px;
+}
+
+.login-logo {
+  width: 24px;
+  height: 24px;
+}
+
+/* Een rond portret, zoals het leesmaatje. */
+.profiel-portret {
+  display: grid;
+  place-items: center;
+  width: clamp(120px, 20vw, 170px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #ffd6ec 70%);
+  border: 5px solid var(--inkt);
+  box-shadow: 0 7px 0 var(--inkt);
+  animation: plop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.profiel-portret .pop {
+  width: 100%;
+  height: 100%;
+}
+
+.profiel-portret.klein {
+  width: clamp(64px, 12vw, 96px);
+  border-width: 4px;
+  box-shadow: 0 5px 0 var(--inkt);
+}
+
+.profiel-keuze:nth-child(5n + 2) .profiel-portret { background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #c9f5e3 70%); }
+.profiel-keuze:nth-child(5n + 3) .profiel-portret { background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #fff0ad 70%); }
+.profiel-keuze:nth-child(5n + 4) .profiel-portret { background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #e2d6ff 70%); }
+.profiel-keuze:nth-child(5n + 5) .profiel-portret { background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #d6e8ff 70%); }
+
+.profiel-vraag {
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--paars);
+}
+
+.profiel-raster {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(20px, 5vw, 48px);
+  max-width: 900px;
+}
+
+.profiel-keuze {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.profiel-keuze:active .profiel-portret {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--inkt);
+}
+
+.eerste-profiel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 560px;
+}
+
+/* Profielbeheer in het oudermenu. */
+.profiel-lijst {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profiel-rij {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profiel-mini {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--inkt);
+  background: #ffd6ec;
+}
+
+.profiel-mini .pop {
+  width: 100%;
+  height: 100%;
+}
+
+.profiel-mini .profiel-vraag {
+  font-size: 26px;
+}
+
+.invoer.naam-veld {
+  max-width: 200px;
+  font-size: 20px;
+  text-align: left;
+}
+
+.profiel-stand {
+  color: #6b6280;
+  font-size: 15px;
+  white-space: nowrap;
+  margin-right: auto;
+}
+
+.knop.klein {
+  font-size: 15px;
+  padding: 6px 12px;
+}
+
 /* ---- Oudermenu ---- */
 
 .ouder-inhoud,
@@ -857,13 +1051,6 @@ button:disabled {
   color: var(--rood);
 }
 
-.gezinscode {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--paars);
-}
-
 .koppel {
   display: flex;
   flex-wrap: wrap;
@@ -872,11 +1059,6 @@ button:disabled {
   margin-top: 8px;
 }
 
-.invoer.code-invoer {
-  max-width: 320px;
-  font-size: 20px;
-  text-align: left;
-}
 
 .melding {
   position: sticky;

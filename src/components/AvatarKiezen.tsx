@@ -37,7 +37,9 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
             onClick={() => {
               if (!spel.stil) klik();
               kiesAvatar(b.id);
-              zetStap("naam");
+              // De ouder gaf het profiel al een naam: dan is ze meteen klaar.
+              if (spel.naam) klaar();
+              else zetStap("naam");
             }}
             aria-label={`avatar ${BASISSEN.indexOf(b) + 1}`}
           >

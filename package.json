@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@upstash/redis": "^1.39.0",
+    "better-auth": "^1.7.6",
     "canvas-confetti": "^1.9.4",
     "next": "16.3.6",
     "react": "19.2.8",

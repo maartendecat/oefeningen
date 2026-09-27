@@ -2,56 +2,102 @@
 
 import { useSyncExternalStore } from "react";
 import { ITEMS, UITTREKBAAR } from "@/avatar/items";
-import { lees, nieuwSpel, type Spel } from "./spel";
+import { isLeeg, lees, nieuwSpel, type Spel } from "./spel";
 
 export type { Aan, Spel } from "./spel";
 
-// De voortgang zit in localStorage: zo werkt de app meteen en ook zonder
-// internet. sync.ts houdt daarnaast een kopie op de server bij.
+// Alle profielen van het gezin staan ook in localStorage: zo werkt de app
+// meteen, ook zonder internet, en kan een kind van profiel wisselen zonder
+// op de server te wachten. sync.ts houdt de server bij.
+//
+// Welk profiel speelt, zit enkel in het geheugen: bij het openen van de app
+// kiest het kind opnieuw (tenzij er maar één profiel is).
 
-const SLEUTEL = "oefenen-op-lezen";
+const SLEUTEL = "oefenen-op-lezen:gezin";
+/** Van vóór de profielen: één spel, zonder gezin. Wordt het eerste profiel. */
+const SLEUTEL_OUD = "oefenen-op-lezen";
 
-let huidig: Spel | null = null;
+export type Lokaal = {
+  /** E-mailadres van het gezin waarvan deze profielen zijn, of null als nog niemand inlogde. */
+  gezin: string | null;
+  profielen: Record<string, Spel>;
+  /** Profielen waarvan we weten dat de server ze heeft (om verwijderingen te herkennen). */
+  gesynct: string[];
+  /** Verwijderd terwijl de server onbereikbaar was; wordt later doorgegeven. */
+  teWissen: string[];
+};
+
+export type Staat = {
+  lokaal: Lokaal;
+  actief: string | null;
+};
+
+let staat: Staat | null = null;
 const luisteraars = new Set<() => void>();
-let naWijziging: (() => void) | null = null;
+let naWijziging: ((id: string) => void) | null = null;
 
-function laad(): Spel {
-  if (huidig) return huidig;
-  try {
-    const ruw = localStorage.getItem(SLEUTEL);
-    huidig = (ruw && lees(JSON.parse(ruw))) || nieuwSpel();
-  } catch {
-    huidig = nieuwSpel();
-  }
-  return huidig;
+export function nieuwId(): string {
+  const tekens = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const buf = new Uint8Array(12);
+  crypto.getRandomValues(buf);
+  return "p-" + Array.from(buf, (b) => tekens[b % tekens.length]).join("");
 }
 
-export function huidigSpel(): Spel {
+function leesLokaal(): Lokaal {
+  const leeg: Lokaal = { gezin: null, profielen: {}, gesynct: [], teWissen: [] };
+  try {
+    const ruw = localStorage.getItem(SLEUTEL);
+    if (ruw) {
+      const data = JSON.parse(ruw) as Partial<Lokaal>;
+      const profielen: Record<string, Spel> = {};
+      for (const [id, spel] of Object.entries(data.profielen ?? {})) {
+        const goed = lees(spel);
+        if (goed) profielen[id] = goed;
+      }
+      return {
+        gezin: typeof data.gezin === "string" ? data.gezin : null,
+        profielen,
+        gesynct: Array.isArray(data.gesynct) ? data.gesynct : [],
+        teWissen: Array.isArray(data.teWissen) ? data.teWissen : [],
+      };
+    }
+    // Eerste keer met profielen: wat hier al gespeeld werd, wordt een profiel.
+    const oud = lees(JSON.parse(localStorage.getItem(SLEUTEL_OUD) ?? "null"));
+    if (oud && !isLeeg(oud)) return { ...leeg, profielen: { [nieuwId()]: oud } };
+  } catch {
+    // Kapotte of geblokkeerde opslag: leeg beginnen.
+  }
+  return leeg;
+}
+
+function laad(): Staat {
+  if (staat) return staat;
+  const lokaal = leesLokaal();
+  const ids = Object.keys(lokaal.profielen);
+  staat = { lokaal, actief: ids.length === 1 ? ids[0] : null };
+  return staat;
+}
+
+function zet(volgend: Staat, bewaarLokaal = true) {
+  staat = volgend;
+  if (bewaarLokaal) {
+    try {
+      localStorage.setItem(SLEUTEL, JSON.stringify(volgend.lokaal));
+      localStorage.removeItem(SLEUTEL_OUD);
+    } catch {
+      // Privévenster of volle opslag: het spel werkt verder, enkel zonder geheugen.
+    }
+  }
+  luisteraars.forEach((l) => l());
+}
+
+export function huidigeStaat(): Staat {
   return laad();
 }
 
-/**
- * Bewaart het spel. Een eigen wijziging krijgt een nieuw tijdstip en wordt
- * naar de server gestuurd; wat van de server komt, wordt enkel overgenomen.
- */
-export function bewaar(volgend: Spel, { vanServer = false } = {}) {
-  huidig = vanServer ? volgend : { ...volgend, bijgewerkt: Date.now() };
-  try {
-    localStorage.setItem(SLEUTEL, JSON.stringify(huidig));
-  } catch {
-    // Privévenster of volle opslag: het spel werkt verder, enkel zonder geheugen.
-  }
-  luisteraars.forEach((l) => l());
-  if (!vanServer) naWijziging?.();
-}
-
-/** Laat sync.ts weten wanneer er iets veranderd is. */
-export function bijWijziging(f: () => void) {
+/** Laat sync.ts weten welk profiel veranderd is. */
+export function bijWijziging(f: (id: string) => void) {
   naWijziging = f;
-}
-
-export function pasAan(f: (s: Spel) => Spel) {
-  bewaar(f(laad()));
 }
 
 function abonneer(l: () => void) {
@@ -59,12 +105,76 @@ function abonneer(l: () => void) {
   return () => luisteraars.delete(l);
 }
 
-/** Het spel, of null tijdens de server-render (localStorage bestaat daar niet). */
-export function useSpel(): Spel | null {
+/** De hele lokale staat, of null tijdens de server-render. */
+export function useStaat(): Staat | null {
   return useSyncExternalStore(abonneer, laad, () => null);
 }
 
-// ---- Acties ---------------------------------------------------------------
+/** Het spel van het actieve profiel. */
+export function useSpel(): Spel | null {
+  const s = useStaat();
+  return s?.actief ? (s.lokaal.profielen[s.actief] ?? null) : null;
+}
+
+// ---- Profielen --------------------------------------------------------------
+
+/**
+ * Bewaart een profiel. Een eigen wijziging krijgt een nieuw tijdstip en gaat
+ * naar de server; wat van de server komt, wordt enkel overgenomen.
+ */
+export function bewaarProfiel(id: string, spel: Spel, { vanServer = false } = {}) {
+  const s = laad();
+  const nieuw = vanServer ? spel : { ...spel, bijgewerkt: Date.now() };
+  zet({ ...s, lokaal: { ...s.lokaal, profielen: { ...s.lokaal.profielen, [id]: nieuw } } });
+  if (!vanServer) naWijziging?.(id);
+}
+
+export function kiesProfiel(id: string | null) {
+  zet({ ...laad(), actief: id }, false);
+}
+
+/** Oudermenu: een nieuw profiel met een naam; het kind kiest zelf de avatar. */
+export function maakProfiel(naam: string): string {
+  const id = nieuwId();
+  bewaarProfiel(id, { ...nieuwSpel(), naam });
+  return id;
+}
+
+export function hernoemProfiel(id: string, naam: string) {
+  const spel = laad().lokaal.profielen[id];
+  if (spel) bewaarProfiel(id, { ...spel, naam });
+}
+
+export function verwijderProfiel(id: string) {
+  const s = laad();
+  const profielen = { ...s.lokaal.profielen };
+  delete profielen[id];
+  zet({
+    actief: s.actief === id ? null : s.actief,
+    lokaal: {
+      ...s.lokaal,
+      profielen,
+      teWissen: s.lokaal.gesynct.includes(id) ? [...s.lokaal.teWissen, id] : s.lokaal.teWissen,
+      gesynct: s.lokaal.gesynct.filter((g) => g !== id),
+    },
+  });
+}
+
+/** Voor sync.ts: de lokale boekhouding aanpassen zonder iets naar de server te sturen. */
+export function pasLokaalAan(f: (l: Lokaal) => Lokaal) {
+  const s = laad();
+  const lokaal = f(s.lokaal);
+  const actief = s.actief && lokaal.profielen[s.actief] ? s.actief : null;
+  zet({ lokaal, actief });
+}
+
+// ---- Acties op het actieve profiel ------------------------------------------
+
+export function pasAan(f: (s: Spel) => Spel) {
+  const s = laad();
+  const spel = s.actief ? s.lokaal.profielen[s.actief] : null;
+  if (s.actief && spel) bewaarProfiel(s.actief, f(spel));
+}
 
 export function kiesAvatar(id: string) {
   pasAan((s) => ({ ...s, avatar: id }));
@@ -147,20 +257,21 @@ export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
   });
 }
 
-/** Begint opnieuw; via de synchronisatie geldt dat ook op de server. */
-export function wisAlles() {
-  bewaar(nieuwSpel());
+/** Begint opnieuw met het actieve profiel; de naam blijft. */
+export function wisVoortgang() {
+  pasAan((s) => ({ ...nieuwSpel(), naam: s.naam }));
 }
 
 export function exporteer(s: Spel): string {
   return btoa(unescape(encodeURIComponent(JSON.stringify(s))));
 }
 
+/** Laadt een reservekopie in het actieve profiel. */
 export function importeer(code: string): boolean {
   try {
     const spel = lees(JSON.parse(decodeURIComponent(escape(atob(code.trim())))));
     if (!spel) return false;
-    bewaar(spel);
+    pasAan(() => spel);
     return true;
   } catch {
     return false;

@@ -42,3 +42,4 @@ next-env.d.ts
 
 # lokale Claude-previewconfig (bevat machinepaden)
 /.claude/
+!.env.example

@@ -1,87 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { PORTRET, Pop, vindBasis } from "@/avatar/Pop";
 import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
 import {
   exporteer,
+  hernoemProfiel,
   importeer,
-  wisAlles,
+  maakProfiel,
+  useStaat,
+  wisVoortgang,
   zetStil,
   zetVoortgang,
   type Spel,
 } from "@/lib/state";
-import { koppel, useSyncStatus } from "@/lib/sync";
+import { afmelden, useSyncStatus, verwijderAccount, wisProfiel } from "@/lib/sync";
 import type { Scherm } from "./App";
 
-function Gezinscode({ meld }: { meld: (tekst: string) => void }) {
-  const sync = useSyncStatus();
-  const [invoer, zetInvoer] = useState("");
-  const [bezig, zetBezig] = useState(false);
-
-  if (!sync.beschikbaar) {
-    return (
-      <section className="paneel">
-        <h2>Gezinscode</h2>
-        <p className="uitleg">
-          Op deze server staat geen opslag ingesteld. De voortgang zit enkel in deze browser; gebruik
-          de reservekopie hieronder om ze over te zetten.
-        </p>
-      </section>
-    );
-  }
-
-  return (
-    <section className="paneel">
-      <h2>Gezinscode</h2>
-      {sync.code ? (
-        <>
-          <p className="gezinscode">{sync.code}</p>
-          <p className="uitleg">
-            De voortgang wordt ook op de server bewaard onder deze code. Schrijf hem ergens op: op een
-            ander toestel, of als de browser alles vergeten is, vul je hem hieronder in om verder te
-            spelen.
-            {sync.offline && " Nu even geen verbinding; wijzigingen gaan mee zodra die er weer is."}
-          </p>
-        </>
-      ) : (
-        <p className="uitleg">
-          Er is nog geen gezinscode. Die komt er vanzelf zodra er gespeeld wordt.
-          {sync.offline && " (Nu even geen verbinding met de server.)"}
-        </p>
-      )}
-      <form
-        className="koppel"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (!invoer.trim()) return;
-          if (!confirm("De voortgang op dit toestel wordt vervangen door die van deze gezinscode. Doorgaan?")) return;
-          zetBezig(true);
-          const uitkomst = await koppel(invoer);
-          zetBezig(false);
-          if (uitkomst === "ok") {
-            zetInvoer("");
-            meld("Gekoppeld: de voortgang is ingeladen.");
-          } else {
-            meld(uitkomst === "onbekend" ? "Die gezinscode bestaat niet." : "Koppelen lukte niet. Is er internet?");
-          }
-        }}
-      >
-        <input
-          className="invoer code-invoer"
-          placeholder="bv. roos-maan-vis-482"
-          value={invoer}
-          onChange={(e) => zetInvoer(e.target.value)}
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-        />
-        <button className="knop" type="submit" disabled={bezig || !invoer.trim()}>
-          Koppel dit toestel
-        </button>
-      </form>
-    </section>
-  );
-}
+const MAX_NAAM = 12;
+const MAX_PROFIELEN = 12;
 
 function Poort({ open }: { open: () => void }) {
   const [som] = useState(() => {
@@ -124,11 +61,225 @@ function Poort({ open }: { open: () => void }) {
   );
 }
 
-export function Ouder({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
-  const [open, zetOpen] = useState(false);
+/** Kleine letters, zoals alles wat het kind leest. */
+const netjes = (naam: string) => naam.toLowerCase().slice(0, MAX_NAAM);
+
+function Account({ meld }: { meld: (t: string) => void }) {
+  const sync = useSyncStatus();
+  const [bezig, zetBezig] = useState(false);
+  return (
+    <section className="paneel">
+      <h2>Account</h2>
+      {sync.ouder ? (
+        <p>
+          Ingelogd als <strong>{sync.ouder.email}</strong>.
+        </p>
+      ) : (
+        <p className="uitleg">Nu even geen verbinding met de server.</p>
+      )}
+      {!sync.opslag && (
+        <p className="uitleg">Op deze server staat geen databank ingesteld: de profielen blijven enkel op dit toestel.</p>
+      )}
+      {sync.offline && <p className="uitleg">Geen verbinding: wijzigingen gaan mee zodra die er weer is.</p>}
+      <button
+        className="knop"
+        disabled={bezig}
+        onClick={async () => {
+          if (!confirm("Afmelden? De profielen blijven bewaard in je account, maar verdwijnen van dit toestel.")) return;
+          zetBezig(true);
+          const uitkomst = await afmelden();
+          zetBezig(false);
+          if (uitkomst === "offline") {
+            meld("Er is voortgang die nog niet bewaard is. Maak eerst verbinding met internet en probeer opnieuw.");
+          } else if (
+            uitkomst === "geen-opslag" &&
+            confirm("Deze server bewaart niets online: afmelden wist de profielen van dit toestel definitief. Toch afmelden?")
+          ) {
+            await afmelden({ toch: true });
+          }
+        }}
+      >
+        {bezig ? "Even bewaren…" : "Afmelden"}
+      </button>
+    </section>
+  );
+}
+
+function Profielen({ meld }: { meld: (t: string) => void }) {
+  const staat = useStaat();
+  const [nieuw, zetNieuw] = useState("");
+  if (!staat) return null;
+  const profielen = Object.entries(staat.lokaal.profielen);
+
+  return (
+    <section className="paneel">
+      <h2>Profielen</h2>
+      <p className="uitleg">Elk kind heeft een eigen avatar, voortgang en kast. Wisselen kan het kind zelf.</p>
+      <ul className="profiel-lijst">
+        {profielen.map(([id, spel]) => (
+          <li key={id} className="profiel-rij">
+            <span className="profiel-mini">
+              {spel.avatar ? (
+                <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} kader={PORTRET} />
+              ) : (
+                <span className="profiel-vraag">?</span>
+              )}
+            </span>
+            <input
+              className="invoer naam-veld"
+              defaultValue={spel.naam ?? ""}
+              maxLength={MAX_NAAM}
+              aria-label="naam"
+              autoCapitalize="none"
+              onBlur={(e) => {
+                const naam = netjes(e.target.value.trim());
+                if (naam && naam !== spel.naam) {
+                  hernoemProfiel(id, naam);
+                  meld(`Hernoemd naar "${naam}".`);
+                }
+              }}
+            />
+            <span className="profiel-stand">
+              {spel.klaar.length} / {ALLE_REEKSEN.length}
+            </span>
+            <button
+              className="knop rood klein"
+              onClick={async () => {
+                if (!confirm(`Het profiel van "${spel.naam ?? "?"}" met alle voortgang en kleren verwijderen?`)) return;
+                await wisProfiel(id);
+                meld("Profiel verwijderd.");
+              }}
+            >
+              Verwijder
+            </button>
+          </li>
+        ))}
+      </ul>
+      {profielen.length < MAX_PROFIELEN && (
+        <form
+          className="koppel"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const naam = netjes(nieuw.trim());
+            if (!naam) return;
+            maakProfiel(naam);
+            zetNieuw("");
+            meld(`Profiel "${naam}" toegevoegd.`);
+          }}
+        >
+          <input
+            className="invoer naam-veld"
+            placeholder="naam van het kind"
+            value={nieuw}
+            maxLength={MAX_NAAM}
+            onChange={(e) => zetNieuw(e.target.value)}
+            autoCapitalize="none"
+          />
+          <button className="knop" type="submit" disabled={!nieuw.trim()}>
+            + Profiel toevoegen
+          </button>
+        </form>
+      )}
+    </section>
+  );
+}
+
+function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => void; ga: (s: Scherm) => void }) {
   const [code, zetCode] = useState("");
-  const [melding, zetMelding] = useState<string | null>(null);
   const reeksIds = ALLE_REEKSEN.map((p) => p.reeks.id);
+  const naam = spel.naam ?? "dit profiel";
+
+  return (
+    <>
+      <section className="paneel">
+        <h2>Voortgang van {naam}</h2>
+        <p>
+          {spel.klaar.length} van {reeksIds.length} reeksen gedaan, {spel.kast.length}{" "}
+          {spel.kast.length === 1 ? "item" : "items"} gewonnen.
+        </p>
+        <p className="uitleg">
+          Laat {naam} starten bij een bepaalde letter. Alle reeksen daarvoor tellen dan als gedaan en leveren elk
+          een willekeurig item op. Teruggaan neemt geen items af.
+        </p>
+        <div className="level-keuze">
+          {LEVELS.map((level) => {
+            const eerste = ALLE_REEKSEN.find((p) => p.level.id === level.id)!;
+            return (
+              <button
+                key={level.id}
+                className="knop"
+                onClick={() => {
+                  zetVoortgang(reeksIds, eerste.index);
+                  meld(`${naam} start nu bij "${level.nieuw.join(" ")}".`);
+                }}
+              >
+                {level.nieuw.join(" ")}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="paneel">
+        <h2>Geluid</h2>
+        <button className="knop" onClick={() => zetStil(!spel.stil)}>
+          {spel.stil ? "Geluid aanzetten" : "Geluid uitzetten"}
+        </button>
+      </section>
+
+      <section className="paneel">
+        <h2>Reservekopie van {naam}</h2>
+        <p className="uitleg">Werkt ook zonder account: kopieer deze code en plak ze in een ander profiel.</p>
+        <textarea className="invoer code" readOnly value={exporteer(spel)} onFocus={(e) => e.target.select()} />
+        <button
+          className="knop"
+          onClick={() => {
+            void navigator.clipboard?.writeText(exporteer(spel));
+            meld("Code gekopieerd.");
+          }}
+        >
+          Kopieer code
+        </button>
+        <textarea
+          className="invoer code"
+          placeholder="Plak hier een code"
+          value={code}
+          onChange={(e) => zetCode(e.target.value)}
+        />
+        <button
+          className="knop"
+          disabled={!code.trim()}
+          onClick={() => {
+            const ok = importeer(code);
+            meld(ok ? "Voortgang ingeladen." : "Die code werkt niet.");
+            if (ok) zetCode("");
+          }}
+        >
+          Laad code
+        </button>
+      </section>
+
+      <section className="paneel gevaar">
+        <h2>Opnieuw beginnen</h2>
+        <button
+          className="knop rood"
+          onClick={() => {
+            if (confirm(`Alle voortgang, kleren en de avatar van ${naam} wissen? De naam blijft.`)) {
+              wisVoortgang();
+              ga({ naam: "kaart" });
+            }
+          }}
+        >
+          Wis de voortgang van {naam}
+        </button>
+      </section>
+    </>
+  );
+}
+
+export function Ouder({ spel, ga }: { spel: Spel | null; ga: (s: Scherm) => void }) {
+  const [open, zetOpen] = useState(false);
+  const [melding, zetMelding] = useState<string | null>(null);
 
   return (
     <main className="scherm ouder">
@@ -145,92 +296,26 @@ export function Ouder({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
       ) : (
         <div className="ouder-inhoud">
           {melding && <p className="melding">{melding}</p>}
-          <Gezinscode meld={zetMelding} />
-          <section className="paneel">
-            <h2>Voortgang</h2>
-            <p>
-              {spel.klaar.length} van {reeksIds.length} reeksen gedaan, {spel.kast.length}{" "}
-              {spel.kast.length === 1 ? "item" : "items"} gewonnen.
-            </p>
-            <p className="uitleg">
-              Laat haar starten bij een bepaalde letter. Alle reeksen daarvoor tellen dan als gedaan en
-              leveren elk een willekeurig item op. Teruggaan neemt geen items af.
-            </p>
-            <div className="level-keuze">
-              {LEVELS.map((level) => {
-                const eerste = ALLE_REEKSEN.find((p) => p.level.id === level.id)!;
-                return (
-                  <button
-                    key={level.id}
-                    className="knop"
-                    onClick={() => {
-                      zetVoortgang(reeksIds, eerste.index);
-                      zetMelding(`Ze start nu bij "${level.nieuw.join(" ")}".`);
-                    }}
-                  >
-                    {level.nieuw.join(" ")}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="paneel">
-            <h2>Geluid</h2>
-            <button className="knop" onClick={() => zetStil(!spel.stil)}>
-              {spel.stil ? "Geluid aanzetten" : "Geluid uitzetten"}
-            </button>
-          </section>
-
-          <section className="paneel">
-            <h2>Reservekopie</h2>
-            <p className="uitleg">
-              Werkt ook zonder server: kopieer deze code en plak ze op een ander toestel.
-            </p>
-            <textarea className="invoer code" readOnly value={exporteer(spel)} onFocus={(e) => e.target.select()} />
-            <button
-              className="knop"
-              onClick={() => {
-                void navigator.clipboard?.writeText(exporteer(spel));
-                zetMelding("Code gekopieerd.");
-              }}
-            >
-              Kopieer code
-            </button>
-            <textarea
-              className="invoer code"
-              placeholder="Plak hier een code"
-              value={code}
-              onChange={(e) => zetCode(e.target.value)}
-            />
-            <button
-              className="knop"
-              disabled={!code.trim()}
-              onClick={() => {
-                const ok = importeer(code);
-                zetMelding(ok ? "Voortgang ingeladen." : "Die code werkt niet.");
-                if (ok) zetCode("");
-              }}
-            >
-              Laad code
-            </button>
-          </section>
-
+          <Account meld={zetMelding} />
+          <Profielen meld={zetMelding} />
+          {spel && <Instellingen spel={spel} meld={zetMelding} ga={ga} />}
           <section className="paneel gevaar">
-            <h2>Alles wissen</h2>
+            <h2>Account verwijderen</h2>
+            <p className="uitleg">Verwijdert alle profielen en hun voortgang van de server, en meldt je af.</p>
             <button
               className="knop rood"
-              onClick={() => {
-                if (confirm("Alle voortgang, kleren en de gekozen avatar wissen? Dat geldt ook voor de andere toestellen met dezelfde gezinscode.")) {
-                  wisAlles();
-                  ga({ naam: "kaart" });
+              onClick={async () => {
+                if (!confirm("Alle profielen en alle voortgang van dit gezin definitief verwijderen?")) return;
+                try {
+                  await verwijderAccount();
+                } catch {
+                  zetMelding("Verwijderen lukte niet. Is er internet?");
                 }
               }}
             >
-              Wis alles
+              Verwijder mijn account
             </button>
           </section>
-
         </div>
       )}
     </main>

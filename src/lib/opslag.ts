@@ -1,46 +1,64 @@
-// Opslag van de voortgang op de server, per gezinscode.
+// Opslag van de profielen op de server: per gezin (e-mailadres van de
+// ouder) één Redis-hash, met per profiel een veld met diens voortgang.
 //
 // In productie is dat Upstash Redis (via de Vercel Marketplace; die zet
 // KV_REST_API_URL en KV_REST_API_TOKEN). Lokaal zonder die variabelen valt
-// het terug op een opslag in het geheugen van de dev-server, zodat je de
-// synchronisatie toch kan uitproberen. In productie zonder databank staat
-// de server-opslag gewoon uit en blijft alles in de browser.
+// het terug op een opslag in het geheugen van de dev-server. In productie
+// zonder databank staat de server-opslag uit en blijft alles in de browser.
 
 import { Redis } from "@upstash/redis";
 
-export const COOKIE = "gezinscode";
-/** Browsers aanvaarden een cookie hoogstens 400 dagen; elke keer spelen verlengt hem. */
-export const COOKIE_DUUR = 400 * 24 * 60 * 60;
-/** Voortgang waar twee jaar niet meer aan gespeeld is, ruimt de databank zelf op. */
+/** Profielen waar twee jaar niet meer aan gespeeld is, ruimt de databank zelf op. */
 const BEWAARDUUR = 2 * 365 * 24 * 60 * 60;
 
+export const MAX_PROFIELEN = 12;
+
 export type Opslag = {
-  lees(code: string): Promise<unknown | null>;
-  schrijf(code: string, spel: unknown): Promise<void>;
-  bestaat(code: string): Promise<boolean>;
+  profielen(gezin: string): Promise<Record<string, unknown>>;
+  lees(gezin: string, id: string): Promise<unknown | null>;
+  schrijf(gezin: string, id: string, spel: unknown): Promise<void>;
+  wis(gezin: string, id: string): Promise<void>;
+  wisGezin(gezin: string): Promise<void>;
 };
 
-const sleutel = (code: string) => `gezin:${code}`;
+const sleutel = (gezin: string) => `familie:${gezin}`;
 
 function redisOpslag(redis: Redis): Opslag {
   return {
-    lees: (code) => redis.get(sleutel(code)),
-    schrijf: async (code, spel) => {
-      await redis.set(sleutel(code), spel, { ex: BEWAARDUUR });
+    profielen: async (gezin) => (await redis.hgetall<Record<string, unknown>>(sleutel(gezin))) ?? {},
+    lees: (gezin, id) => redis.hget(sleutel(gezin), id),
+    schrijf: async (gezin, id, spel) => {
+      await redis.hset(sleutel(gezin), { [id]: spel });
+      await redis.expire(sleutel(gezin), BEWAARDUUR);
     },
-    bestaat: async (code) => (await redis.exists(sleutel(code))) > 0,
+    wis: async (gezin, id) => {
+      await redis.hdel(sleutel(gezin), id);
+    },
+    wisGezin: async (gezin) => {
+      await redis.del(sleutel(gezin));
+    },
   };
 }
 
 // Op globalThis, zodat alle routes in de dev-server dezelfde map delen.
-const geheugen = ((globalThis as { __voortgang?: Map<string, unknown> }).__voortgang ??= new Map());
+const geheugen = ((globalThis as { __gezinnen?: Map<string, Map<string, unknown>> }).__gezinnen ??= new Map());
+const gezinIn = (gezin: string) => {
+  if (!geheugen.has(gezin)) geheugen.set(gezin, new Map());
+  return geheugen.get(gezin)!;
+};
 
 const geheugenOpslag: Opslag = {
-  lees: async (code) => geheugen.get(code) ?? null,
-  schrijf: async (code, spel) => {
-    geheugen.set(code, spel);
+  profielen: async (gezin) => Object.fromEntries(gezinIn(gezin)),
+  lees: async (gezin, id) => gezinIn(gezin).get(id) ?? null,
+  schrijf: async (gezin, id, spel) => {
+    gezinIn(gezin).set(id, spel);
   },
-  bestaat: async (code) => geheugen.has(code),
+  wis: async (gezin, id) => {
+    gezinIn(gezin).delete(id);
+  },
+  wisGezin: async (gezin) => {
+    geheugen.delete(gezin);
+  },
 };
 
 export function opslag(): Opslag | null {
@@ -50,13 +68,7 @@ export function opslag(): Opslag | null {
   return process.env.NODE_ENV === "production" ? null : geheugenOpslag;
 }
 
-export function cookieOpties() {
-  return {
-    httpOnly: true,
-    sameSite: "lax" as const,
-    // Lokaal testen gebeurt over http (ook vanaf de iPad via het wifi-adres).
-    secure: process.env.NODE_ENV === "production",
-    maxAge: COOKIE_DUUR,
-    path: "/",
-  };
+/** Profiel-ids maakt de browser zelf aan; de server aanvaardt enkel dit patroon. */
+export function isGeldigId(id: string): boolean {
+  return /^p-[a-z0-9]{6,32}$/.test(id);
 }

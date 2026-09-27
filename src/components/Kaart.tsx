@@ -5,7 +5,7 @@ import { Pop, vindBasis } from "@/avatar/Pop";
 import { ITEMS } from "@/avatar/items";
 import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
 import { klik } from "@/lib/geluid";
-import { zetStil, type Spel } from "@/lib/state";
+import { kiesProfiel, useStaat, zetStil, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
 
 const KLEUREN = ["#ff4fa3", "#7b3fe4", "#4d9dfe", "#3ddc97", "#ff9f1c", "#e63946"];
@@ -19,6 +19,9 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
   useEffect(() => {
     huidigRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
+
+  const staat = useStaat();
+  const meerdereProfielen = Object.keys(staat?.lokaal.profielen ?? {}).length > 1;
 
   const tik = () => {
     if (!spel.stil) klik();
@@ -38,6 +41,11 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
           <button className="knop-rond" onClick={() => zetStil(!spel.stil)} aria-label="geluid">
             {spel.stil ? "🔇" : "🔊"}
           </button>
+          {meerdereProfielen && (
+            <button className="knop-rond" onClick={() => { tik(); kiesProfiel(null); }} aria-label="ander profiel">
+              👥
+            </button>
+          )}
           <button className="knop-rond klein" onClick={() => ga({ naam: "ouder" })} aria-label="oudermenu">
             ⚙️
           </button>
