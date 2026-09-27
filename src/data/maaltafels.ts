@@ -1,8 +1,15 @@
 // De maaltafels voor het derde leerjaar: 11 levels van 4 reeksen, elk 15
-// sommen. Elk level brengt een nieuwe tafel; de reeksen mengen die met de
-// tafels die al gekend zijn, en worden moeilijker naar het einde toe. Vanaf de
-// tweede reeks van een level komt de deeltafel erbij. Het laatste level gaat
-// boven de 100.
+// sommen. Het is herhaling: alle tafels zijn al gekend uit het tweede
+// leerjaar. Daarom mengt elke reeks de tafels, en wordt het snel moeilijker:
+//
+//   1. de lagere tafels (2, 3, 4, 5, 10), maal en gedeeld door;
+//   2. de moeilijke tafels (6, 7, 8, 9); vanaf reeks 8 gaat het boven de tien;
+//   3. daarna rekenwerk dat op de tafels steunt: ×11 en ×12, tientallen,
+//      tweecijferig maal eencijferig, grotere delingen, honderdtallen;
+//   4. op het einde alles door elkaar.
+//
+// Elke reeks herhaalt ook wat de vorige levels brachten. Antwoorden blijven
+// onder de 1000 (getallen tot 1000 in het derde leerjaar).
 //
 // De sommen worden gegenereerd met een vaste willekeur per reeks: dezelfde
 // reeks bestaat dus altijd uit dezelfde sommen. Zie maaltafels.test.ts voor
@@ -22,6 +29,7 @@ export type TafelLevel = {
 };
 
 const PER_REEKS = 15;
+const MAX_ANTWOORD = 999;
 
 // ---- Vaste willekeur ---------------------------------------------------------
 
@@ -41,16 +49,153 @@ function willekeur(tekst: string) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
   return {
-    getal: (van: number, tot: number) => van + Math.floor(volgende() * (tot - van + 1)),
     kies: <T,>(lijst: T[]): T => lijst[Math.floor(volgende() * lijst.length)],
     kans: (p: number) => volgende() < p,
   };
 }
 
+type Willekeur = ReturnType<typeof willekeur>;
+
 // ---- Sommen ------------------------------------------------------------------
 
-const maal = (a: number, b: number): Som => ({ vraag: `${a} × ${b}`, antwoord: a * b });
-const deel = (product: number, a: number): Som => ({ vraag: `${product} : ${a}`, antwoord: product / a });
+/** Een getal waardoor een derdeklasser kan delen: tot 12, een tiental (40) of een honderdtal (300). */
+const eenvoudigeDeler = (n: number) => n <= 12 || (n % 10 === 0 && n < 100) || n % 100 === 0;
+
+/**
+ * a × b, of (met kans `deel`) de deling die erbij hoort: a·b : a of a·b : b.
+ * Delen gebeurt altijd door een eenvoudig getal: 216 : 6, nooit 216 : 36.
+ * Bij een maalsom staat het grote getal even vaak voor als achter.
+ */
+function som(r: Willekeur, a: number, b: number, deel: number): Som {
+  const product = a * b;
+  if (r.kans(deel) && a !== 0 && b !== 0) {
+    const delers = [a, b].filter(eenvoudigeDeler);
+    const deler = delers.length ? r.kies(delers) : Math.min(a, b);
+    return { vraag: `${product} : ${deler}`, antwoord: product / deler };
+  }
+  return r.kans(0.5) ? { vraag: `${a} × ${b}`, antwoord: product } : { vraag: `${b} × ${a}`, antwoord: product };
+}
+
+/** Maakt één som; `deel` is de kans op een deling. */
+type Maker = (r: Willekeur, deel: number) => Som;
+
+const van = (begin: number, einde: number, stap = 1) =>
+  Array.from({ length: Math.floor((einde - begin) / stap) + 1 }, (_, i) => begin + i * stap);
+
+const EEN_TOT_TIEN = van(1, 10);
+const LAGE_TAFELS = [2, 3, 4, 5, 10];
+const HOGE_TAFELS = [6, 7, 8, 9];
+const TWEE_TOT_NEGEN = van(2, 9);
+
+/** Tweecijferige getallen zonder de tientallen (die hebben hun eigen level). */
+const tweecijferig = (begin: number, einde: number) => van(begin, einde).filter((n) => n % 10 !== 0);
+
+/** Een getal uit `getallen` maal een getal uit `factoren`, niet boven de 999. */
+function maal(getallen: number[], factoren: number[]): Maker {
+  return (r, deel) => {
+    for (;;) {
+      const a = r.kies(getallen);
+      const b = r.kies(factoren);
+      if (a * b <= MAX_ANTWOORD) return som(r, a, b, deel);
+    }
+  };
+}
+
+/** Een deling met een eencijferige deler en een uitkomst uit `uitkomsten` (96 : 8). */
+function deling(uitkomsten: number[], delers: number[]): Maker {
+  return (r) => {
+    const a = r.kies(uitkomsten);
+    const b = r.kies(delers);
+    return { vraag: `${a * b} : ${b}`, antwoord: a };
+  };
+}
+
+/** Kiest telkens een van deze makers. */
+const gemengd =
+  (...makers: Maker[]): Maker =>
+  (r, deel) =>
+    r.kies(makers)(r, deel);
+
+// ---- Wat elk level brengt -------------------------------------------------------
+
+type LevelSoort = {
+  id: string;
+  tegels: string[];
+  /** Het nieuwe van dit level, en een moeilijkere versie voor de latere reeksen. */
+  nieuw: Maker;
+  moeilijk: Maker;
+};
+
+const SOORTEN: LevelSoort[] = [
+  {
+    id: "tafel-1",
+    tegels: ["2 3 4 5"],
+    nieuw: maal(LAGE_TAFELS, EEN_TOT_TIEN),
+    moeilijk: maal(LAGE_TAFELS, HOGE_TAFELS),
+  },
+  {
+    id: "tafel-2",
+    tegels: ["6 7 8 9"],
+    nieuw: maal(HOGE_TAFELS, EEN_TOT_TIEN),
+    moeilijk: maal(HOGE_TAFELS, HOGE_TAFELS),
+  },
+  {
+    id: "tafel-3",
+    tegels: ["11 12"],
+    nieuw: maal([11, 12], van(2, 10)),
+    moeilijk: maal([11, 12], van(6, 12)),
+  },
+  {
+    id: "tafel-4",
+    tegels: ["40×7"],
+    nieuw: maal(van(20, 90, 10), TWEE_TOT_NEGEN),
+    moeilijk: maal(van(40, 90, 10), HOGE_TAFELS),
+  },
+  {
+    id: "tafel-5",
+    tegels: ["15×4"],
+    nieuw: maal(tweecijferig(13, 19), [2, 3, 4, 5]),
+    moeilijk: maal(tweecijferig(13, 19), TWEE_TOT_NEGEN),
+  },
+  {
+    id: "tafel-6",
+    tegels: ["23×4"],
+    nieuw: maal(tweecijferig(21, 49), [2, 3, 4, 5]),
+    moeilijk: maal(tweecijferig(21, 49), HOGE_TAFELS),
+  },
+  {
+    id: "tafel-7",
+    tegels: ["96:8"],
+    nieuw: deling(tweecijferig(11, 19), TWEE_TOT_NEGEN),
+    moeilijk: deling(tweecijferig(13, 29), HOGE_TAFELS),
+  },
+  {
+    id: "tafel-8",
+    tegels: ["300×3"],
+    nieuw: maal(van(100, 400, 100), [2, 3]),
+    moeilijk: gemengd(maal(van(100, 400, 100), TWEE_TOT_NEGEN), maal([120, 150, 160, 240, 250], [2, 3, 4])),
+  },
+  {
+    id: "tafel-9",
+    tegels: ["20×30"],
+    nieuw: maal(van(10, 50, 10), van(10, 30, 10)),
+    moeilijk: gemengd(maal(van(20, 90, 10), van(20, 40, 10)), maal(van(110, 190, 10), [2, 3, 4, 5])),
+  },
+  {
+    id: "tafel-10",
+    tegels: ["mix"],
+    nieuw: gemengd(maal(HOGE_TAFELS, HOGE_TAFELS), maal([11, 12], van(6, 12)), maal(tweecijferig(13, 49), HOGE_TAFELS)),
+    moeilijk: gemengd(maal(tweecijferig(51, 99), TWEE_TOT_NEGEN), maal(van(40, 90, 10), van(20, 30, 10))),
+  },
+  {
+    id: "tafel-11",
+    tegels: ["top"],
+    nieuw: gemengd(maal(tweecijferig(51, 99), HOGE_TAFELS), maal([12], van(9, 12)), deling(tweecijferig(21, 49), HOGE_TAFELS)),
+    moeilijk: gemengd(maal(tweecijferig(61, 99), HOGE_TAFELS), maal(tweecijferig(101, 199), [2, 3, 4])),
+  },
+];
+
+// ---- Reeksen -------------------------------------------------------------------
 
 /** Hoe moeilijk een som is, om een reeks van makkelijk naar moeilijk te zetten. */
 function moeilijkheid(s: Som): number {
@@ -58,43 +203,25 @@ function moeilijkheid(s: Som): number {
   const makkelijk = (n: number) => [0, 1, 2, 5, 10].includes(n);
   let m = s.vraag.includes(":") ? 6 : 0;
   m += getallen.filter((n) => !makkelijk(n)).length * 2;
-  m += Math.min(4, Math.log10(Math.max(1, s.antwoord)) * 1.5);
+  m += Math.min(6, Math.log10(Math.max(1, s.antwoord)) * 2);
   return m;
 }
 
-type Bron = {
-  /** De tafel, en welke vermenigvuldigers (1-10) meedoen. */
-  tafel: number;
-  factoren: number[];
-  deel: boolean;
-};
-
-function trekSom(r: ReturnType<typeof willekeur>, bron: Bron): Som {
-  const f = r.kies(bron.factoren);
-  if (bron.deel && f !== 0) return deel(bron.tafel * f, bron.tafel);
-  // "3 × 4" en "4 × 3" zijn allebei de tafel van 4.
-  return r.kans(0.5) ? maal(f, bron.tafel) : maal(bron.tafel, f);
-}
-
-const EEN_TOT_TIEN = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const MOEILIJK = [6, 7, 8, 9];
-
-/**
- * Een reeks van 15 verschillende sommen: `aantal` uit elke bron (samen 15),
- * gesorteerd van makkelijk naar moeilijk.
- */
-function reeks(id: string, delen: [Bron | Bron[], number][]): { id: string; oefeningen: Som[] } {
+/** Een reeks van 15 verschillende sommen: [maker, aantal, kans op deling], van makkelijk naar moeilijk. */
+function reeks(id: string, delen: [Maker, number, number][]): { id: string; oefeningen: Som[] } {
   const r = willekeur(id);
   const gezien = new Set<string>();
   const sommen: Som[] = [];
-  for (const [bron, aantal] of delen) {
-    const bronnen = Array.isArray(bron) ? bron : [bron];
+  // 20 × 30 en 30 × 20 tellen als dezelfde som.
+  const sleutel = (s: Som) =>
+    s.vraag.includes("×") ? s.vraag.split(" × ").map(Number).sort((x, y) => x - y).join("×") : s.vraag;
+  for (const [maker, aantal, deel] of delen) {
     let gevonden = 0;
-    for (let poging = 0; gevonden < aantal && poging < 500; poging++) {
-      const som = trekSom(r, r.kies(bronnen));
-      if (gezien.has(som.vraag)) continue;
-      gezien.add(som.vraag);
-      sommen.push(som);
+    for (let poging = 0; gevonden < aantal && poging < 1000; poging++) {
+      const s = maker(r, deel);
+      if (gezien.has(sleutel(s))) continue;
+      gezien.add(sleutel(s));
+      sommen.push(s);
       gevonden++;
     }
   }
@@ -106,88 +233,28 @@ function reeks(id: string, delen: [Bron | Bron[], number][]): { id: string; oefe
   return { id, oefeningen: sommen };
 }
 
-const tafels = (lijst: number[], opties: { factoren?: number[]; deel?: boolean } = {}): Bron[] =>
-  lijst.map((tafel) => ({ tafel, factoren: opties.factoren ?? EEN_TOT_TIEN, deel: opties.deel ?? false }));
-
-// ---- De levels ---------------------------------------------------------------
-
-/** Volgorde van de tafels: van makkelijk naar moeilijk, en een tafel na zijn "helft". */
-const VOLGORDE: { nieuw: number[]; tegels: string[] }[] = [
-  { nieuw: [1, 10], tegels: ["×1", "×10"] },
-  { nieuw: [2], tegels: ["×2"] },
-  { nieuw: [5], tegels: ["×5"] },
-  { nieuw: [4], tegels: ["×4"] },
-  { nieuw: [3], tegels: ["×3"] },
-  { nieuw: [6], tegels: ["×6"] },
-  { nieuw: [9], tegels: ["×9"] },
-  { nieuw: [8], tegels: ["×8"] },
-  { nieuw: [7], tegels: ["×7"] },
-];
-
-function tafelLevel(index: number): TafelLevel {
-  const { nieuw, tegels } = VOLGORDE[index];
-  const oud = VOLGORDE.slice(0, index).flatMap((v) => v.nieuw);
-  const id = `tafel-${nieuw.join("-")}`;
+function maakLevel(index: number): TafelLevel {
+  const { id, tegels, nieuw, moeilijk } = SOORTEN[index];
+  const vorige = SOORTEN.slice(0, index);
+  // Herhaling van alles wat de vorige levels brachten.
+  const herhaal = vorige.length ? gemengd(...vorige.map((v) => v.moeilijk)) : moeilijk;
+  const herhaalMakkelijk = vorige.length ? gemengd(...vorige.map((v) => v.nieuw)) : nieuw;
   const n = (d: number) => `${id}-${d}`;
 
-  // In het eerste level is er nog niets ouds: dan komt ×0 erbij, en voor de
-  // rest herhaalt het de nieuwe tafels.
-  const nul: Bron = { tafel: 0, factoren: [1, 2, 3, 5, 7, 9], deel: false };
-  const herhaal = oud.length ? oud : nieuw;
-  const oudMaal: Bron[] = oud.length ? tafels(oud) : [nul];
-  const oudGemengd: Bron[] = [...tafels(herhaal), ...tafels(herhaal, { deel: true }), ...(oud.length ? [] : [nul])];
-  const oudMoeilijk: Bron[] = [...tafels(herhaal, { factoren: MOEILIJK }), ...tafels(herhaal, { factoren: MOEILIJK, deel: true })];
+  // Reeks 8 (de laatste van het tweede level) gaat voor het eerst boven de tien.
+  const bovenTien: [Maker, number, number][] = index === 1 ? [[maal([11], TWEE_TOT_NEGEN), 4, 0.25]] : [];
+  const extra = bovenTien.reduce((t, [, aantal]) => t + aantal, 0);
 
   return {
     id,
     tegels,
     reeksen: [
-      reeks(n(1), [[tafels(nieuw), 11], [oudMaal, 4]]),
-      reeks(n(2), [[tafels(nieuw), 6], [tafels(nieuw, { deel: true }), 6], [oudMaal, 3]]),
-      reeks(n(3), [[tafels(nieuw), 5], [tafels(nieuw, { deel: true }), 4], [oudGemengd, 6]]),
-      reeks(n(4), [
-        [tafels(nieuw, { factoren: [3, 4, 6, 7, 8, 9] }), 3],
-        [tafels(nieuw, { factoren: [3, 4, 6, 7, 8, 9], deel: true }), 3],
-        [oudMoeilijk, 9],
-      ]),
+      reeks(n(1), [[nieuw, 11, index === 0 ? 0 : 0.2], [herhaalMakkelijk, 4, 0.3]]),
+      reeks(n(2), [[nieuw, 9, 0.5], [herhaal, 6, 0.4]]),
+      reeks(n(3), [[moeilijk, 8, 0.4], [herhaal, 7, 0.5]]),
+      reeks(n(4), [[moeilijk, 11 - extra, 0.5], ...bovenTien, [herhaal, 4, 0.5]]),
     ],
   };
 }
 
-const ALLE_TAFELS = VOLGORDE.flatMap((v) => v.nieuw);
-
-/** Alles door elkaar, vooral de moeilijke sommen. */
-const GEMENGD: TafelLevel = {
-  id: "tafel-mix",
-  tegels: ["mix"],
-  reeksen: [
-    reeks("tafel-mix-1", [[tafels(ALLE_TAFELS), 9], [tafels(ALLE_TAFELS, { deel: true }), 6]]),
-    reeks("tafel-mix-2", [[tafels(MOEILIJK, { factoren: MOEILIJK }), 9], [tafels(ALLE_TAFELS, { deel: true }), 6]]),
-    reeks("tafel-mix-3", [[tafels(MOEILIJK, { factoren: MOEILIJK }), 7], [tafels(MOEILIJK, { factoren: MOEILIJK, deel: true }), 8]]),
-    reeks("tafel-mix-4", [
-      [tafels(ALLE_TAFELS, { factoren: MOEILIJK }), 8],
-      [tafels(ALLE_TAFELS, { factoren: MOEILIJK, deel: true }), 7],
-    ]),
-  ],
-};
-
-/** Boven de 100: ×11 en ×12, en tientallen maal een getal. */
-const TIENTALLEN: Bron[] = [20, 30, 40, 50].map((tafel) => ({ tafel, factoren: [2, 3, 4, 5, 6, 7, 8, 9], deel: false }));
-
-const BOVEN_HONDERD: TafelLevel = {
-  id: "tafel-100",
-  tegels: ["100+"],
-  reeksen: [
-    reeks("tafel-100-1", [[tafels([11]), 8], [tafels([12], { factoren: [1, 2, 3, 4, 5, 10] }), 4], [tafels(MOEILIJK), 3]]),
-    reeks("tafel-100-2", [[tafels([11, 12]), 7], [tafels([11, 12], { deel: true }), 5], [tafels(MOEILIJK, { deel: true }), 3]]),
-    reeks("tafel-100-3", [[TIENTALLEN, 8], [tafels([12], { factoren: [6, 7, 8, 9, 10, 11, 12] }), 7]]),
-    reeks("tafel-100-4", [
-      [tafels([11, 12], { factoren: [8, 9, 10, 11, 12] }), 5],
-      [TIENTALLEN, 4],
-      [tafels([11, 12], { deel: true }), 3],
-      [tafels(MOEILIJK, { factoren: MOEILIJK, deel: true }), 3],
-    ]),
-  ],
-};
-
-export const TAFEL_LEVELS: TafelLevel[] = [...VOLGORDE.map((_, i) => tafelLevel(i)), GEMENGD, BOVEN_HONDERD];
+export const TAFEL_LEVELS: TafelLevel[] = SOORTEN.map((_, i) => maakLevel(i));

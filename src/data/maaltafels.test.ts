@@ -32,23 +32,38 @@ describe("maaltafels", () => {
     }
   });
 
-  it("gebruikt in de eerste levels enkel tafels die al aan bod kwamen", () => {
-    const gekend = new Set([0]);
-    for (const l of TAFEL_LEVELS.slice(0, 9)) {
-      for (const t of l.tegels) gekend.add(Number(t.slice(1)));
-      for (const r of l.reeksen) {
-        for (const s of r.oefeningen) {
-          expect(tafelsVan(s.vraag).some((t) => gekend.has(t)), `${r.id}: ${s.vraag}`).toBe(true);
-        }
-      }
+  it("blijft de eerste zeven reeksen binnen de tafels, en gaat vanaf reeks 8 boven de tien", () => {
+    const getallen = (vraag: string) => vraag.split(/ [×:] /).map(Number);
+    const binnenTafels = (s: { vraag: string; antwoord: number }) =>
+      s.vraag.includes("×") ? getallen(s.vraag).every((n) => n <= 10) : getallen(s.vraag)[1] <= 10 && s.antwoord <= 10;
+    for (const r of reeksen.slice(0, 7)) {
+      for (const s of r.oefeningen) expect(binnenTafels(s), `${r.id}: ${s.vraag}`).toBe(true);
+    }
+    expect(reeksen[7].oefeningen.some((s) => !binnenTafels(s)), reeksen[7].id).toBe(true);
+  });
+
+  it("begint met de lagere tafels", () => {
+    for (const s of reeksen[0].oefeningen) {
+      // Bij een deling telt ook de uitkomst: 35 : 7 = 5 hoort bij de tafel van 5.
+      const tafels = [...tafelsVan(s.vraag), s.vraag.includes(":") ? s.antwoord : 0];
+      expect(tafels.some((t) => [1, 2, 3, 4, 5, 10].includes(t)), s.vraag).toBe(true);
     }
   });
 
-  it("oefent elke tafel van 1 tot 10 als maal- en als deeltafel", () => {
+  it("oefent elke tafel van 2 tot 10 als maal- en als deeltafel", () => {
     const alle = reeksen.flatMap((r) => r.oefeningen.map((s) => s.vraag));
-    for (let t = 1; t <= 10; t++) {
+    for (let t = 2; t <= 10; t++) {
       expect(alle.some((v) => v.includes("×") && tafelsVan(v).includes(t)), `× ${t}`).toBe(true);
       expect(alle.some((v) => v.endsWith(` : ${t}`)), `: ${t}`).toBe(true);
+    }
+  });
+
+  it("deelt enkel door een eenvoudig getal (tot 12, een tiental of een honderdtal)", () => {
+    for (const r of reeksen) {
+      for (const s of r.oefeningen.filter((s) => s.vraag.includes(":"))) {
+        const deler = Number(s.vraag.split(" : ")[1]);
+        expect(deler <= 12 || (deler % 10 === 0 && deler < 100) || deler % 100 === 0, `${r.id}: ${s.vraag}`).toBe(true);
+      }
     }
   });
 

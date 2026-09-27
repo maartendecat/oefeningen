@@ -79,39 +79,42 @@ nieuw scherm. De rest blijft ongemoeid.
 
 ## Maaltafels
 
+Het is **herhaling**: in het derde leerjaar kennen de kinderen alle tafels al
+uit het tweede. Daarom mengt elke reeks de tafels, en wordt het snel
+moeilijker. Op het einde bouwt het verder met rekenwerk dat op de tafels
+steunt. Antwoorden blijven onder de 1000 (getallen tot 1000 in het derde
+leerjaar).
+
 ### Opbouw: 11 levels van 4 reeksen, elk 15 sommen
 
-Samen 44 reeksen en 660 sommen, net als bij het lezen. Elk level brengt één
-nieuwe tafel, die in de tegel op de kaart staat (`× 3`). De reeksen mengen
-die nieuwe tafel met de tafels die al gekend zijn. De moeilijkheid stijgt
-per reeks.
+Samen 44 reeksen en 660 sommen, net als bij het lezen. De tegel op de kaart
+toont waar het level over gaat.
 
-| Level | Nieuw | Wat erin zit |
+| Level | Tegel | Wat erin zit |
 |---|---|---|
-| 1 | × 1 en × 10 | de makkelijkste tafels, en ook ×0 |
-| 2 | × 2 | |
-| 3 | × 5 | |
-| 4 | × 4 | het dubbele van × 2 |
-| 5 | × 3 | |
-| 6 | × 6 | het dubbele van × 3 |
-| 7 | × 9 | |
-| 8 | × 8 | het dubbele van × 4 |
-| 9 | × 7 | de moeilijkste |
-| 10 | alles gemengd | vooral de moeilijke sommen (6 tot 9) |
-| 11 | boven 100 | × 11 en × 12, tientallen (`30 × 4`, `20 × 7`), en ook `12 × 9` |
+| 1 | `2 3 4 5` | de lagere tafels (2, 3, 4, 5, 10), maal en gedeeld door |
+| 2 | `6 7 8 9` | de moeilijke tafels; reeks 8 gaat voor het eerst boven de tien (× 11) |
+| 3 | `11 12` | de tafels van 11 en 12, tot 12 × 12 |
+| 4 | `40×7` | tientallen maal een getal, en de delingen erbij |
+| 5 | `15×4` | 13 tot 19 maal een getal |
+| 6 | `23×4` | 21 tot 49 maal een getal |
+| 7 | `96:8` | grotere delingen: de uitkomst is een getal tot 29 |
+| 8 | `300×3` | honderdtallen, en 150 × 4 |
+| 9 | `20×30` | tientallen maal tientallen, en 120 × 5 |
+| 10 | `mix` | alles door elkaar, met 51 tot 99 maal een getal |
+| 11 | `top` | het moeilijkste: tot 99 × 9, en 181 × 4 |
 
-### Binnen een level
-
-1. **Reeks 1:** vooral de nieuwe tafel, met een paar sommen uit vroegere
-   tafels.
-2. **Reeks 2:** de nieuwe tafel als deeltafel erbij (`21 : 3`), zodat
-   maaltafel en deeltafel samen geleerd worden.
-3. **Reeks 3:** maal en gedeeld door, gemengd met de vroegere tafels.
-4. **Reeks 4:** de moeilijkste van de nieuwe tafel en een herhaling van
-   alles tot dan toe.
-
-Binnen een reeks lopen de sommen ook op: eerst de makkelijke (× 1, × 2, × 10),
-naar het einde de moeilijke.
+- Reeksen 1 tot 7 blijven binnen de tafels (getallen tot 10). Vanaf reeks 8
+  gaat het boven de tien.
+- Binnen een level:
+  - reeks 1 is vooral het nieuwe, met een beetje herhaling;
+  - vanaf reeks 2 komen de delingen erbij;
+  - reeks 3 en 4 nemen de moeilijke versie van het nieuwe;
+  - elke reeks herhaalt ook wat de vorige levels brachten.
+- Binnen een reeks lopen de sommen op van makkelijk naar moeilijk, en een
+  reeks begint altijd met een maalsom.
+- Delen gebeurt altijd door een eenvoudig getal: tot 12, een tiental of een
+  honderdtal (`216 : 6`, nooit `216 : 36`).
 
 ### Gegenereerd, maar vast
 
@@ -119,11 +122,12 @@ naar het einde de moeilijke.
   willekeur (seed). Dezelfde reeks is dus altijd dezelfde, en een reeks-id
   blijft altijd dezelfde sommen betekenen.
 - Een test bewaakt dat:
-  - elke som klopt;
-  - elke reeks 15 sommen heeft;
-  - er binnen een reeks geen dubbele sommen zijn;
-  - een reeks alleen tafels gebruikt die al aan bod kwamen;
-  - elke tafel ergens als maal- en als deeltafel voorkomt.
+  - elke som klopt en onder de 1000 blijft;
+  - elke reeks 15 verschillende sommen heeft (`20 × 30` en `30 × 20` tellen
+    als dezelfde);
+  - reeksen 1 tot 7 binnen de tafels blijven en reeks 8 erboven gaat;
+  - elke tafel van 2 tot 10 als maal- en als deeltafel voorkomt;
+  - er alleen door eenvoudige getallen gedeeld wordt.
 
 ## Technische schets
 
