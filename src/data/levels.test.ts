@@ -26,8 +26,8 @@ describe("leesinhoud", () => {
 
     level.reeksen.forEach((reeks) => {
       describe(reeks.id, () => {
-        it("telt tien oefeningen", () => {
-          expect(reeks.oefeningen).toHaveLength(10);
+        it("telt vijftien oefeningen", () => {
+          expect(reeks.oefeningen).toHaveLength(15);
         });
 
         it.each(reeks.oefeningen)("'%s' is leesbaar met wat ze al kent", (oefening) => {

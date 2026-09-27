@@ -1,7 +1,7 @@
 # oefenen op lezen
 
 Een leesspelletje voor het eerste leerjaar, volgens de lettervolgorde van
-*Veilig leren lezen* (kim-versie). Het kind leest reeksen van tien woordjes en
+*Veilig leren lezen* (kim-versie). Het kind leest reeksen van vijftien woordjes en
 zinnetjes luidop voor, een ouder tikt ✓ of ↻, en na elke reeks mag het kind een
 beloning kiezen. Er zijn twee thema's, en het kind kiest zelf:
 
@@ -33,7 +33,7 @@ npm run lint
 
 | Pad | Wat |
 |---|---|
-| `src/data/levels.ts` | De leesinhoud: levels (één nieuwe klank per level) met reeksen van tien oefeningen. |
+| `src/data/levels.ts` | De leesinhoud: levels (één nieuwe klank per level) met reeksen van vijftien oefeningen. |
 | `src/data/levels.test.ts` | Bewaakt dat elk woord enkel gekende klanken gebruikt, één klinker heeft en geen medeklinkerclusters bevat, en dat een reeks niet korter wordt naar het einde. |
 | `src/lib/klanken.ts` | Hakt woorden in klanken (`kaas` → `k · aa · s`). |
 | `src/lib/auth.ts`, `src/lib/ouder.ts` | Inloggen met Better Auth (stateless, geen gebruikersdatabank); wie is de ingelogde ouder. |
@@ -51,7 +51,7 @@ npm run lint
 ### Nieuwe letters toevoegen
 
 Voeg in `src/data/levels.ts` een level toe met de nieuwe klank(en) in `nieuw`
-en een paar reeksen van tien oefeningen. `npm test` zegt meteen of er een woord
+en een paar reeksen van vijftien oefeningen. `npm test` zegt meteen of er een woord
 tussen zit dat nog niet leesbaar is. Voor elke extra reeks is het leuk om ook
 een extra item in `src/avatar/items.tsx` en een extra vogel in
 `src/avatar/vogels.tsx` te tekenen, zodat er genoeg te winnen blijft. Een

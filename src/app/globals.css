@@ -505,18 +505,19 @@ button:disabled {
 
 /* ---- Lezen ---- */
 
+/* Vijftien bolletjes: op een smal scherm kleiner, zodat ze op één rij passen. */
 .voortgang {
   display: flex;
-  gap: 8px;
+  gap: clamp(2px, 0.8vw, 8px);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .stip {
-  width: 20px;
-  height: 20px;
+  width: clamp(9px, 2.6vw, 20px);
+  height: clamp(9px, 2.6vw, 20px);
   border-radius: 50%;
-  border: 3px solid var(--inkt);
+  border: clamp(2px, 0.4vw, 3px) solid var(--inkt);
   background: #fff;
   transition: all 0.2s;
 }
@@ -611,6 +612,14 @@ button:disabled {
 .maatje .pop {
   width: 100%;
   height: 100%;
+}
+
+/* Smal scherm: geen plaats naast de knoppen, dus het maatje zit erboven. */
+@media (max-width: 640px) {
+  .maatje {
+    width: 96px;
+    bottom: calc(max(20px, env(safe-area-inset-bottom)) + 150px);
+  }
 }
 
 .knoppen {
