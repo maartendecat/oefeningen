@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MET_TAS, Pop, STRAK, vindBasis } from "@/avatar/Pop";
+import { Pop, vindBasis } from "@/avatar/Pop";
 import { ITEMS } from "@/avatar/items";
 import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
 import { klik } from "@/lib/geluid";
@@ -71,12 +71,6 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
                       >
                         {klaar ? "⭐" : open ? plek.index + 1 : "🔒"}
                       </button>
-                      {huidig && (
-                        // Ze staat klaar naast het bolletje waar ze verder moet, aan de kant van het midden.
-                        <div className={`kaart-maatje ${x > 0 ? "links" : "rechts"}`} aria-hidden="true">
-                          <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} kader={spel.aan.tassen ? MET_TAS : STRAK} />
-                        </div>
-                      )}
                     </div>
                   );
                 })}

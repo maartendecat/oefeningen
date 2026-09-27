@@ -415,25 +415,17 @@ button:disabled {
   justify-content: center;
 }
 
-/* Voeten gelijk met de onderkant van het bolletje. */
-.kaart-maatje {
-  position: absolute;
-  bottom: -2px;
-  height: 150px;
-  pointer-events: none;
-}
-
-.kaart-maatje .pop {
-  height: 100%;
-  width: auto;
-}
-
-.kaart-maatje.rechts {
-  left: calc(50% + var(--x) + 66px);
-}
-
-.kaart-maatje.links {
-  right: calc(50% - var(--x) + 66px);
+/* De balk met portret, naam en kast blijft bovenaan staan bij het scrollen. */
+.kaart > .balk {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: calc(-1 * max(16px, env(safe-area-inset-top))) -16px 0;
+  padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+  background: #ffe8f3e6;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid #f4c6dc;
 }
 
 .bolletje {
@@ -573,22 +565,28 @@ button:disabled {
   display: inline-block;
 }
 
-/* Het leesmaatje staat links onderaan, naast de knoppen. */
+/* Het leesmaatje: een rond portret links onderaan, naast de knoppen. */
 .lezen {
   position: relative;
 }
 
 .maatje {
   position: absolute;
-  left: max(4px, env(safe-area-inset-left));
-  bottom: max(4px, env(safe-area-inset-bottom));
-  height: min(38dvh, 400px);
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  width: clamp(110px, 18vw, 170px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #ffd6ec 70%);
+  border: 5px solid var(--inkt);
+  box-shadow: 0 7px 0 var(--inkt);
   pointer-events: none;
 }
 
 .maatje .pop {
+  width: 100%;
   height: 100%;
-  width: auto;
 }
 
 .knoppen {
@@ -656,6 +654,16 @@ button:disabled {
 }
 
 /* De paskamer van de boetiek: een gestreepte luifel boven een roze vloer. */
+/* Tikken op de avatar in de kast geeft een reactie. */
+.pop-tik {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  touch-action: manipulation;
+}
+
 .kast-pop {
   position: sticky;
   top: 16px;
@@ -978,6 +986,14 @@ button:disabled {
   animation: schrik 0.5s ease-out;
 }
 
+/* Een draaitje om de outfit te showen. */
+.stemming-draai .pop-sprong {
+  animation: draai 0.9s ease-in-out;
+}
+.stemming-draai .pop-grond {
+  animation: grond 0.9s ease-in-out;
+}
+
 .wind-lijn {
   animation: waai 1.3s ease-out infinite both;
 }
@@ -1078,6 +1094,14 @@ button:disabled {
 @keyframes zucht {
   0%, 100% { transform: none; }
   40% { transform: translateY(2px) scale(1.012, 0.985); }
+}
+
+@keyframes draai {
+  0% { transform: none; }
+  25% { transform: translateY(-10px) scaleX(0.05); }
+  50% { transform: translateY(-14px) scaleX(-1); }
+  75% { transform: translateY(-10px) scaleX(0.05); }
+  100% { transform: none; }
 }
 
 @keyframes schrik {

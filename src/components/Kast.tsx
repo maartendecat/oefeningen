@@ -1,25 +1,41 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ItemPrent, Pop, vindBasis } from "@/avatar/Pop";
+import { ItemPrent, Pop, vindBasis, type Stemming } from "@/avatar/Pop";
 import { CATEGORIEEN, ITEMS, type Categorie } from "@/avatar/items";
-import { klik } from "@/lib/geluid";
+import { klik, pling } from "@/lib/geluid";
 import { trekAan, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
 
+const TIK_REACTIES: [Stemming, number][] = [
+  ["draai", 950],
+  ["blij", 900],
+  ["juich", 1700],
+];
+
 export function Kast({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
   const [cat, zetCat] = useState<Categorie>("truitjes");
-  // Iets nieuws aan: een sprongetje en een glinstering.
+  // De avatar reageert: op nieuwe kleren, en als ze op haar tikt.
   const [puls, zetPuls] = useState(0);
-  const [blij, zetBlij] = useState(false);
+  const [stemming, zetStemming] = useState<Stemming>("rust");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
+  const reageer = (nieuw: Stemming, duur: number) => {
+    zetPuls((n) => n + 1);
+    zetStemming(nieuw);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => zetStemming("rust"), duur);
+  };
   const pas = (id: string) => {
     trekAan(id);
-    zetPuls((n) => n + 1);
-    zetBlij(true);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => zetBlij(false), 900);
+    reageer("blij", 900);
+  };
+  // Bij elke tik de volgende reactie: een draaitje, een sprongetje, hartjes.
+  const tikken = useRef(0);
+  const tikOpAvatar = () => {
+    const [nieuw, duur] = TIK_REACTIES[tikken.current++ % TIK_REACTIES.length];
+    if (!spel.stil) pling();
+    reageer(nieuw, duur);
   };
   const basis = vindBasis(spel.avatar);
   const heb = (id: string, start?: boolean) => start || spel.kast.includes(id);
@@ -42,7 +58,9 @@ export function Kast({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
 
       <div className="kast-inhoud">
         <div className="kast-pop">
-          <Pop key={puls} basis={basis} aan={spel.aan} naam={spel.naam} stemming={blij ? "blij" : "rust"} className="pop-groot" />
+          <button className="pop-tik" onClick={tikOpAvatar} aria-label={`tik op ${spel.naam ?? "je avatar"}`}>
+            <Pop key={puls} basis={basis} aan={spel.aan} naam={spel.naam} stemming={stemming} className="pop-groot" />
+          </button>
           <span className="naam-label groot">{spel.naam}</span>
         </div>
 

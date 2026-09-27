@@ -18,7 +18,7 @@ import type { Aan } from "@/lib/state";
 type Kapsel = "golven" | "staart" | "knot" | "bob" | "vlechten";
 
 /** Hoe de avatar zich voelt; bepaalt gezicht, effecten en beweging. */
-export type Stemming = "rust" | "blij" | "juich" | "zwaar" | "verrast";
+export type Stemming = "rust" | "blij" | "juich" | "zwaar" | "verrast" | "draai";
 
 export type Basis = {
   id: string;
@@ -332,6 +332,7 @@ function Wenkbrauwen({ kleur, stemming }: { kleur: string; stemming: Stemming })
     blij: "M85 47.5 Q91 44 96 46.5 M104 46.5 Q109 44 115 47.5",
     juich: "M85 46.5 Q91 43 96 45.5 M104 45.5 Q109 43 115 46.5",
     zwaar: "M85 49 Q91 48.5 96 45.5 M104 45.5 Q109 48.5 115 49",
+    draai: "M85 47.5 Q91 44 96 46.5 M104 46.5 Q109 44 115 47.5",
     verrast: "M85 45.5 Q91 41.5 96 44.5 M104 44.5 Q109 41.5 115 45.5",
   }[stemming];
   return <path d={d} fill="none" stroke={kleur} strokeWidth={1.8} strokeLinecap="round" />;
@@ -341,6 +342,7 @@ function Mond({ v, stemming }: { v: Verf; stemming: Stemming }) {
   switch (stemming) {
     case "blij":
     case "juich":
+    case "draai":
       return (
         <g strokeLinejoin="round">
           <path d="M91.5 68 Q100 82 108.5 68 Q100 70 91.5 68 Z" fill="#6b1233" stroke={LIJN} strokeWidth={0.9} />
@@ -370,7 +372,7 @@ function Mond({ v, stemming }: { v: Verf; stemming: Stemming }) {
 
 function Gezicht({ v, stemming }: { v: Verf; stemming: Stemming }) {
   const { b } = v;
-  const lacht = stemming === "blij" || stemming === "juich";
+  const lacht = stemming === "blij" || stemming === "juich" || stemming === "draai";
   const bol = stemming === "zwaar";
   return (
     <g>
@@ -505,8 +507,8 @@ function Figuur({ v, aan, uid }: { v: Verf; aan: Aan; uid: string }) {
 export const VOLLEDIG = "0 0 200 400";
 /** Strak rond de figuur zelf, voor als ze nog niets vasthoudt. */
 export const STRAK = "44 0 112 388";
-/** Strak, maar met plaats voor een tas of ijsje in haar rechterhand. */
-export const MET_TAS = "44 0 140 388";
+/** Hoofd en schouders, met plaats voor het windje en de hartjes errond. */
+export const PORTRET = "48 0 116 116";
 
 /** Een vast getal per avatar-exemplaar, zodat ze niet allemaal tegelijk knipperen. */
 function spreiding(uid: string): number {
@@ -577,7 +579,7 @@ export function Pop({
         </g>
         {stemming === "zwaar" && <Windje />}
         {stemming === "juich" && <Juichen />}
-        {stemming === "blij" && <Blij />}
+        {(stemming === "blij" || stemming === "draai") && <Blij />}
         {stemming === "verrast" && <Verrast />}
       </g>
     </svg>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MET_TAS, Pop, vindBasis, type Stemming } from "@/avatar/Pop";
+import { PORTRET, Pop, vindBasis, type Stemming } from "@/avatar/Pop";
 import { vindReeks } from "@/data/levels";
 import { nogEens, pling } from "@/lib/geluid";
 import { hak, isKlinker, kaal, woorden } from "@/lib/klanken";
@@ -110,7 +110,7 @@ export function Lezen({
       </div>
 
       <div className="maatje" aria-hidden="true">
-        <Pop key={puls} basis={vindBasis(spel.avatar)} aan={spel.aan} stemming={stemming} kader={MET_TAS} />
+        <Pop key={puls} basis={vindBasis(spel.avatar)} aan={spel.aan} stemming={stemming} kader={PORTRET} />
       </div>
 
       <footer className="knoppen">
