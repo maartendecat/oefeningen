@@ -30,7 +30,7 @@ export function ProfielKiezen({ ga }: { ga: (s: Scherm) => void }) {
     <main className="scherm profielen">
       <header className="balk">
         <span className="knop-plek" />
-        <h1 className="titel">{profielen.length ? "wie gaat er lezen?" : "welkom!"}</h1>
+        <h1 className="titel">{profielen.length ? "wie gaat er oefenen?" : "welkom!"}</h1>
         <button className="knop-rond klein" onClick={() => ga({ naam: "ouder" })} aria-label="oudermenu">
           ⚙️
         </button>

@@ -253,7 +253,7 @@ export function Vogel({
   return (
     <svg
       viewBox={viewBox}
-      className={`vogel stemming-${stemming} ${silhouet ? "silhouet" : ""} ${className ?? ""}`}
+      className={`vogel soort-${soort.id} stemming-${stemming} ${silhouet ? "silhouet" : ""} ${className ?? ""}`}
       style={{ ...stijl, ["--grond" as string]: `${g.grond}px` }}
       role="img"
       aria-label={naam || soort.naam}

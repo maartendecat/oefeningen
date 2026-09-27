@@ -253,7 +253,7 @@ export const VOGELS: Soort[] = [
   },
   {
     id: "zwartvleugeltangare",
-    naam: "zwartvleugeltangare",
+    naam: "zwartvleugel\u00adtangare",
     gebied: "bos",
     weetje: "knalrood, met zwarte vleugels.",
     vorm: zangvogel({ snavel: "kegel", snavelS: 0.85 }),
@@ -263,7 +263,7 @@ export const VOGELS: Soort[] = [
   },
   {
     id: "kolibrie",
-    naam: "robijnkeelkolibrie",
+    naam: "robijnkeel\u00adkolibrie",
     gebied: "bos",
     weetje: "kan stil blijven hangen en zelfs achteruit vliegen.",
     vorm: kolibrie(),
@@ -351,7 +351,7 @@ export const VOGELS: Soort[] = [
   },
   {
     id: "regenbooglori",
-    naam: "regenbooglori",
+    naam: "regenboog\u00adlori",
     gebied: "bos",
     weetje: "heeft alle kleuren van de regenboog.",
     vorm: roofvogel({ snavel: "papegaai", staart: "lang", kop: 0.95 }),
@@ -504,7 +504,7 @@ export const VOGELS: Soort[] = [
   },
   {
     id: "roodstaartbuizerd",
-    naam: "roodstaartbuizerd",
+    naam: "roodstaart\u00adbuizerd",
     gebied: "veld",
     weetje: "cirkelt hoog boven de velden en zoekt muizen.",
     vorm: roofvogel(),
@@ -793,7 +793,7 @@ export const VOGELS: Soort[] = [
   },
   {
     id: "papegaaiduiker",
-    naam: "papegaaiduiker",
+    naam: "papegaai\u00adduiker",
     gebied: "water",
     start: true,
     weetje: "draagt wel tien visjes tegelijk in zijn snavel.",
@@ -892,7 +892,7 @@ export const VOGELS: Soort[] = [
   },
   {
     id: "trompetkraanvogel",
-    naam: "trompetkraanvogel",
+    naam: "trompet\u00adkraanvogel",
     gebied: "water",
     weetje: "danst en springt om een vrouwtje te lokken.",
     vorm: steltloper({ hals: "recht", snavel: "dolk", snavelS: 0.95 }),

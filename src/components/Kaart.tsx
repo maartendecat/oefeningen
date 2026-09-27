@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/avatar/Avatar";
 import { ITEMS } from "@/avatar/items";
 import { VOGELS } from "@/avatar/vogels";
@@ -46,6 +46,7 @@ export function Kaart({
   const tik = () => {
     if (!spel.stil) klik();
   };
+  const [menuOpen, zetMenuOpen] = useState(false);
 
   return (
     <main className="scherm kaart">
@@ -75,6 +76,40 @@ export function Kaart({
             ⚙️
           </button>
         </div>
+        {/* Op een smal scherm staan dezelfde knoppen achter een menu. */}
+        <div className="balk-menu">
+          <button
+            className={`knop-rond ${menuOpen ? "aan" : ""}`}
+            onClick={() => { tik(); zetMenuOpen(!menuOpen); }}
+            aria-label="menu"
+            aria-expanded={menuOpen}
+          >
+            ☰
+          </button>
+          {menuOpen && (
+            <>
+              <div className="menu-achtergrond" onClick={() => zetMenuOpen(false)} />
+              <div className="menu-paneel" role="menu">
+                {anderOnderwerp && (
+                  <button role="menuitem" onClick={() => { tik(); zetMenuOpen(false); anderOnderwerp(); }}>
+                    <span>{onderwerp.icoon}</span> ander onderwerp
+                  </button>
+                )}
+                <button role="menuitem" onClick={() => zetStil(!spel.stil)}>
+                  <span>{spel.stil ? "🔇" : "🔊"}</span> {spel.stil ? "geluid aan" : "geluid uit"}
+                </button>
+                {meerdereProfielen && (
+                  <button role="menuitem" onClick={() => { tik(); zetMenuOpen(false); kiesProfiel(null); }}>
+                    <span>👥</span> ander kind
+                  </button>
+                )}
+                <button role="menuitem" onClick={() => { zetMenuOpen(false); ga({ naam: "ouder" }); }}>
+                  <span>⚙️</span> voor ouders
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </header>
 
       <div className="pad">
@@ -94,9 +129,10 @@ export function Kaart({
                   const klaar = spel.klaar.includes(reeks.id);
                   const open = plek.index <= volgendeIndex;
                   const huidig = plek.index === volgendeIndex;
-                  const x = Math.round(Math.sin(plek.index * 1.3) * 110);
+                  // Zigzag: hoe ver opzij staat in --zigzag (smaller op een gsm).
+                  const x = Math.sin(plek.index * 1.3).toFixed(2);
                   return (
-                    <div key={reeks.id} className="bolletje-rij" style={{ ["--x" as string]: `${x}px` }}>
+                    <div key={reeks.id} className="bolletje-rij" style={{ ["--x" as string]: `calc(${x} * var(--zigzag))` }}>
                       <button
                         ref={huidig ? huidigRef : undefined}
                         disabled={!open}
