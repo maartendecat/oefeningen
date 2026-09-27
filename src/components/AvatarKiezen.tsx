@@ -78,7 +78,7 @@ function NaamKiezen({
           if (schoon) klaar(schoon);
         }}
       >
-        <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} className="pop-naam-groot" />
+        <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} stemming={schoon ? "blij" : "rust"} className="pop-naam-groot" />
         <div className="naam-invoer-rij">
           <input
             className="naam-invoer"

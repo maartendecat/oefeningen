@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { MET_TAS, Pop, vindBasis, type Stemming } from "@/avatar/Pop";
 import { vindReeks } from "@/data/levels";
 import { nogEens, pling } from "@/lib/geluid";
 import { hak, isKlinker, kaal, woorden } from "@/lib/klanken";
@@ -21,6 +22,19 @@ export function Lezen({
   const [stap, zetStap] = useState(0);
   const [klankjes, zetKlankjes] = useState(false);
   const [schud, zetSchud] = useState(0);
+  // Het leesmaatje: blij bij een goed woord, "pfff" als het zwaar gaat.
+  const [stemming, zetStemming] = useState<Stemming>("rust");
+  const [puls, zetPuls] = useState(0);
+  const terugNaarRust = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(terugNaarRust.current), []);
+
+  const reageer = (nieuw: Stemming, duur: number) => {
+    clearTimeout(terugNaarRust.current);
+    zetStemming(nieuw);
+    zetPuls((n) => n + 1);
+    terugNaarRust.current = setTimeout(() => zetStemming("rust"), duur);
+  };
 
   if (!plek) {
     return (
@@ -43,6 +57,7 @@ export function Lezen({
     }
     zetStap(stap + 1);
     zetKlankjes(false);
+    reageer("blij", 900);
   };
 
   const opnieuw = () => {
@@ -50,6 +65,7 @@ export function Lezen({
     zetSchud((n) => n + 1);
     // Na een 'nog eens' helpen de klankjes om het woord te hakken.
     zetKlankjes(true);
+    reageer("zwaar", 2600);
   };
 
   return (
@@ -91,6 +107,10 @@ export function Lezen({
             <p className="leestekst">{tekst}</p>
           )}
         </div>
+      </div>
+
+      <div className="maatje" aria-hidden="true">
+        <Pop key={puls} basis={vindBasis(spel.avatar)} aan={spel.aan} stemming={stemming} kader={MET_TAS} />
       </div>
 
       <footer className="knoppen">

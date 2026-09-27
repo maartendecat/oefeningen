@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ItemPrent, Pop, vindBasis } from "@/avatar/Pop";
+import { ItemPrent, Pop, vindBasis, type Stemming } from "@/avatar/Pop";
 import { vindItem } from "@/avatar/items";
 import { ALLE_REEKSEN } from "@/data/levels";
 import { fanfare, pling } from "@/lib/geluid";
@@ -33,6 +33,14 @@ export function Beloning({
   // Eén keer bepalen, anders wisselen de verrassingen bij elke render.
   const [keuzes] = useState(() => (eerste ? kiesVerrassingen(spel) : []));
   const [gekozen, zetGekozen] = useState<string | null>(null);
+  // Eerst even verrast om het nieuwe cadeau, dan juichen.
+  const [stemming, zetStemming] = useState<Stemming>(eerste ? "verrast" : "juich");
+
+  useEffect(() => {
+    if (!gekozen) return;
+    const t = setTimeout(() => zetStemming("juich"), 700);
+    return () => clearTimeout(t);
+  }, [gekozen]);
   const basis = vindBasis(spel.avatar);
 
   useEffect(() => {
@@ -70,7 +78,7 @@ export function Beloning({
     return (
       <main className="scherm beloning">
         <h1 className="titel groot">goed zo!</h1>
-        <Pop basis={basis} aan={spel.aan} naam={spel.naam} className="pop-groot dans" />
+        <Pop basis={basis} aan={spel.aan} naam={spel.naam} stemming="juich" className="pop-groot" />
         {verder}
       </main>
     );
@@ -80,7 +88,7 @@ export function Beloning({
     return (
       <main className="scherm beloning">
         <h1 className="titel groot">joepie!</h1>
-        <Pop basis={basis} aan={spel.aan} naam={spel.naam} className="pop-groot dans" />
+        <Pop basis={basis} aan={spel.aan} naam={spel.naam} stemming={stemming} className="pop-groot" />
         {verder}
       </main>
     );

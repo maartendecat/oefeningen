@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Pop, vindBasis } from "@/avatar/Pop";
+import { MET_TAS, Pop, STRAK, vindBasis } from "@/avatar/Pop";
 import { ITEMS } from "@/avatar/items";
 import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
 import { klik } from "@/lib/geluid";
@@ -60,17 +60,24 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
                   const klaar = spel.klaar.includes(reeks.id);
                   const open = plek.index <= volgendeIndex;
                   const huidig = plek.index === volgendeIndex;
+                  const x = Math.round(Math.sin(plek.index * 1.3) * 110);
                   return (
-                    <button
-                      key={reeks.id}
-                      ref={huidig ? huidigRef : undefined}
-                      disabled={!open}
-                      className={`bolletje ${klaar ? "klaar" : ""} ${huidig ? "huidig" : ""}`}
-                      style={{ ["--x" as string]: `${Math.round(Math.sin(plek.index * 1.3) * 110)}px` }}
-                      onClick={() => { tik(); ga({ naam: "lezen", reeks: reeks.id }); }}
-                    >
-                      {klaar ? "⭐" : open ? plek.index + 1 : "🔒"}
-                    </button>
+                    <div key={reeks.id} className="bolletje-rij" style={{ ["--x" as string]: `${x}px` }}>
+                      <button
+                        ref={huidig ? huidigRef : undefined}
+                        disabled={!open}
+                        className={`bolletje ${klaar ? "klaar" : ""} ${huidig ? "huidig" : ""}`}
+                        onClick={() => { tik(); ga({ naam: "lezen", reeks: reeks.id }); }}
+                      >
+                        {klaar ? "⭐" : open ? plek.index + 1 : "🔒"}
+                      </button>
+                      {huidig && (
+                        // Ze staat klaar naast het bolletje waar ze verder moet, aan de kant van het midden.
+                        <div className={`kaart-maatje ${x > 0 ? "links" : "rechts"}`} aria-hidden="true">
+                          <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} kader={spel.aan.tassen ? MET_TAS : STRAK} />
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>

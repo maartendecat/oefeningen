@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ItemPrent, Pop, vindBasis } from "@/avatar/Pop";
 import { CATEGORIEEN, ITEMS, type Categorie } from "@/avatar/items";
 import { klik } from "@/lib/geluid";
@@ -9,6 +9,18 @@ import type { Scherm } from "./App";
 
 export function Kast({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
   const [cat, zetCat] = useState<Categorie>("truitjes");
+  // Iets nieuws aan: een sprongetje en een glinstering.
+  const [puls, zetPuls] = useState(0);
+  const [blij, zetBlij] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const pas = (id: string) => {
+    trekAan(id);
+    zetPuls((n) => n + 1);
+    zetBlij(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => zetBlij(false), 900);
+  };
   const basis = vindBasis(spel.avatar);
   const heb = (id: string, start?: boolean) => start || spel.kast.includes(id);
 
@@ -30,7 +42,7 @@ export function Kast({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
 
       <div className="kast-inhoud">
         <div className="kast-pop">
-          <Pop basis={basis} aan={spel.aan} naam={spel.naam} className="pop-groot" />
+          <Pop key={puls} basis={basis} aan={spel.aan} naam={spel.naam} stemming={blij ? "blij" : "rust"} className="pop-groot" />
           <span className="naam-label groot">{spel.naam}</span>
         </div>
 
@@ -59,7 +71,7 @@ export function Kast({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
                 <button
                   key={item.id}
                   className={`vakje ${spel.aan[item.categorie] === item.id ? "aan" : ""}`}
-                  onClick={() => { if (!spel.stil) klik(); trekAan(item.id); }}
+                  onClick={() => { if (!spel.stil) klik(); pas(item.id); }}
                   aria-label={item.naam}
                 >
                   <ItemPrent item={item} huid={basis.huid} className="prent" />

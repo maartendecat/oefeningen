@@ -344,6 +344,7 @@ button:disabled {
   box-shadow: 0 5px 0 var(--inkt);
   font-size: 26px;
   font-weight: 700;
+  white-space: nowrap;
   padding: 8px 18px;
   margin-right: auto;
   transition: transform 0.08s, box-shadow 0.08s;
@@ -371,7 +372,7 @@ button:disabled {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 26px;
+  margin-bottom: 44px;
 }
 
 .letter-tegel {
@@ -405,6 +406,34 @@ button:disabled {
   flex-direction: column;
   align-items: center;
   gap: 16px;
+}
+
+.bolletje-rij {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Voeten gelijk met de onderkant van het bolletje. */
+.kaart-maatje {
+  position: absolute;
+  bottom: -2px;
+  height: 150px;
+  pointer-events: none;
+}
+
+.kaart-maatje .pop {
+  height: 100%;
+  width: auto;
+}
+
+.kaart-maatje.rechts {
+  left: calc(50% + var(--x) + 66px);
+}
+
+.kaart-maatje.links {
+  right: calc(50% - var(--x) + 66px);
 }
 
 .bolletje {
@@ -544,6 +573,24 @@ button:disabled {
   display: inline-block;
 }
 
+/* Het leesmaatje staat links onderaan, naast de knoppen. */
+.lezen {
+  position: relative;
+}
+
+.maatje {
+  position: absolute;
+  left: max(4px, env(safe-area-inset-left));
+  bottom: max(4px, env(safe-area-inset-bottom));
+  height: min(38dvh, 400px);
+  pointer-events: none;
+}
+
+.maatje .pop {
+  height: 100%;
+  width: auto;
+}
+
 .knoppen {
   display: flex;
   justify-content: center;
@@ -590,11 +637,6 @@ button:disabled {
   height: min(58dvh, 560px);
   width: auto;
   max-width: 100%;
-}
-
-.dans {
-  animation: dans 1.6s ease-in-out infinite;
-  transform-origin: 50% 95%;
 }
 
 .knoppen-rij {
@@ -842,6 +884,249 @@ button:disabled {
   font-weight: 700;
 }
 
+/* ---- Avatar-animaties ----
+   Alle SVG-transformaties rekenen in de coördinaten van de avatar
+   (viewBox 0 0 200 400): de voeten staan op y 372. */
+
+.pop * {
+  transform-box: view-box;
+}
+
+/* Het silhouet voor de lichtval: alles wit, open lijnen blijven open. */
+.masker,
+.masker * {
+  fill: #ffffff !important;
+}
+.masker [stroke]:not([stroke="none"]) {
+  stroke: #ffffff !important;
+}
+.masker [fill="none"],
+.masker [fill="none"] * {
+  fill: none !important;
+}
+
+.pop-sprong,
+.pop-adem {
+  transform-origin: 100px 372px;
+}
+
+.pop-adem {
+  animation: adem 4.2s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+
+.pop .oog {
+  transform-origin: 100px 58px;
+  animation: knipper 5.2s infinite;
+  animation-delay: var(--knipper, 0s);
+}
+
+.haar-zwaai {
+  transform-origin: 100px 30px;
+  animation: wieg 5s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+
+.staart-zwaai {
+  transform-origin: 116px 32px;
+  animation: staart 2.8s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+
+.knot-wiebel {
+  transform-origin: 100px 34px;
+  animation: wieg 3.2s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+
+.vlecht-links,
+.vlecht-rechts {
+  animation: vlecht 3.6s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+.vlecht-links {
+  transform-origin: 78px 62px;
+}
+.vlecht-rechts {
+  transform-origin: 122px 62px;
+  animation-direction: reverse;
+}
+
+.pop-grond {
+  transform-origin: 100px 378px;
+}
+
+.stemming-blij .pop-sprong {
+  animation: hop 0.6s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+.stemming-blij .pop-grond {
+  animation: grond 0.6s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.stemming-juich .pop-sprong {
+  animation: juich 0.9s ease-in-out infinite;
+}
+.stemming-juich .pop-grond {
+  animation: grond 0.9s ease-in-out infinite;
+}
+
+.stemming-zwaar .pop-sprong {
+  animation: zucht 2.2s ease-in-out infinite;
+}
+
+.stemming-verrast .pop-sprong {
+  animation: schrik 0.5s ease-out;
+}
+
+.wind-lijn {
+  animation: waai 1.3s ease-out infinite both;
+}
+.wind-lijn:nth-child(2) {
+  animation-delay: 0.22s;
+}
+.wind-lijn:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+.wind-wolk {
+  transform-origin: 150px 70px;
+  animation: wolk 1.3s ease-out infinite both;
+  animation-delay: 0.15s;
+}
+
+.zweet {
+  animation: zweet 1.8s ease-in infinite both;
+}
+
+.zweef {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: zweef 2s ease-out infinite both;
+}
+
+.fonkel-kort {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fonkel-kort 0.9s ease-out both;
+}
+
+.flits {
+  animation: flits 0.7s ease-out both;
+}
+
+/* Glitter op kleren fonkelt, elk steentje op zijn eigen moment. */
+.fonkel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fonkel 2.4s ease-in-out infinite;
+}
+.fonkel:nth-child(3n) {
+  animation-delay: -0.8s;
+}
+.fonkel:nth-child(3n + 1) {
+  animation-delay: -1.6s;
+}
+.fonkel:nth-child(4n) {
+  animation-duration: 3.1s;
+}
+
+@keyframes adem {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.006, 1.012); }
+}
+
+@keyframes knipper {
+  0%, 93%, 100% { transform: scaleY(1); }
+  95.5% { transform: scaleY(0.08); }
+}
+
+@keyframes wieg {
+  0%, 100% { transform: rotate(-0.8deg); }
+  50% { transform: rotate(0.8deg); }
+}
+
+@keyframes staart {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes vlecht {
+  0%, 100% { transform: rotate(-1.6deg); }
+  50% { transform: rotate(1.6deg); }
+}
+
+@keyframes hop {
+  0% { transform: none; }
+  18% { transform: scale(1.05, 0.94); }
+  55% { transform: translateY(-16px) scale(0.97, 1.04); }
+  85% { transform: scale(1.04, 0.96); }
+  100% { transform: none; }
+}
+
+@keyframes juich {
+  0%, 100% { transform: scale(1.05, 0.95); }
+  15% { transform: scale(1, 1); }
+  50% { transform: translateY(-26px) scale(0.97, 1.04); }
+  85% { transform: scale(1, 1); }
+}
+
+@keyframes grond {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.7); opacity: 0.55; }
+}
+
+@keyframes zucht {
+  0%, 100% { transform: none; }
+  40% { transform: translateY(2px) scale(1.012, 0.985); }
+}
+
+@keyframes schrik {
+  0% { transform: none; }
+  40% { transform: translateY(-8px) scale(0.96, 1.05); }
+  100% { transform: none; }
+}
+
+@keyframes waai {
+  0% { transform: translateX(-4px); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateX(12px); opacity: 0; }
+}
+
+@keyframes wolk {
+  0% { transform: translateX(-10px) scale(0.4); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(8px) scale(1.1); opacity: 0; }
+}
+
+@keyframes zweet {
+  0% { transform: translateY(-2px); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+
+@keyframes zweef {
+  0% { transform: translateY(10px) scale(0.3); opacity: 0; }
+  20% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-42px) scale(0.8) rotate(14deg); opacity: 0; }
+}
+
+@keyframes fonkel-kort {
+  0% { transform: scale(0); opacity: 0; }
+  40% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0) rotate(90deg); opacity: 0; }
+}
+
+@keyframes flits {
+  0% { transform: translateY(4px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-3px); opacity: 0; }
+}
+
+@keyframes fonkel {
+  0%, 100% { transform: scale(0.6); opacity: 0.35; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
 /* ---- Animaties ---- */
 
 @keyframes plop {
@@ -865,11 +1150,6 @@ button:disabled {
 @keyframes val-in {
   from { transform: translateY(-60px) rotate(-10deg) scale(0.7); opacity: 0; }
   to { transform: none; opacity: 1; }
-}
-
-@keyframes dans {
-  0%, 100% { transform: rotate(-3deg); }
-  50% { transform: rotate(3deg) translateY(-6px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

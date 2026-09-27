@@ -275,7 +275,7 @@ export const ITEMS: Item[] = [
         {[
           [90, 118], [106, 124], [96, 138], [112, 146], [88, 154], [104, 158],
         ].map(([x, y]) => (
-          <path key={`${x}-${y}`} d={vonkPad(x, y, 3.5)} fill="#ffffff" />
+          <path key={`${x}-${y}`} className="fonkel" d={vonkPad(x, y, 3.5)} fill="#ffffff" />
         ))}
         {[
           [100, 112], [86, 132], [114, 134], [98, 150],
@@ -339,7 +339,7 @@ export const ITEMS: Item[] = [
         {[
           [80, 190], [104, 204], [120, 184], [72, 232], [96, 244], [124, 236], [110, 258],
         ].map(([x, y]) => (
-          <path key={`${x}-${y}`} d={vonkPad(x, y, 3.5)} fill="#ffffff" />
+          <path key={`${x}-${y}`} className="fonkel" d={vonkPad(x, y, 3.5)} fill="#ffffff" />
         ))}
         <Tailleband y={156} kleur={DONKER_ROZE} />
       </g>
@@ -432,7 +432,7 @@ export const ITEMS: Item[] = [
         {[
           [90, 122], [110, 134], [96, 150], [84, 186], [112, 176], [100, 206], [74, 222], [126, 220],
         ].map(([x, y]) => (
-          <path key={`${x}-${y}`} d={vonkPad(x, y, 4)} fill="#fff6d6" />
+          <path key={`${x}-${y}`} className="fonkel" d={vonkPad(x, y, 4)} fill="#fff6d6" />
         ))}
       </g>
     ),
@@ -470,7 +470,7 @@ export const ITEMS: Item[] = [
         {[
           [70, 200], [90, 210], [112, 208], [132, 200], [100, 188],
         ].map(([x, y]) => (
-          <path key={`${x}-${y}`} d={vonkPad(x, y, 3.5)} fill="#ffffff" />
+          <path key={`${x}-${y}`} className="fonkel" d={vonkPad(x, y, 3.5)} fill="#ffffff" />
         ))}
         <path d={hartPad(100, 128, 5)} fill={DONKER_ROZE} />
       </g>
@@ -573,8 +573,8 @@ export const ITEMS: Item[] = [
       <Paar>
         <path d={BOOT} fill={ROZE} {...OMLIJND} />
         <rect x={61} y={358} width={38} height={12} rx={3} fill="#ffffff" {...OMLIJND} />
-        <path d={vonkPad(88, 330, 3.5)} fill="#ffffff" />
-        <path d={vonkPad(80, 346, 2.5)} fill="#ffffff" />
+        <path className="fonkel" d={vonkPad(88, 330, 3.5)} fill="#ffffff" />
+        <path className="fonkel" d={vonkPad(80, 346, 2.5)} fill="#ffffff" />
       </Paar>
     ),
   },
