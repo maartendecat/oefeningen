@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { kiesProfiel, useSpel, useStaat } from "@/lib/state";
+import { kiesProfiel, themaVan, useSpel, useStaat } from "@/lib/state";
 import { startSync, useSyncStatus } from "@/lib/sync";
 import { Aanmelden, type Aanmeldopties } from "./Aanmelden";
 import { AvatarKiezen } from "./AvatarKiezen";
 import { Beloning } from "./Beloning";
 import { Kaart } from "./Kaart";
 import { Kast } from "./Kast";
+import { Landschap } from "./Landschap";
 import { Lezen } from "./Lezen";
 import { Ouder } from "./Ouder";
 import { ProfielKiezen } from "./ProfielKiezen";
@@ -16,7 +17,8 @@ export type Scherm =
   | { naam: "kaart" }
   | { naam: "lezen"; reeks: string }
   | { naam: "beloning"; reeks: string; eerste: boolean }
-  | { naam: "kast" }
+  /** De kast, of bij een vogel het landschap; `nieuw` is net gewonnen. */
+  | { naam: "kast"; nieuw?: string }
   | { naam: "pop" }
   | { naam: "ouder" };
 
@@ -29,6 +31,13 @@ export function App({ aanmelden }: { aanmelden: Aanmeldopties }) {
   useEffect(() => {
     void startSync();
   }, []);
+
+  // Met een vogel als avatar krijgt de hele app natuurkleuren (zie globals.css).
+  const thema = spel?.avatar ? themaVan(spel) : null;
+  useEffect(() => {
+    if (thema === "vogels") document.documentElement.dataset.thema = "vogels";
+    else delete document.documentElement.dataset.thema;
+  }, [thema]);
 
   // Na afmelden (of account verwijderen) begint wie inlogt weer bij het begin.
   const [vorigeLogin, zetVorigeLogin] = useState(sync.ingelogd);
@@ -69,7 +78,11 @@ export function App({ aanmelden }: { aanmelden: Aanmeldopties }) {
     case "beloning":
       return <Beloning spel={spel} reeksId={scherm.reeks} eerste={scherm.eerste} ga={zetScherm} />;
     case "kast":
-      return <Kast spel={spel} ga={zetScherm} />;
+      return themaVan(spel) === "vogels" ? (
+        <Landschap spel={spel} nieuw={scherm.nieuw} ga={zetScherm} />
+      ) : (
+        <Kast spel={spel} ga={zetScherm} />
+      );
     default:
       return <Kaart spel={spel} ga={zetScherm} />;
   }

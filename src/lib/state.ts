@@ -2,9 +2,11 @@
 
 import { useSyncExternalStore } from "react";
 import { ITEMS, UITTREKBAAR } from "@/avatar/items";
-import { isLeeg, lees, nieuwSpel, type Spel } from "./spel";
+import { VOGELS } from "@/avatar/vogels";
+import { isLeeg, lees, nieuwSpel, themaVan, type Spel } from "./spel";
 
-export type { Aan, Spel } from "./spel";
+export type { Aan, Spel, Thema } from "./spel";
+export { themaVan } from "./spel";
 
 // Alle profielen van het gezin staan ook in localStorage: zo werkt de app
 // meteen, ook zonder internet, en kan een kind van profiel wisselen zonder
@@ -200,6 +202,17 @@ export function winItem(id: string) {
   });
 }
 
+/** Voegt een vogel toe aan het landschap. */
+export function winVogel(id: string) {
+  pasAan((s) => (s.vogels.includes(id) ? s : { ...s, vogels: [...s.vogels, id] }));
+}
+
+/** Wint een beloning in het thema van de avatar. */
+export function winBeloning(s: Spel, id: string) {
+  if (themaVan(s) === "vogels") winVogel(id);
+  else winItem(id);
+}
+
 export function trekAan(id: string) {
   pasAan((s) => trekAanIn(s, id));
 }
@@ -220,17 +233,24 @@ function trekAanIn(s: Spel, id: string): Spel {
   return { ...s, aan };
 }
 
-export function vergrendeld(s: Spel) {
-  return ITEMS.filter((i) => !i.start && !s.kast.includes(i.id));
+/** Wat er nog te winnen is in het thema van de avatar, met de groep om te spreiden. */
+function nogTeWinnen(s: Spel): { id: string; groep: string }[] {
+  if (themaVan(s) === "vogels") {
+    return VOGELS.filter((v) => !s.vogels.includes(v.id)).map((v) => ({ id: v.id, groep: v.gebied }));
+  }
+  return ITEMS.filter((i) => !i.start && !s.kast.includes(i.id)).map((i) => ({ id: i.id, groep: i.categorie }));
 }
 
-/** Kiest drie verrassingen, zoveel mogelijk uit verschillende categorieën. */
+/**
+ * Kiest drie verrassingen, zoveel mogelijk uit verschillende categorieën
+ * (bij de vogels: uit verschillende leefgebieden).
+ */
 export function kiesVerrassingen(s: Spel, aantal = 3): string[] {
-  const open = [...vergrendeld(s)].sort(() => Math.random() - 0.5);
+  const open = nogTeWinnen(s).sort(() => Math.random() - 0.5);
   const gekozen: typeof open = [];
   for (const item of open) {
     if (gekozen.length === aantal) break;
-    if (!gekozen.some((g) => g.categorie === item.categorie)) gekozen.push(item);
+    if (!gekozen.some((g) => g.groep === item.groep)) gekozen.push(item);
   }
   for (const item of open) {
     if (gekozen.length === aantal) break;
@@ -242,18 +262,19 @@ export function kiesVerrassingen(s: Spel, aantal = 3): string[] {
 /**
  * Oudermenu: zet de voortgang zo dat de reeksen vóór `aantalKlaar` gedaan
  * zijn. Voor elke reeks die zo extra klaar raakt, komt er een willekeurig
- * item bij; terugzetten neemt niets af.
+ * item (of vogel) bij; terugzetten neemt niets af.
  */
 export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
   pasAan((s) => {
     const klaar = reeksIds.slice(0, aantalKlaar);
     const extra = klaar.filter((id) => !s.klaar.includes(id)).length;
-    let kast = s.kast;
+    const veld = themaVan(s) === "vogels" ? "vogels" : "kast";
+    let lijst = s[veld];
     for (let i = 0; i < extra; i++) {
-      const [nieuw] = kiesVerrassingen({ ...s, kast }, 1);
-      if (nieuw) kast = [...kast, nieuw];
+      const [nieuw] = kiesVerrassingen({ ...s, [veld]: lijst }, 1);
+      if (nieuw) lijst = [...lijst, nieuw];
     }
-    return { ...s, klaar, kast };
+    return { ...s, klaar, [veld]: lijst };
   });
 }
 

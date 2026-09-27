@@ -1,20 +1,28 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Pop, vindBasis } from "@/avatar/Pop";
+import { Avatar } from "@/avatar/Avatar";
 import { ITEMS } from "@/avatar/items";
+import { VOGELS } from "@/avatar/vogels";
 import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
 import { klik } from "@/lib/geluid";
-import { kiesProfiel, useStaat, zetStil, type Spel } from "@/lib/state";
+import { kiesProfiel, themaVan, useStaat, zetStil, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
 
-const KLEUREN = ["#ff4fa3", "#7b3fe4", "#4d9dfe", "#3ddc97", "#ff9f1c", "#e63946"];
+const KLEUREN = {
+  kleren: ["#ff4fa3", "#7b3fe4", "#4d9dfe", "#3ddc97", "#ff9f1c", "#e63946"],
+  // Natuurkleuren: mos, meer, oker, dennengroen, lucht, roodborst.
+  vogels: ["#5f9e3a", "#2f86b8", "#d99a2b", "#2e7d5b", "#56a8d8", "#d4622a"],
+};
 
 export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
   const volgende = ALLE_REEKSEN.find((p) => !spel.klaar.includes(p.reeks.id));
   const volgendeIndex = volgende?.index ?? ALLE_REEKSEN.length;
   const huidigRef = useRef<HTMLButtonElement>(null);
-  const aantalItems = ITEMS.filter((i) => !i.start).length;
+  const vogels = themaVan(spel) === "vogels";
+  const teller = vogels
+    ? { icoon: "🐦", gewonnen: spel.vogels.length, totaal: VOGELS.length, naam: "mijn vogels" }
+    : { icoon: "👗", gewonnen: spel.kast.length, totaal: ITEMS.filter((i) => !i.start).length, naam: "mijn kast" };
 
   useEffect(() => {
     huidigRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -30,12 +38,12 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
   return (
     <main className="scherm kaart">
       <header className="balk">
-        <button className="knop-rond pop-knop" onClick={() => { tik(); ga({ naam: "kast" }); }} aria-label="mijn kast">
-          <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} naam={spel.naam} className="pop-mini" />
+        <button className="knop-rond pop-knop" onClick={() => { tik(); ga({ naam: "kast" }); }} aria-label={teller.naam}>
+          <Avatar spel={spel} naam={spel.naam} kader={vogels ? "portret" : "volledig"} className={vogels ? "vogel-mini" : "pop-mini"} />
         </button>
         <span className="naam-label">{spel.naam}</span>
         <button className="kast-teller" onClick={() => { tik(); ga({ naam: "kast" }); }}>
-          👗 {spel.kast.length} / {aantalItems}
+          {teller.icoon} {teller.gewonnen} / {teller.totaal}
         </button>
         <div className="balk-rechts">
           <button className="knop-rond" onClick={() => zetStil(!spel.stil)} aria-label="geluid">
@@ -54,7 +62,8 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
 
       <div className="pad">
         {LEVELS.map((level, li) => {
-          const kleur = KLEUREN[li % KLEUREN.length];
+          const kleuren = KLEUREN[themaVan(spel)];
+          const kleur = kleuren[li % kleuren.length];
           return (
             <section key={level.id} className="level" style={{ ["--kleur" as string]: kleur }}>
               <div className="level-kop">

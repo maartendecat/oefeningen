@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MIGRATIES, VERSIE, isLeeg, lees, nieuwSpel } from "./spel";
+import { MIGRATIES, VERSIE, isLeeg, lees, nieuwSpel, themaVan } from "./spel";
 
 const geldig = {
   versie: 1,
@@ -58,5 +58,28 @@ describe("voortgang inlezen", () => {
   it("herkent een leeg spel", () => {
     expect(isLeeg(nieuwSpel())).toBe(true);
     expect(isLeeg(lees(geldig)!)).toBe(false);
+  });
+
+  it("geeft voortgang van voor de vogels een lege vogelverzameling", () => {
+    expect(lees(geldig)!.vogels).toEqual([]);
+  });
+
+  it("ruimt vogels op die niet meer bestaan", () => {
+    const s = lees({ ...geldig, versie: 2, vogels: ["kea", "dodo", "kea"] })!;
+    expect(s.vogels).toEqual(["kea"]);
+  });
+
+  it("weigert een kapotte vogelverzameling", () => {
+    expect(lees({ ...geldig, versie: 2, vogels: "kea" })).toBeNull();
+  });
+});
+
+describe("thema", () => {
+  it("volgt uit de avatar", () => {
+    expect(themaVan({ avatar: "noor" })).toBe("kleren");
+    expect(themaVan({ avatar: null })).toBe("kleren");
+    expect(themaVan({ avatar: "kea" })).toBe("vogels");
+    // Een verzamelvogel is geen avatar.
+    expect(themaVan({ avatar: "merel" })).toBe("kleren");
   });
 });

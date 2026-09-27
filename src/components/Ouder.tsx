@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PORTRET, Pop, vindBasis } from "@/avatar/Pop";
+import { Avatar } from "@/avatar/Avatar";
 import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
 import {
   exporteer,
@@ -114,13 +114,15 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
   return (
     <section className="paneel">
       <h2>Profielen</h2>
-      <p className="uitleg">Elk kind heeft een eigen avatar, voortgang en kast. Wisselen kan het kind zelf.</p>
+      <p className="uitleg">
+        Elk kind heeft een eigen avatar, voortgang en kast (of vogels). Wisselen kan het kind zelf.
+      </p>
       <ul className="profiel-lijst">
         {profielen.map(([id, spel]) => (
           <li key={id} className="profiel-rij">
             <span className="profiel-mini">
               {spel.avatar ? (
-                <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} kader={PORTRET} />
+                <Avatar spel={spel} kader="portret" />
               ) : (
                 <span className="profiel-vraag">?</span>
               )}
@@ -145,7 +147,7 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
             <button
               className="knop rood klein"
               onClick={async () => {
-                if (!confirm(`Het profiel van "${spel.naam ?? "?"}" met alle voortgang en kleren verwijderen?`)) return;
+                if (!confirm(`Het profiel van "${spel.naam ?? "?"}" met alle voortgang, kleren en vogels verwijderen?`)) return;
                 await wisProfiel(id);
                 meld("Profiel verwijderd.");
               }}
@@ -195,11 +197,12 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
         <h2>Voortgang van {naam}</h2>
         <p>
           {spel.klaar.length} van {reeksIds.length} reeksen gedaan, {spel.kast.length}{" "}
-          {spel.kast.length === 1 ? "item" : "items"} gewonnen.
+          {spel.kast.length === 1 ? "item" : "items"} en {spel.vogels.length}{" "}
+          {spel.vogels.length === 1 ? "vogel" : "vogels"} gewonnen.
         </p>
         <p className="uitleg">
           Laat {naam} starten bij een bepaalde letter. Alle reeksen daarvoor tellen dan als gedaan en leveren elk
-          een willekeurig item op. Teruggaan neemt geen items af.
+          een willekeurig item op (of een vogel, als {naam} een vogel als avatar heeft). Teruggaan neemt niets af.
         </p>
         <div className="level-keuze">
           {LEVELS.map((level) => {
@@ -264,7 +267,7 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
         <button
           className="knop rood"
           onClick={() => {
-            if (confirm(`Alle voortgang, kleren en de avatar van ${naam} wissen? De naam blijft.`)) {
+            if (confirm(`Alle voortgang, kleren, vogels en de avatar van ${naam} wissen? De naam blijft.`)) {
               wisVoortgang();
               ga({ naam: "kaart" });
             }

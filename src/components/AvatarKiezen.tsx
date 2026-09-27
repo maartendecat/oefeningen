@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { BASISSEN, Pop, STRAK, vindBasis } from "@/avatar/Pop";
+import { Avatar } from "@/avatar/Avatar";
+import { BASISSEN, PORTRET, Pop } from "@/avatar/Pop";
+import { Vogel } from "@/avatar/Vogel";
+import { STARTVOGELS } from "@/avatar/vogels";
 import { klik, pling } from "@/lib/geluid";
 import { kiesAvatar, zetNaam, type Spel } from "@/lib/state";
 import { Vink } from "./Icoon";
@@ -10,13 +13,20 @@ const MAX_NAAM = 12;
 
 export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void }) {
   // Wie al een avatar heeft maar nog geen naam, begint meteen bij de naam.
-  const [stap, zetStap] = useState<"pop" | "naam">(spel.avatar && !spel.naam ? "naam" : "pop");
+  const [stap, zetStap] = useState<"kiezen" | "naam">(spel.avatar && !spel.naam ? "naam" : "kiezen");
+  const kies = (id: string) => {
+    if (!spel.stil) klik();
+    kiesAvatar(id);
+    // De ouder gaf het profiel al een naam: dan is het kind meteen klaar.
+    if (spel.naam) klaar();
+    else zetStap("naam");
+  };
 
   if (stap === "naam" && spel.avatar) {
     return (
       <NaamKiezen
         spel={spel}
-        terug={() => zetStap("pop")}
+        terug={() => zetStap("kiezen")}
         klaar={(naam) => {
           if (!spel.stil) pling();
           zetNaam(naam);
@@ -26,24 +36,31 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
     );
   }
 
+  // Alles in één keer: bovenaan de poppen (kleren), daaronder de vogels.
   return (
     <main className="scherm kiezen">
       <h1 className="titel">kies je avatar</h1>
-      <div className="kiezen-rij">
+      <div className="kiezen-rij poppen">
         {BASISSEN.map((b) => (
           <button
             key={b.id}
             className={`kaartje pop-kaartje ${spel.avatar === b.id ? "gekozen" : ""}`}
-            onClick={() => {
-              if (!spel.stil) klik();
-              kiesAvatar(b.id);
-              // De ouder gaf het profiel al een naam: dan is ze meteen klaar.
-              if (spel.naam) klaar();
-              else zetStap("naam");
-            }}
+            onClick={() => kies(b.id)}
             aria-label={`avatar ${BASISSEN.indexOf(b) + 1}`}
           >
-            <Pop basis={b} aan={spel.aan} kader={spel.aan.tassen ? undefined : STRAK} className="pop-klein" />
+            <Pop basis={b} aan={spel.aan} kader={PORTRET} className="pop-klein" />
+          </button>
+        ))}
+      </div>
+      <div className="kiezen-rij vogels">
+        {STARTVOGELS.map((v) => (
+          <button
+            key={v.id}
+            className={`kaartje pop-kaartje vogel-kaartje ${spel.avatar === v.id ? "gekozen" : ""}`}
+            onClick={() => kies(v.id)}
+            aria-label={v.naam}
+          >
+            <Vogel soort={v} className="pop-klein" />
           </button>
         ))}
       </div>
@@ -80,7 +97,7 @@ function NaamKiezen({
           if (schoon) klaar(schoon);
         }}
       >
-        <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} stemming={schoon ? "blij" : "rust"} className="pop-naam-groot" />
+        <Avatar spel={spel} stemming={schoon ? "blij" : "rust"} className="pop-naam-groot" />
         <div className="naam-invoer-rij">
           <input
             className="naam-invoer"

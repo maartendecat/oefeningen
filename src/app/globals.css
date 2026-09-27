@@ -9,6 +9,19 @@
   --rood: #e63946;
   --papier: #fffaf2;
   --schaduw: 0 6px 0 var(--inkt);
+  /* Zachte achtergrond van portretten en kaartjes, en de vaste balk. */
+  --zacht: #ffd6ec;
+  --balk: #ffe8f3e6;
+  --balk-rand: #f4c6dc;
+}
+
+/* Met een vogel als avatar: natuurkleuren in plaats van roze. */
+:root[data-thema="vogels"] {
+  --roze: #2e8a5a;
+  --paars: #2f6a9a;
+  --zacht: #d8ecc8;
+  --balk: #e4f2dae6;
+  --balk-rand: #b8d8a4;
 }
 
 * {
@@ -32,6 +45,17 @@ body {
     radial-gradient(circle at 12% 92%, #fff0ad 0 13%, transparent 13.2%),
     radial-gradient(circle at 55% 50%, #ffffff66 0 1.5px, transparent 2px) 0 0 / 28px 28px,
     #ffe8f3;
+  background-attachment: fixed;
+}
+
+:root[data-thema="vogels"] body {
+  background:
+    radial-gradient(circle at 8% 18%, #cfe8c0 0 12%, transparent 12.2%),
+    radial-gradient(circle at 92% 8%, #cde6f4 0 10%, transparent 10.2%),
+    radial-gradient(circle at 88% 82%, #f2e2b8 0 16%, transparent 16.2%),
+    radial-gradient(circle at 12% 92%, #d8ecc8 0 13%, transparent 13.2%),
+    radial-gradient(circle at 55% 50%, #ffffff66 0 1.5px, transparent 2px) 0 0 / 28px 28px,
+    #e8f4de;
   background-attachment: fixed;
   -webkit-user-select: none;
   user-select: none;
@@ -223,7 +247,7 @@ button:disabled {
   align-items: center;
 }
 
-.pop-kaartje:nth-child(5n + 1) { background: #ffd6ec; }
+.pop-kaartje:nth-child(5n + 1) { background: var(--zacht); }
 .pop-kaartje:nth-child(5n + 2) { background: #d9f7ea; }
 .pop-kaartje:nth-child(5n + 3) { background: #fff1b8; }
 .pop-kaartje:nth-child(5n + 4) { background: #e5dcff; }
@@ -325,7 +349,7 @@ button:disabled {
   width: 76px;
   height: 76px;
   overflow: hidden;
-  background: #ffd6ec;
+  background: var(--zacht);
 }
 
 /* Toont enkel hoofd en schouders: het stuk x 64-136, y 14-86 van de avatar. */
@@ -422,10 +446,10 @@ button:disabled {
   z-index: 5;
   margin: calc(-1 * max(16px, env(safe-area-inset-top))) -16px 0;
   padding: max(12px, env(safe-area-inset-top)) 16px 12px;
-  background: #ffe8f3e6;
+  background: var(--balk);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border-bottom: 3px solid #f4c6dc;
+  border-bottom: 3px solid var(--balk-rand);
 }
 
 .bolletje {
@@ -578,7 +602,7 @@ button:disabled {
   aspect-ratio: 1;
   border-radius: 50%;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #ffd6ec 70%);
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, var(--zacht) 70%);
   border: 5px solid var(--inkt);
   box-shadow: 0 7px 0 var(--inkt);
   pointer-events: none;
@@ -622,7 +646,7 @@ button:disabled {
   animation: val-in 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) both;
 }
 
-.cadeau:nth-child(1) { background: #ffd6ec; }
+.cadeau:nth-child(1) { background: var(--zacht); }
 .cadeau:nth-child(2) { background: #d9f7ea; }
 .cadeau:nth-child(3) { background: #e5dcff; }
 
@@ -846,7 +870,7 @@ button:disabled {
   aspect-ratio: 1;
   border-radius: 50%;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #ffd6ec 70%);
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, var(--zacht) 70%);
   border: 5px solid var(--inkt);
   box-shadow: 0 7px 0 var(--inkt);
   animation: plop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
@@ -949,7 +973,7 @@ button:disabled {
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid var(--inkt);
-  background: #ffd6ec;
+  background: var(--zacht);
 }
 
 .profiel-mini .pop {
@@ -1350,6 +1374,368 @@ button:disabled {
 @keyframes fonkel {
   0%, 100% { transform: scale(0.6); opacity: 0.35; }
   50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* ---- Vogelthema ---- */
+
+/* "Kies je avatar": een rij poppen (als portret) en daaronder een rij
+   vogels, allemaal even grote vierkantjes op één lijn. */
+.kiezen-rij.poppen,
+.kiezen-rij.vogels {
+  flex-wrap: nowrap;
+}
+
+.kiezen-rij.poppen .pop-kaartje,
+.kiezen-rij.vogels .pop-kaartje {
+  width: clamp(56px, min(17vw, 24dvh), 170px);
+  aspect-ratio: 1;
+  padding: 4px;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pop-kaartje.vogel-kaartje:nth-child(5n + 1) { background: #d8ecc8; }
+.pop-kaartje.vogel-kaartje:nth-child(5n + 2) { background: #d4eaf6; }
+.pop-kaartje.vogel-kaartje:nth-child(5n + 3) { background: #f4e8b8; }
+.pop-kaartje.vogel-kaartje:nth-child(5n + 4) { background: #cfe6e0; }
+.pop-kaartje.vogel-kaartje:nth-child(5n + 5) { background: #f2dccb; }
+
+.maatje .vogel,
+.profiel-portret .vogel,
+.profiel-mini .vogel,
+.vogel-mini {
+  width: 100%;
+  height: 100%;
+}
+
+.profiel-portret.vogel-portret {
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, #cfe8c0 70%);
+}
+
+/* Een vogelkaart: bij de beloning, en groot als je op een vogel tikt. */
+.vogelkaart {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: 4px;
+}
+
+.cadeau.vogelkaart {
+  padding: 12px 10px 10px;
+}
+
+.cadeau.gebied-bos { background: #d8ecc8; }
+.cadeau.gebied-veld { background: #f4e8b8; }
+.cadeau.gebied-water { background: #d4eaf6; }
+
+.gebied-icoon {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 26px;
+}
+
+.vogelnaam {
+  font-size: clamp(16px, 2.4vw, 22px);
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.vogelkaart.groot {
+  margin: 0;
+  width: min(86vw, 380px);
+  padding: 18px 20px 20px;
+  border: 5px solid var(--inkt);
+  border-radius: 32px;
+  background: var(--papier);
+  box-shadow: var(--schaduw);
+  animation: plop 0.4s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.vogelkaart.groot .prent {
+  width: 100%;
+  height: auto;
+  max-height: 42dvh;
+}
+
+.vogelkaart.groot .vogelnaam {
+  font-size: clamp(26px, 5vw, 34px);
+}
+
+.vogelkaart figcaption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.weetje {
+  font-size: clamp(22px, 3.6vw, 28px);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.beloning-duo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(8px, 3vw, 32px);
+  flex-wrap: wrap;
+}
+
+.duo-avatar {
+  height: min(40dvh, 380px);
+  width: auto;
+}
+
+.beloning-duo .vogelkaart.groot {
+  width: min(70vw, 300px);
+}
+
+/* Het landschap: een panorama dat van links naar rechts scrolt. */
+.landschap {
+  padding-bottom: 0;
+}
+
+.gebieden {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gebied-knop {
+  border: 4px solid var(--inkt);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 5px 0 var(--inkt);
+  font-size: clamp(18px, 3vw, 24px);
+  font-weight: 700;
+  padding: 6px 14px;
+  white-space: nowrap;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+/* Smal scherm: de gebieden op een eigen rij onder de knoppen. */
+@media (max-width: 560px) {
+  .landschap > .balk {
+    flex-wrap: wrap;
+  }
+
+  .gebieden {
+    order: 3;
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+
+  .gebied-knop {
+    padding: 4px 10px;
+  }
+}
+
+.gebied-knop:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--inkt);
+}
+
+.landschap-venster {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-right))) 0 calc(-1 * max(16px, env(safe-area-inset-left)));
+  border-top: 4px solid var(--inkt);
+}
+
+.landschap-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.landschap-prent {
+  display: block;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 3 / 1;
+}
+
+.landschap-prent .vogel {
+  overflow: visible;
+}
+
+.plek.gewonnen {
+  cursor: pointer;
+}
+
+/* De eigen vogel zit vast linksonder op een tak, voor het landschap. */
+.landschap-avatar {
+  position: absolute;
+  left: max(8px, env(safe-area-inset-left));
+  bottom: max(8px, env(safe-area-inset-bottom));
+  width: clamp(90px, min(22vh, 28vw), 220px);
+  padding: 0;
+  border: 0;
+  background: none;
+  display: grid;
+}
+
+.landschap-avatar > * {
+  grid-area: 1 / 1;
+}
+
+.avatar-op-tak {
+  width: 100%;
+  height: auto;
+  align-self: end;
+  margin-bottom: 12%;
+}
+
+.avatar-tak {
+  width: 130%;
+  margin-left: -30%;
+  align-self: end;
+}
+
+.vogel-info {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #1f1a2466;
+}
+
+.vogel-info .sluit {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 1;
+}
+
+.info-vogel {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: grid;
+  place-items: center;
+}
+
+/* ---- Vogel-animaties ----
+   Alles rekent in de coördinaten van de vogel (tekenvlak 200 × 200); de
+   poten staan op --grond. */
+
+.vogel * {
+  transform-box: view-box;
+}
+
+.vogel-sprong,
+.vogel-adem {
+  transform-origin: 100px var(--grond, 176px);
+}
+
+.vogel-adem {
+  animation: adem 3.6s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+
+.vogel .oog {
+  animation: knipper 4.6s infinite;
+  animation-delay: var(--knipper, 0s);
+}
+
+.vogel .vleugel {
+  animation: vleugel-rust 4s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+
+/* De kolibrie fladdert altijd. */
+.vogel[aria-label="robijnkeelkolibrie"] .vleugel,
+.vogel .vleugel.zoem {
+  animation: zoem 0.12s linear infinite;
+}
+
+.vogel.silhouet .vogel-adem,
+.vogel.silhouet .vleugel {
+  animation: none;
+}
+
+.vogel-grond {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.vogel.stemming-blij .vogel-sprong {
+  animation: hop 0.6s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+.vogel.stemming-blij .vogel-grond {
+  animation: grond 0.6s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.vogel.stemming-juich .vogel-sprong {
+  animation: juich 0.9s ease-in-out infinite;
+}
+.vogel.stemming-juich .vogel-grond {
+  animation: grond 0.9s ease-in-out infinite;
+}
+.vogel.stemming-juich .vleugel-0 {
+  animation: flap 0.3s ease-in-out infinite alternate;
+}
+.vogel.stemming-juich .vleugel-1 {
+  animation: flap-rechts 0.3s ease-in-out infinite alternate;
+}
+
+.vogel.stemming-zwaar .vogel-adem {
+  animation: pluizig 2.2s ease-in-out infinite;
+}
+
+.vogel.stemming-verrast .vogel-sprong {
+  animation: schrik 0.5s ease-out;
+}
+.vogel.stemming-verrast .vleugel-0 {
+  animation: flap 0.16s ease-in-out 2 alternate;
+}
+.vogel.stemming-verrast .vleugel-1 {
+  animation: flap-rechts 0.16s ease-in-out 2 alternate;
+}
+
+.vogel.stemming-draai .vogel-sprong {
+  animation: draai 0.9s ease-in-out;
+}
+.vogel.stemming-draai .vogel-grond {
+  animation: grond 0.9s ease-in-out;
+}
+
+@keyframes vleugel-rust {
+  0%, 88%, 100% { transform: none; }
+  92% { transform: rotate(-6deg); }
+  96% { transform: rotate(2deg); }
+}
+
+@keyframes flap {
+  from { transform: rotate(8deg); }
+  to { transform: rotate(-38deg); }
+}
+
+@keyframes flap-rechts {
+  from { transform: rotate(-8deg); }
+  to { transform: rotate(38deg); }
+}
+
+@keyframes zoem {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-24deg) scaleY(0.9); }
+}
+
+@keyframes pluizig {
+  0%, 100% { transform: none; }
+  40% { transform: translateY(2px) scale(1.06, 0.96); }
 }
 
 /* ---- Animaties ---- */

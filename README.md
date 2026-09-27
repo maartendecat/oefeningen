@@ -3,7 +3,14 @@
 Een leesspelletje voor het eerste leerjaar, volgens de lettervolgorde van
 *Veilig leren lezen* (kim-versie). Het kind leest reeksen van tien woordjes en
 zinnetjes luidop voor, een ouder tikt ✓ of ↻, en na elke reeks mag het kind een
-nieuw kledingstuk kiezen voor de eigen avatar.
+beloning kiezen. Er zijn twee thema's, en het kind kiest zelf:
+
+- een **pop om aan te kleden**: na elke reeks een nieuw kledingstuk voor de kast;
+- een **vogel** (kea, oehoe, zeearend, papegaaiduiker of ijsvogel), naar het
+  bordspel *Wingspan*: na elke reeks een nieuwe vogel voor het landschap met
+  bos, veld en water. Zie [docs/vogels.md](docs/vogels.md) voor het ontwerp.
+
+Wisselen kan altijd; de kleren en de vogels blijven allebei bewaard.
 
 Een ouder logt in met Google en maakt voor elk kind een profiel, met een
 eigen avatar, voortgang en kast. Bij het openen kiest het kind zelf wie er
@@ -36,15 +43,19 @@ npm run lint
 | `src/app/api/profielen/` | API: profielen van het ingelogde gezin ophalen, bewaren en verwijderen. |
 | `src/lib/opslag.ts` | Opslag per gezin in Upstash Redis (lokaal: in het geheugen). |
 | `src/avatar/` | De avatar (`Pop.tsx`) en alle kleren (`items.tsx`), als SVG. |
-| `src/components/` | De schermen: avatar kiezen en een naam geven, levelkaart, lezen, beloning, kast, oudermenu. |
+| `src/avatar/vogels.tsx` | Alle vogels: leefgebied, weetje, kleuren en tekening. Ze gebruiken de lichaamsvormen uit `vogelvormen.ts` en worden getekend door `Vogel.tsx`. |
+| `src/avatar/decor.tsx` | Het landschap en de vaste plek van elke vogel erin. |
+| `src/avatar/Avatar.tsx` | Tekent de avatar van een profiel: pop of vogel. |
+| `src/components/` | De schermen: avatar kiezen en een naam geven, levelkaart, lezen, beloning, kast of landschap, oudermenu. |
 
 ### Nieuwe letters toevoegen
 
 Voeg in `src/data/levels.ts` een level toe met de nieuwe klank(en) in `nieuw`
 en een paar reeksen van tien oefeningen. `npm test` zegt meteen of er een woord
 tussen zit dat nog niet leesbaar is. Voor elke extra reeks is het leuk om ook
-een extra item in `src/avatar/items.tsx` te tekenen, zodat er genoeg te winnen
-blijft.
+een extra item in `src/avatar/items.tsx` en een extra vogel in
+`src/avatar/vogels.tsx` te tekenen, zodat er genoeg te winnen blijft. Een
+nieuwe vogel heeft ook een plek nodig in `PLEKKEN` (`src/avatar/decor.tsx`).
 
 ### De vorm van de voortgang veranderen
 

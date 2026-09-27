@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { BASISSEN, PORTRET, Pop } from "@/avatar/Pop";
+import { Vogel } from "@/avatar/Vogel";
 import { STARTKLEREN } from "@/avatar/items";
+import { STARTVOGELS } from "@/avatar/vogels";
 import { aanmeldenMetFacebook, aanmeldenMetGoogle, testAanmelden, useSyncStatus } from "@/lib/sync";
 
 export type Aanmeldopties = { google: boolean; facebook: boolean; test: boolean };
@@ -38,11 +40,15 @@ export function Aanmelden({ opties }: { opties: Aanmeldopties }) {
   return (
     <main className="scherm aanmelden">
       <div className="aanmelden-avatars" aria-hidden="true">
-        {BASISSEN.map((b, i) => (
-          <span key={b.id} className="profiel-portret klein" style={{ animationDelay: `${i * 0.12}s` }}>
+        {/* Om beurt een pop en een vogel: er zijn twee thema's. */}
+        {BASISSEN.slice(0, 3).flatMap((b, i) => [
+          <span key={b.id} className="profiel-portret klein" style={{ animationDelay: `${i * 0.24}s` }}>
             <Pop basis={b} aan={STARTKLEREN} kader={PORTRET} />
-          </span>
-        ))}
+          </span>,
+          <span key={STARTVOGELS[i].id} className="profiel-portret klein vogel-portret" style={{ animationDelay: `${i * 0.24 + 0.12}s` }}>
+            <Vogel soort={STARTVOGELS[i]} kader="portret" />
+          </span>,
+        ])}
       </div>
       <h1 className="titel groot">lezen!</h1>
 

@@ -1,0 +1,56 @@
+// Echte vogelgeluiden: per vogel een fragment van ongeveer drie seconden in
+// public/geluiden/<id>.m4a, geknipt uit een vrije opname op Wikimedia Commons.
+// De bronvermelding staat op de privacypagina.
+
+export type Opname = { maker: string; licentie: string; bron: string };
+
+// Vogels zonder vrije opname (condor, holenuil, regenbooglori, rode lepelaar,
+// trompetkraanvogel) houden hun nagemaakte geluidje. De zilverreiger gebruikt
+// een opname van zijn naaste familie, de kleine zilverreiger.
+export const OPNAMES: Record<string, Opname> = {
+  "blauwe-gaai": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Cyanocitta_cristata_-_Blue_Jay_XC109601.mp3" },
+  "blauwe-reiger": { maker: "Joost van Bruggen", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Ardea_cinerea_-_Grey_Heron_XC432231.mp3" },
+  "boerenzwaluw": { maker: "Marie-Lan Taÿ Pamart", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Hirundo_rustica_-_Barn_Swallow_XC492101.mp3" },
+  "boomklever": { maker: "Benoît Van Hecke", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Sitta_europaea_-_Eurasian_Nuthatch_XC528002.mp3" },
+  "canadese-gans": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Branta_canadensis_-_Canada_Goose_XC62259.mp3" },
+  "carolina-eend": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Aix_sponsa_-_Wood_Duck_XC63109.mp3" },
+  "dwergpinguin": { maker: "Mikeybear", licentie: "CC BY 3.0", bron: "https://commons.wikimedia.org/wiki/File:20091121_Little_Penguin_calls_at_St_Kilda_Breakwater.ogg" },
+  "ekster": { maker: "Spyros Papanastasiou", licentie: "CC0", bron: "https://commons.wikimedia.org/wiki/File:Pica_pica-2015.6.11-part_12.flac" },
+  "emoe": { maker: "Lütgens, Hans", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Dromaius_novaehollandiae_Lue0043_03.wav" },
+  "fuut": { maker: "British Library", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Great_Crested_Grebe_(Podiceps_cristatus)_(W1CDR0001488_BD4).ogg" },
+  "grote-bonte-specht": { maker: "Olivier Grimm", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Dendrocopos_major_-_Great_Spotted_Woodpecker_XC560953.mp3" },
+  "helmspecht": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Dryocopus_pileatus_-_Pileated_Woodpecker_XC61518.mp3" },
+  "huismus": { maker: "7575u", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:House_Sparrow_(Passer_domesticus)_call.wav" },
+  "ijsduiker": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Gavia_immer_-_Common_Loon_XC139388.mp3" },
+  "ijsvogel": { maker: "Marie-Lan Taÿ Pamart", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Alcedo_atthis_-_Common_Kingfisher_XC476785.mp3" },
+  "kea": { maker: "Department of Conservation (NZ)", licentie: "CC BY 4.0", bron: "https://commons.wikimedia.org/wiki/File:Kea-song.wav" },
+  "kerkuil": { maker: "Joost van Bruggen", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Tyto_alba_-_Western_Barn_Owl_XC436948.mp3" },
+  "kiwi": { maker: "Department of Conservation (NZ)", licentie: "CC BY 4.0", bron: "https://commons.wikimedia.org/wiki/File:Kiwi_Female_North_Island_brown_kiwi_song.ogg" },
+  "kolibrie": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Archilochus_colubris_-_Ruby-throated_Hummingbird_XC109598.mp3" },
+  "kookaburra": { maker: "Powys, V.", licentie: "CC BY 3.0", bron: "https://commons.wikimedia.org/wiki/File:Dacelo_novaeguineae_ANWC_X00520.opus" },
+  "koolmees": { maker: "Ryan Hodnett", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Great_Tit_(Parus_major)_territorial_calls_-_B%C3%A6rum,_Norway_2021-03-15.mp3" },
+  "liervogel": { maker: "James Ray", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Menura_novaehollandiae_-_Superb_Lyrebird_XC570705.mp3" },
+  "merel": { maker: "Joost van Bruggen", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Turdus_merula_-_Common_Blackbird_XC436361.mp3" },
+  "oehoe": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Bubo_virginianus_-_Great_Horned_Owl_XC428421.mp3" },
+  "ooievaar": { maker: "felix.blume", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Ciconia_ciconia_bill-clattering.ogg" },
+  "papegaaiduiker": { maker: "British Library", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Atlantic_Puffin_(Fratercula_arctica)_(W1CDR0001416_BD3).ogg" },
+  "pelikaan": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Pelecanus_erythrorhynchos_-_American_White_Pelican_XC175257.mp3" },
+  "pimpelmees": { maker: "Benoît Van Hecke", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Cyanistes_caeruleus_-_Eurasian_Blue_Tit_XC539309.mp3" },
+  "purpergors": { maker: "AMANTEDESAURIOS", licentie: "CC BY 4.0", bron: "https://commons.wikimedia.org/wiki/File:Passerina_ciris_1435567.ogg" },
+  "renkoekoek": { maker: "Bob DuHamel", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Roadrunner_Clatter.ogg" },
+  "roodborst": { maker: "Jochem verweij", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Erithacus_rubecula_-_European_Robin_XC503644.mp3" },
+  "roodkardinaal": { maker: "Ryan Hodnett", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Northern_Cardinal_(Cardinalis_cardinalis)_-_Guelph-Eramosa,_Ontario_2020-05-20.mp3" },
+  "roodstaartbuizerd": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Buteo_jamaicensis_-_Red-tailed_Hawk_XC71575.mp3" },
+  "roze-kaketoe": { maker: "Ronnievonjohnson", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Eolophus_roseicapilla_-_Pink_and_grey_cockatoo_(galah)_call,_near_the_Swan_River_in_Perth,_Western_Australia.ogg" },
+  "slechtvalk": { maker: "Sharadapte", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Peregrine_falcon_call_recorded_in_February_2010_at_Yana,_Karnataka.wav" },
+  "torenvalk": { maker: "Marie-Lan Taÿ Pamart", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Falco_tinnunculus_-_Common_Kestrel_XC468409.mp3" },
+  "trompetzwaan": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Cygnus_buccinator_-_Trumpeter_Swan_XC413784.mp3" },
+  "visarend": { maker: "British Library", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Osprey_(Pandion_haliaetus)_(W1CDR0001434_BD8).ogg" },
+  "vlaamse-gaai": { maker: "Benoît Van Hecke", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Garrulus_glandarius_-_Eurasian_Jay_XC538961.mp3" },
+  "wilde-eend": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_-_Mallard_XC62258.mp3" },
+  "wilde-kalkoen": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 3.0", bron: "https://commons.wikimedia.org/wiki/File:Meleagris_gallopavo_-_Wild_Turkey_XC104533.mp3" },
+  "zeearend": { maker: "NPS & MSU Acoustic Atlas/Jennifer Jerrett", licentie: "Public domain", bron: "https://commons.wikimedia.org/wiki/File:Yellowstone_sound_library_-_Bald_Eagle_-_002.mp3" },
+  "zilverreiger": { maker: "Joost van Bruggen", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Egretta_garzetta_-_Little_Egret_XC432219.mp3" },
+  "zwarte-zwaan": { maker: "Marc Anderson", licentie: "CC BY 4.0", bron: "https://commons.wikimedia.org/wiki/File:Black_Swan_call_(Cygnus_atratus).ogg" },
+  "zwartvleugeltangare": { maker: "Jonathon Jongsma", licentie: "CC BY-SA 4.0", bron: "https://commons.wikimedia.org/wiki/File:Piranga_olivacea_-_Scarlet_Tanager_XC241110.mp3" },
+};

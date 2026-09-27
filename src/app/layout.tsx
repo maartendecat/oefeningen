@@ -12,7 +12,7 @@ const andika = Andika({
 
 export const metadata: Metadata = {
   title: "oefenen op lezen",
-  description: "Leren lezen met Veilig leren lezen, en je avatar aankleden.",
+  description: "Leren lezen met Veilig leren lezen, en je avatar aankleden of vogels verzamelen.",
   appleWebApp: { capable: true, title: "lezen", statusBarStyle: "default" },
 };
 

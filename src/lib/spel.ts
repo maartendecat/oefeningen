@@ -3,14 +3,18 @@
 // de server gebruiken dit bestand.
 
 import { ITEMS, STARTKLEREN, type Categorie } from "@/avatar/items";
+import { VOGELS, isStartvogel } from "@/avatar/vogels";
 
 /**
  * Verhoog dit enkel samen met een stap in MIGRATIES, anders kan oude
  * voortgang niet meer ingelezen worden.
  */
-export const VERSIE = 1;
+export const VERSIE = 2;
 
 export type Aan = Partial<Record<Categorie, string>>;
+
+/** Kleren om aan te trekken of vogels om te verzamelen; volgt uit de avatar. */
+export type Thema = "kleren" | "vogels";
 
 export type Spel = {
   versie: number;
@@ -22,6 +26,8 @@ export type Spel = {
   /** Ids van gewonnen items (zonder de startkleren). */
   kast: string[];
   aan: Aan;
+  /** Ids van gewonnen vogels. Blijft bewaard, ook als het kind terug een pop kiest. */
+  vogels: string[];
   stil: boolean;
   /** Tijdstip (ms) van de laatste wijziging; de nieuwste versie wint bij synchroniseren. */
   bijgewerkt?: number;
@@ -35,6 +41,7 @@ export function nieuwSpel(): Spel {
     klaar: [],
     kast: [],
     aan: { ...STARTKLEREN },
+    vogels: [],
     stil: false,
     bijgewerkt: 0,
   };
@@ -42,18 +49,20 @@ export function nieuwSpel(): Spel {
 
 /** Nog niets gebeurd: geen avatar gekozen en geen reeks gedaan. */
 export function isLeeg(s: Spel): boolean {
-  return !s.avatar && s.klaar.length === 0 && s.kast.length === 0;
+  return !s.avatar && s.klaar.length === 0 && s.kast.length === 0 && s.vogels.length === 0;
+}
+
+export function themaVan(s: Pick<Spel, "avatar">): Thema {
+  return isStartvogel(s.avatar) ? "vogels" : "kleren";
 }
 
 type Ruw = Record<string, unknown>;
 
-/**
- * Omzettingen van versie n naar n+1, sleutel = n. Een voorbeeld voor als
- * VERSIE ooit 2 wordt:
- *
- *   1: (oud) => ({ ...oud, sterren: {} }),
- */
-export const MIGRATIES: Record<number, (oud: Ruw) => Ruw> = {};
+/** Omzettingen van versie n naar n+1, sleutel = n. */
+export const MIGRATIES: Record<number, (oud: Ruw) => Ruw> = {
+  // Het vogelthema: een lege verzameling vogels.
+  1: (oud) => ({ ...oud, vogels: [] }),
+};
 
 const isTekstLijst = (x: unknown): x is string[] =>
   Array.isArray(x) && x.length <= 1000 && x.every((v) => typeof v === "string" && v.length <= 64);
@@ -64,6 +73,7 @@ function isGeldig(d: Ruw): boolean {
     (d.naam === undefined || d.naam === null || typeof d.naam === "string") &&
     isTekstLijst(d.klaar) &&
     isTekstLijst(d.kast) &&
+    isTekstLijst(d.vogels) &&
     !!d.aan &&
     typeof d.aan === "object" &&
     !Array.isArray(d.aan)
@@ -71,8 +81,8 @@ function isGeldig(d: Ruw): boolean {
 }
 
 /**
- * Ruimt kleren op die niet meer bestaan (bv. na het hertekenen van de
- * kleerkast) en zorgt dat de avatar altijd iets aanheeft.
+ * Ruimt kleren en vogels op die niet meer bestaan (bv. na het hertekenen
+ * van de kleerkast) en zorgt dat de avatar altijd iets aanheeft.
  */
 export function herstel(s: Spel): Spel {
   const bestaat = (id: string) => ITEMS.some((i) => i.id === id && !i.start);
@@ -90,6 +100,7 @@ export function herstel(s: Spel): Spel {
     klaar: [...new Set(s.klaar)],
     kast: [...new Set(s.kast.filter(bestaat))],
     aan,
+    vogels: [...new Set(s.vogels.filter((id) => VOGELS.some((v) => v.id === id)))],
     stil: s.stil === true,
     bijgewerkt: typeof s.bijgewerkt === "number" ? s.bijgewerkt : 0,
   };

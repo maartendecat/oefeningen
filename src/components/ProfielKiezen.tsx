@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { PORTRET, Pop, vindBasis } from "@/avatar/Pop";
+import { Avatar } from "@/avatar/Avatar";
 import { klik } from "@/lib/geluid";
-import { kiesProfiel, maakProfiel, useStaat } from "@/lib/state";
+import { kiesProfiel, maakProfiel, themaVan, useStaat } from "@/lib/state";
 import type { Scherm } from "./App";
 import { Vink } from "./Icoon";
 
@@ -40,9 +40,12 @@ export function ProfielKiezen({ ga }: { ga: (s: Scherm) => void }) {
         <div className="profiel-raster">
           {profielen.map(([id, spel], i) => (
             <button key={id} className="profiel-keuze" onClick={() => kies(id)}>
-              <span className="profiel-portret" style={{ animationDelay: `${i * 0.1}s` }}>
+              <span
+                className={`profiel-portret ${themaVan(spel) === "vogels" ? "vogel-portret" : ""}`}
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
                 {spel.avatar ? (
-                  <Pop basis={vindBasis(spel.avatar)} aan={spel.aan} kader={PORTRET} />
+                  <Avatar spel={spel} kader="portret" />
                 ) : (
                   <span className="profiel-vraag">?</span>
                 )}
