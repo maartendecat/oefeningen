@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Avatar } from "@/avatar/Avatar";
 import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
 import {
@@ -61,12 +61,61 @@ function Poort({ open }: { open: () => void }) {
   );
 }
 
+/**
+ * Een knop die eerst om bevestiging vraagt, in de pagina zelf. De
+ * confirm()-dialoog van de browser verschijnt niet overal (bv. niet in een
+ * ingebouwd browservenster) en zegt dan stilletjes "nee".
+ */
+function Bevestig({
+  vraag,
+  doe,
+  className = "knop rood",
+  disabled,
+  children,
+}: {
+  vraag: string;
+  doe: () => void | Promise<void>;
+  className?: string;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  const [vragen, zetVragen] = useState(false);
+  if (!vragen) {
+    return (
+      <button className={className} disabled={disabled} onClick={() => zetVragen(true)}>
+        {children}
+      </button>
+    );
+  }
+  return (
+    <div className="bevestig" role="alertdialog" aria-label={vraag}>
+      <p>{vraag}</p>
+      <div className="bevestig-knoppen">
+        <button
+          className={className}
+          onClick={() => {
+            zetVragen(false);
+            void doe();
+          }}
+        >
+          Ja
+        </button>
+        <button className="knop" onClick={() => zetVragen(false)} autoFocus>
+          Nee
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /** Kleine letters, zoals alles wat het kind leest. */
 const netjes = (naam: string) => naam.toLowerCase().slice(0, MAX_NAAM);
 
 function Account({ meld }: { meld: (t: string) => void }) {
   const sync = useSyncStatus();
   const [bezig, zetBezig] = useState(false);
+  // Afmelden op een server zonder databank wist alles: dat vragen we apart.
+  const [geenOpslag, zetGeenOpslag] = useState(false);
   return (
     <section className="paneel">
       <h2>Account</h2>
@@ -81,26 +130,35 @@ function Account({ meld }: { meld: (t: string) => void }) {
         <p className="uitleg">Op deze server staat geen databank ingesteld: de profielen blijven enkel op dit toestel.</p>
       )}
       {sync.offline && <p className="uitleg">Geen verbinding: wijzigingen gaan mee zodra die er weer is.</p>}
-      <button
-        className="knop"
-        disabled={bezig}
-        onClick={async () => {
-          if (!confirm("Afmelden? De profielen blijven bewaard in je account, maar verdwijnen van dit toestel.")) return;
-          zetBezig(true);
-          const uitkomst = await afmelden();
-          zetBezig(false);
-          if (uitkomst === "offline") {
-            meld("Er is voortgang die nog niet bewaard is. Maak eerst verbinding met internet en probeer opnieuw.");
-          } else if (
-            uitkomst === "geen-opslag" &&
-            confirm("Deze server bewaart niets online: afmelden wist de profielen van dit toestel definitief. Toch afmelden?")
-          ) {
+      {geenOpslag ? (
+        <Bevestig
+          vraag="Deze server bewaart niets online: afmelden wist de profielen van dit toestel definitief. Toch afmelden?"
+          doe={async () => {
+            zetGeenOpslag(false);
             await afmelden({ toch: true });
-          }
-        }}
-      >
-        {bezig ? "Even bewaren…" : "Afmelden"}
-      </button>
+          }}
+        >
+          Toch afmelden
+        </Bevestig>
+      ) : (
+        <Bevestig
+          className="knop"
+          disabled={bezig}
+          vraag="Afmelden? De profielen blijven bewaard in je account, maar verdwijnen van dit toestel."
+          doe={async () => {
+            zetBezig(true);
+            const uitkomst = await afmelden();
+            zetBezig(false);
+            if (uitkomst === "offline") {
+              meld("Er is voortgang die nog niet bewaard is. Maak eerst verbinding met internet en probeer opnieuw.");
+            } else if (uitkomst === "geen-opslag") {
+              zetGeenOpslag(true);
+            }
+          }}
+        >
+          {bezig ? "Even bewaren…" : "Afmelden"}
+        </Bevestig>
+      )}
     </section>
   );
 }
@@ -144,16 +202,16 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
             <span className="profiel-stand">
               {spel.klaar.length} / {ALLE_REEKSEN.length}
             </span>
-            <button
+            <Bevestig
               className="knop rood klein"
-              onClick={async () => {
-                if (!confirm(`Het profiel van "${spel.naam ?? "?"}" met alle voortgang, kleren en vogels verwijderen?`)) return;
+              vraag={`Het profiel van "${spel.naam ?? "?"}" met alle voortgang, kleren en vogels verwijderen?`}
+              doe={async () => {
                 await wisProfiel(id);
                 meld("Profiel verwijderd.");
               }}
             >
               Verwijder
-            </button>
+            </Bevestig>
           </li>
         ))}
       </ul>
@@ -264,17 +322,15 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
 
       <section className="paneel gevaar">
         <h2>Opnieuw beginnen</h2>
-        <button
-          className="knop rood"
-          onClick={() => {
-            if (confirm(`Alle voortgang, kleren, vogels en de avatar van ${naam} wissen? De naam blijft.`)) {
-              wisVoortgang();
-              ga({ naam: "kaart" });
-            }
+        <Bevestig
+          vraag={`Alle voortgang, kleren, vogels en de avatar van ${naam} wissen? De naam blijft.`}
+          doe={() => {
+            wisVoortgang();
+            ga({ naam: "kaart" });
           }}
         >
           Wis de voortgang van {naam}
-        </button>
+        </Bevestig>
       </section>
     </>
   );
@@ -305,10 +361,9 @@ export function Ouder({ spel, ga }: { spel: Spel | null; ga: (s: Scherm) => void
           <section className="paneel gevaar">
             <h2>Account verwijderen</h2>
             <p className="uitleg">Verwijdert alle profielen en hun voortgang van de server, en meldt je af.</p>
-            <button
-              className="knop rood"
-              onClick={async () => {
-                if (!confirm("Alle profielen en alle voortgang van dit gezin definitief verwijderen?")) return;
+            <Bevestig
+              vraag="Alle profielen en alle voortgang van dit gezin definitief verwijderen?"
+              doe={async () => {
                 try {
                   await verwijderAccount();
                 } catch {
@@ -317,7 +372,7 @@ export function Ouder({ spel, ga }: { spel: Spel | null; ga: (s: Scherm) => void
               }}
             >
               Verwijder mijn account
-            </button>
+            </Bevestig>
           </section>
         </div>
       )}

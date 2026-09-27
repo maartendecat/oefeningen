@@ -1376,6 +1376,30 @@ button:disabled {
   50% { transform: scale(1.15); opacity: 1; }
 }
 
+/* Bevestigen in de pagina zelf, in plaats van met confirm(). */
+.bevestig {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 3px solid var(--rood);
+  border-radius: 16px;
+  background: #fff5f5;
+}
+
+.bevestig p {
+  margin: 0;
+}
+
+.bevestig-knoppen {
+  display: flex;
+  gap: 8px;
+}
+
+.profiel-rij:has(.bevestig) {
+  flex-wrap: wrap;
+}
+
 /* ---- Vogelthema ---- */
 
 /* "Kies je avatar": een rij poppen (als portret) en daaronder een rij
