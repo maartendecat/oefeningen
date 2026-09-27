@@ -507,8 +507,11 @@ function Figuur({ v, aan, uid }: { v: Verf; aan: Aan; uid: string }) {
 export const VOLLEDIG = "0 0 200 400";
 /** Strak rond de figuur zelf, voor als ze nog niets vasthoudt. */
 export const STRAK = "44 0 112 388";
-/** Hoofd en schouders, met plaats voor het windje en de hartjes errond. */
-export const PORTRET = "48 0 116 116";
+/**
+ * Hoofd en schouders, gecentreerd op het hoofd (x 100). 116 breed laat
+ * net plaats voor het wolkje van het windje rechts (tot x 158).
+ */
+export const PORTRET = "42 0 116 116";
 
 /** Een vast getal per avatar-exemplaar, zodat ze niet allemaal tegelijk knipperen. */
 function spreiding(uid: string): number {
