@@ -60,6 +60,18 @@ describe("voortgang inlezen", () => {
     expect(isLeeg(lees(geldig)!)).toBe(false);
   });
 
+  it("zet voortgang van voor de leerjaren in het eerste leerjaar", () => {
+    expect(lees(geldig)!.leerjaar).toBe(1);
+    expect(lees({ ...geldig, versie: 2, vogels: [] })!.leerjaar).toBe(1);
+  });
+
+  it("laat een nieuw profiel zonder leerjaar, en weigert een raar leerjaar", () => {
+    expect(nieuwSpel().leerjaar).toBeNull();
+    expect(lees({ ...nieuwSpel(), leerjaar: 3 })!.leerjaar).toBe(3);
+    expect(lees({ ...nieuwSpel(), leerjaar: 9 })).toBeNull();
+    expect(lees({ ...nieuwSpel(), leerjaar: "3" })).toBeNull();
+  });
+
   it("geeft voortgang van voor de vogels een lege vogelverzameling", () => {
     expect(lees(geldig)!.vogels).toEqual([]);
   });

@@ -9,7 +9,7 @@ import { VOGELS, isStartvogel } from "@/avatar/vogels";
  * Verhoog dit enkel samen met een stap in MIGRATIES, anders kan oude
  * voortgang niet meer ingelezen worden.
  */
-export const VERSIE = 2;
+export const VERSIE = 3;
 
 export type Aan = Partial<Record<Categorie, string>>;
 
@@ -21,6 +21,8 @@ export type Spel = {
   avatar: string | null;
   /** De naam die ze zelf aan haar avatar gaf. */
   naam?: string | null;
+  /** Het leerjaar (1-6) bepaalt welke onderwerpen er zijn; null = nog niet gekozen. */
+  leerjaar: number | null;
   /** Ids van reeksen die minstens één keer uitgespeeld zijn. */
   klaar: string[];
   /** Ids van gewonnen items (zonder de startkleren). */
@@ -38,6 +40,7 @@ export function nieuwSpel(): Spel {
     versie: VERSIE,
     avatar: null,
     naam: null,
+    leerjaar: null,
     klaar: [],
     kast: [],
     aan: { ...STARTKLEREN },
@@ -62,6 +65,8 @@ type Ruw = Record<string, unknown>;
 export const MIGRATIES: Record<number, (oud: Ruw) => Ruw> = {
   // Het vogelthema: een lege verzameling vogels.
   1: (oud) => ({ ...oud, vogels: [] }),
+  // Leerjaren: wie al speelde, deed het lezen van het eerste leerjaar.
+  2: (oud) => ({ ...oud, leerjaar: 1 }),
 };
 
 const isTekstLijst = (x: unknown): x is string[] =>
@@ -71,6 +76,7 @@ function isGeldig(d: Ruw): boolean {
   return (
     (d.avatar === null || typeof d.avatar === "string") &&
     (d.naam === undefined || d.naam === null || typeof d.naam === "string") &&
+    (d.leerjaar === null || (Number.isInteger(d.leerjaar) && (d.leerjaar as number) >= 1 && (d.leerjaar as number) <= 6)) &&
     isTekstLijst(d.klaar) &&
     isTekstLijst(d.kast) &&
     isTekstLijst(d.vogels) &&
@@ -97,6 +103,7 @@ export function herstel(s: Spel): Spel {
     versie: VERSIE,
     avatar: s.avatar,
     naam: typeof s.naam === "string" ? s.naam.slice(0, 24) : null,
+    leerjaar: s.leerjaar,
     klaar: [...new Set(s.klaar)],
     kast: [...new Set(s.kast.filter(bestaat))],
     aan,

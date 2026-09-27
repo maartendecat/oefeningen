@@ -6,7 +6,7 @@ import { ItemPrent, vindBasis, type Stemming } from "@/avatar/Pop";
 import { Vogel } from "@/avatar/Vogel";
 import { vindItem } from "@/avatar/items";
 import { LEEFGEBIEDEN, vindVogel } from "@/avatar/vogels";
-import { ALLE_REEKSEN } from "@/data/levels";
+import { reeksenVan, vindReeks } from "@/data/onderwerpen";
 import { fanfare, pling, zingVogel } from "@/lib/geluid";
 import { kiesVerrassingen, themaVan, winBeloning, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
@@ -70,8 +70,10 @@ export function Beloning({
     void confetti(true, vogels);
   };
 
-  // "ga verder" start meteen de volgende reeks die nog niet gedaan is.
-  const volgende = ALLE_REEKSEN.find((p) => !spel.klaar.includes(p.reeks.id));
+  // "ga verder" start meteen de volgende reeks van hetzelfde onderwerp die
+  // nog niet gedaan is.
+  const onderwerp = vindReeks(reeksId)?.onderwerp;
+  const volgende = onderwerp && reeksenVan(onderwerp).find((p) => !spel.klaar.includes(p.reeksId));
   const verder = (
     <div className="knoppen-rij">
       <button
@@ -83,7 +85,7 @@ export function Beloning({
       </button>
       <button
         className="groot-knop verder-knop"
-        onClick={() => ga(volgende ? { naam: "lezen", reeks: volgende.reeks.id } : { naam: "kaart" })}
+        onClick={() => ga(volgende ? { naam: "oefenen", reeks: volgende.reeksId } : { naam: "kaart" })}
       >
         ga verder
         <Pijl className="icoon klein" />

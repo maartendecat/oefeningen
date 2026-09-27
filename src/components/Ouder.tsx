@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Avatar } from "@/avatar/Avatar";
-import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
+import { LEERJAREN, onderwerpenVoor, reeksenVan } from "@/data/onderwerpen";
 import {
   exporteer,
   hernoemProfiel,
@@ -11,6 +11,7 @@ import {
   useStaat,
   wisVoortgang,
   zetStil,
+  zetLeerjaarVan,
   zetVoortgang,
   type Spel,
 } from "@/lib/state";
@@ -108,6 +109,39 @@ function Bevestig({
   );
 }
 
+/** Hoeveel reeksen er zijn voor dit leerjaar, en hoeveel er gedaan zijn. */
+function stand(spel: Spel): { klaar: number; totaal: number } {
+  const reeksen = onderwerpenVoor(spel.leerjaar).flatMap(reeksenVan);
+  return { klaar: reeksen.filter((p) => spel.klaar.includes(p.reeksId)).length, totaal: reeksen.length };
+}
+
+/** Kiest een leerjaar; leeg = het kind kiest zelf. */
+function LeerjaarKeuze({
+  waarde,
+  zet,
+  leegMag = false,
+}: {
+  waarde: number | null;
+  zet: (j: number | null) => void;
+  leegMag?: boolean;
+}) {
+  return (
+    <select
+      className="invoer leerjaar-veld"
+      value={waarde ?? ""}
+      onChange={(e) => zet(e.target.value ? Number(e.target.value) : null)}
+      aria-label="leerjaar"
+    >
+      {(leegMag || waarde === null) && <option value="">leerjaar: kind kiest</option>}
+      {LEERJAREN.map((j) => (
+        <option key={j} value={j}>
+          {j}e leerjaar
+        </option>
+      ))}
+    </select>
+  );
+}
+
 /** Kleine letters, zoals alles wat het kind leest. */
 const netjes = (naam: string) => naam.toLowerCase().slice(0, MAX_NAAM);
 
@@ -166,6 +200,7 @@ function Account({ meld }: { meld: (t: string) => void }) {
 function Profielen({ meld }: { meld: (t: string) => void }) {
   const staat = useStaat();
   const [nieuw, zetNieuw] = useState("");
+  const [nieuwLeerjaar, zetNieuwLeerjaar] = useState<number | null>(null);
   if (!staat) return null;
   const profielen = Object.entries(staat.lokaal.profielen);
 
@@ -173,7 +208,8 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
     <section className="paneel">
       <h2>Profielen</h2>
       <p className="uitleg">
-        Elk kind heeft een eigen avatar, voortgang en kast (of vogels). Wisselen kan het kind zelf.
+        Elk kind heeft een eigen avatar, voortgang en kast (of vogels). Wisselen kan het kind zelf. Het leerjaar
+        bepaalt wat er te oefenen valt; laat je het open, dan kiest het kind het zelf.
       </p>
       <ul className="profiel-lijst">
         {profielen.map(([id, spel]) => (
@@ -199,8 +235,16 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
                 }
               }}
             />
+            <LeerjaarKeuze
+              waarde={spel.leerjaar}
+              zet={(j) => {
+                if (j === null) return;
+                zetLeerjaarVan(id, j);
+                meld(`${spel.naam ?? "Dit profiel"} zit nu in het ${j}e leerjaar.`);
+              }}
+            />
             <span className="profiel-stand">
-              {spel.klaar.length} / {ALLE_REEKSEN.length}
+              {stand(spel).klaar} / {stand(spel).totaal}
             </span>
             <Bevestig
               className="knop rood klein"
@@ -222,8 +266,9 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
             e.preventDefault();
             const naam = netjes(nieuw.trim());
             if (!naam) return;
-            maakProfiel(naam);
+            maakProfiel(naam, nieuwLeerjaar);
             zetNieuw("");
+            zetNieuwLeerjaar(null);
             meld(`Profiel "${naam}" toegevoegd.`);
           }}
         >
@@ -235,6 +280,7 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
             onChange={(e) => zetNieuw(e.target.value)}
             autoCapitalize="none"
           />
+          <LeerjaarKeuze waarde={nieuwLeerjaar} zet={zetNieuwLeerjaar} leegMag />
           <button className="knop" type="submit" disabled={!nieuw.trim()}>
             + Profiel toevoegen
           </button>
@@ -246,39 +292,50 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
 
 function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => void; ga: (s: Scherm) => void }) {
   const [code, zetCode] = useState("");
-  const reeksIds = ALLE_REEKSEN.map((p) => p.reeks.id);
   const naam = spel.naam ?? "dit profiel";
+  const { klaar, totaal } = stand(spel);
 
   return (
     <>
       <section className="paneel">
         <h2>Voortgang van {naam}</h2>
         <p>
-          {spel.klaar.length} van {reeksIds.length} reeksen gedaan, {spel.kast.length}{" "}
-          {spel.kast.length === 1 ? "item" : "items"} en {spel.vogels.length}{" "}
-          {spel.vogels.length === 1 ? "vogel" : "vogels"} gewonnen.
+          {klaar} van {totaal} reeksen gedaan, {spel.kast.length} {spel.kast.length === 1 ? "item" : "items"} en{" "}
+          {spel.vogels.length} {spel.vogels.length === 1 ? "vogel" : "vogels"} gewonnen.
         </p>
         <p className="uitleg">
-          Laat {naam} starten bij een bepaalde letter. Alle reeksen daarvoor tellen dan als gedaan en leveren elk
-          een willekeurig item op (of een vogel, als {naam} een vogel als avatar heeft). Teruggaan neemt niets af.
+          Laat {naam} ergens verder starten. Alle reeksen daarvoor tellen dan als gedaan en leveren elk een
+          willekeurig item op (of een vogel, als {naam} een vogel als avatar heeft). Teruggaan neemt niets af.
         </p>
-        <div className="level-keuze">
-          {LEVELS.map((level) => {
-            const eerste = ALLE_REEKSEN.find((p) => p.level.id === level.id)!;
-            return (
-              <button
-                key={level.id}
-                className="knop"
-                onClick={() => {
-                  zetVoortgang(reeksIds, eerste.index);
-                  meld(`${naam} start nu bij "${level.nieuw.join(" ")}".`);
-                }}
-              >
-                {level.nieuw.join(" ")}
-              </button>
-            );
-          })}
-        </div>
+        {onderwerpenVoor(spel.leerjaar).map((onderwerp) => {
+          const reeksen = reeksenVan(onderwerp);
+          const reeksIds = reeksen.map((p) => p.reeksId);
+          return (
+            <div key={onderwerp.id}>
+              <h3>
+                {onderwerp.icoon} {onderwerp.naam}
+              </h3>
+              <div className="level-keuze">
+                {onderwerp.levels.map((level) => {
+                  const eerste = reeksen.find((p) => p.levelId === level.id)!;
+                  const label = level.tegels.join(" ");
+                  return (
+                    <button
+                      key={level.id}
+                      className="knop"
+                      onClick={() => {
+                        zetVoortgang(reeksIds, eerste.index);
+                        meld(`${naam} start nu bij "${label}".`);
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </section>
 
       <section className="paneel">
@@ -323,7 +380,7 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
       <section className="paneel gevaar">
         <h2>Opnieuw beginnen</h2>
         <Bevestig
-          vraag={`Alle voortgang, kleren, vogels en de avatar van ${naam} wissen? De naam blijft.`}
+          vraag={`Alle voortgang, kleren, vogels en de avatar van ${naam} wissen? De naam en het leerjaar blijven.`}
           doe={() => {
             wisVoortgang();
             ga({ naam: "kaart" });

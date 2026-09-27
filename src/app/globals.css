@@ -417,6 +417,11 @@ button:disabled {
   paint-order: stroke fill;
 }
 
+/* Een tegel met meer dan een letter, zoals "×10" of "100+". */
+.letter-tegel.breed {
+  font-size: 40px;
+}
+
 .letter-tegel:nth-child(even) {
   transform: rotate(4deg);
 }
@@ -969,8 +974,15 @@ button:disabled {
 
 .profiel-rij {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+}
+
+.invoer.leerjaar-veld {
+  width: auto;
+  font-size: 18px;
+  padding: 6px 8px;
 }
 
 .profiel-mini {
@@ -1407,6 +1419,207 @@ button:disabled {
 
 .profiel-rij:has(.bevestig) {
   flex-wrap: wrap;
+}
+
+/* ---- Leerjaar en onderwerp kiezen ---- */
+
+.leerjaar-avatar {
+  width: clamp(110px, 22vw, 170px);
+  height: auto;
+  border-radius: 50%;
+  border: 5px solid var(--inkt);
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, var(--zacht) 70%);
+}
+
+.leerjaar-knop {
+  width: clamp(110px, 22vw, 170px);
+  aspect-ratio: 1;
+  font-size: clamp(64px, 14vw, 110px);
+  font-weight: 700;
+  background: var(--geel);
+  animation: val-in 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.leerjaar-knop + .leerjaar-knop {
+  animation-delay: 0.12s;
+  background: var(--zacht);
+}
+
+.onderwerp-knop {
+  width: clamp(160px, 30vw, 240px);
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--zacht);
+}
+
+.onderwerp-icoon {
+  font-size: clamp(56px, 11vw, 88px);
+}
+
+.onderwerp-naam {
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 700;
+}
+
+.onderwerp-stand {
+  font-size: 20px;
+}
+
+/* ---- Rekenen ---- */
+
+.som-vak {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vw, 32px);
+}
+
+.rekenmaatje {
+  flex: none;
+  width: clamp(80px, 14vw, 150px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, var(--zacht) 70%);
+  border: 5px solid var(--inkt);
+  box-shadow: 0 7px 0 var(--inkt);
+}
+
+.rekenmaatje .pop,
+.rekenmaatje .vogel {
+  width: 100%;
+  height: 100%;
+}
+
+.som-kaart {
+  min-width: 0;
+  padding: 28px clamp(20px, 4vw, 48px);
+}
+
+.somtekst {
+  margin: 0;
+  font-size: clamp(44px, 9vw, 108px);
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.somtekst .is {
+  color: #9a93aa;
+}
+
+.antwoord {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 0.15em;
+  border-bottom: 0.08em solid var(--inkt);
+  color: var(--paars);
+}
+
+.antwoord.leeg {
+  color: #c8bfd8;
+}
+
+.antwoord.juist {
+  color: #1f8a4c;
+  border-bottom-color: #1f8a4c;
+}
+
+.antwoord.hulp {
+  color: var(--oranje);
+  border-bottom-color: var(--oranje);
+}
+
+.som-hulp {
+  margin: 12px 0 0;
+  font-size: clamp(18px, 3vw, 24px);
+  text-align: center;
+}
+
+.klavier {
+  align-self: center;
+  display: grid;
+  grid-template-columns: repeat(3, clamp(72px, 16vw, 104px));
+  gap: clamp(8px, 2vw, 14px);
+  padding-bottom: 8px;
+}
+
+.toets {
+  height: clamp(60px, 11dvh, 88px);
+  border: 4px solid var(--inkt);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 6px 0 var(--inkt);
+  font-size: clamp(32px, 6vw, 44px);
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+.toets:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--inkt);
+}
+
+.toets:disabled {
+  opacity: 0.5;
+}
+
+.toets.klaar {
+  background: var(--mint);
+}
+
+.toets.wis {
+  background: #f1ebfb;
+}
+
+/* Smal scherm: het maatje boven de som, zodat lange sommen passen. */
+@media (max-width: 480px) {
+  .som-vak {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rekenmaatje {
+    width: 72px;
+  }
+
+  .somtekst {
+    font-size: clamp(34px, 11vw, 52px);
+  }
+}
+
+/* Liggend scherm met weinig hoogte (tablet): klavier naast de som. */
+@media (orientation: landscape) and (max-height: 820px) and (min-width: 900px) {
+  .rekenen {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto 1fr;
+    column-gap: 24px;
+  }
+
+  .rekenen .somtekst {
+    font-size: clamp(40px, 6.5vw, 88px);
+  }
+
+  .rekenen .klavier {
+    grid-template-columns: repeat(3, clamp(64px, 8vw, 96px));
+  }
+
+  .rekenen > .balk {
+    grid-column: 1 / -1;
+  }
+
+  .rekenen .klavier {
+    align-self: center;
+  }
 }
 
 /* ---- Vogelthema ---- */

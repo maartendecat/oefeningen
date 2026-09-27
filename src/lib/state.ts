@@ -135,11 +135,20 @@ export function kiesProfiel(id: string | null) {
   zet({ ...laad(), actief: id }, false);
 }
 
-/** Oudermenu: een nieuw profiel met een naam; het kind kiest zelf de avatar. */
-export function maakProfiel(naam: string): string {
+/**
+ * Oudermenu: een nieuw profiel met een naam, en eventueel al het leerjaar;
+ * het kind kiest zelf de avatar (en het leerjaar, als de ouder dat niet deed).
+ */
+export function maakProfiel(naam: string, leerjaar: number | null = null): string {
   const id = nieuwId();
-  bewaarProfiel(id, { ...nieuwSpel(), naam });
+  bewaarProfiel(id, { ...nieuwSpel(), naam, leerjaar });
   return id;
+}
+
+/** Oudermenu: het leerjaar van een profiel aanpassen. */
+export function zetLeerjaarVan(id: string, leerjaar: number) {
+  const spel = laad().lokaal.profielen[id];
+  if (spel) bewaarProfiel(id, { ...spel, leerjaar });
 }
 
 export function hernoemProfiel(id: string, naam: string) {
@@ -180,6 +189,10 @@ export function pasAan(f: (s: Spel) => Spel) {
 
 export function kiesAvatar(id: string) {
   pasAan((s) => ({ ...s, avatar: id }));
+}
+
+export function zetLeerjaar(leerjaar: number) {
+  pasAan((s) => ({ ...s, leerjaar }));
 }
 
 export function zetNaam(naam: string) {
@@ -260,14 +273,16 @@ export function kiesVerrassingen(s: Spel, aantal = 3): string[] {
 }
 
 /**
- * Oudermenu: zet de voortgang zo dat de reeksen vóór `aantalKlaar` gedaan
- * zijn. Voor elke reeks die zo extra klaar raakt, komt er een willekeurig
- * item (of vogel) bij; terugzetten neemt niets af.
+ * Oudermenu: zet de voortgang van één onderwerp (`reeksIds`, in
+ * speelvolgorde) zo dat de reeksen vóór `aantalKlaar` gedaan zijn. Voor elke
+ * reeks die zo extra klaar raakt, komt er een willekeurig item (of vogel) bij;
+ * terugzetten neemt niets af. Andere onderwerpen blijven zoals ze waren.
  */
 export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
   pasAan((s) => {
-    const klaar = reeksIds.slice(0, aantalKlaar);
-    const extra = klaar.filter((id) => !s.klaar.includes(id)).length;
+    const nieuw = reeksIds.slice(0, aantalKlaar);
+    const klaar = [...s.klaar.filter((id) => !reeksIds.includes(id)), ...nieuw];
+    const extra = nieuw.filter((id) => !s.klaar.includes(id)).length;
     const veld = themaVan(s) === "vogels" ? "vogels" : "kast";
     let lijst = s[veld];
     for (let i = 0; i < extra; i++) {
@@ -278,9 +293,9 @@ export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
   });
 }
 
-/** Begint opnieuw met het actieve profiel; de naam blijft. */
+/** Begint opnieuw met het actieve profiel; de naam en het leerjaar blijven. */
 export function wisVoortgang() {
-  pasAan((s) => ({ ...nieuwSpel(), naam: s.naam }));
+  pasAan((s) => ({ ...nieuwSpel(), naam: s.naam, leerjaar: s.leerjaar }));
 }
 
 export function exporteer(s: Spel): string {

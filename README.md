@@ -12,6 +12,11 @@ beloning kiezen. Er zijn twee thema's, en het kind kiest zelf:
 
 Wisselen kan altijd; de kleren en de vogels blijven allebei bewaard.
 
+Wat er te oefenen valt, hangt af van het **leerjaar** van het profiel: het
+lezen voor het eerste leerjaar, de maaltafels (en deeltafels) voor het derde.
+Bij de maaltafels tikt het kind het antwoord in en kijkt de app zelf na. Zie
+[docs/leerjaren.md](docs/leerjaren.md).
+
 Een ouder logt in met Google en maakt voor elk kind een profiel, met een
 eigen avatar, voortgang en kast. Bij het openen kiest het kind zelf wie er
 gaat lezen, zoals bij Netflix.
@@ -33,6 +38,8 @@ npm run lint
 
 | Pad | Wat |
 |---|---|
+| `src/data/onderwerpen.ts` | Alle onderwerpen (lezen, maaltafels): voor welk leerjaar, hoe het kind antwoordt, en hun levels. |
+| `src/data/maaltafels.ts` | Genereert de maaltafelreeksen met een vaste willekeur; `maaltafels.test.ts` bewaakt ze. |
 | `src/data/levels.ts` | De leesinhoud: levels (één nieuwe klank per level) met reeksen van vijftien oefeningen. |
 | `src/data/levels.test.ts` | Bewaakt dat elk woord enkel gekende klanken gebruikt, één klinker heeft en geen medeklinkerclusters bevat, en dat een reeks niet korter wordt naar het einde. |
 | `src/lib/klanken.ts` | Hakt woorden in klanken (`kaas` → `k · aa · s`). |

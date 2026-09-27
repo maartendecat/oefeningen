@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { onderwerpenVoor, vindReeks } from "@/data/onderwerpen";
 import { kiesProfiel, themaVan, useSpel, useStaat } from "@/lib/state";
 import { startSync, useSyncStatus } from "@/lib/sync";
 import { Aanmelden, type Aanmeldopties } from "./Aanmelden";
@@ -9,13 +10,17 @@ import { Beloning } from "./Beloning";
 import { Kaart } from "./Kaart";
 import { Kast } from "./Kast";
 import { Landschap } from "./Landschap";
+import { LeerjaarKiezen } from "./LeerjaarKiezen";
 import { Lezen } from "./Lezen";
+import { OnderwerpKiezen } from "./OnderwerpKiezen";
+import { Rekenen } from "./Rekenen";
 import { Ouder } from "./Ouder";
 import { ProfielKiezen } from "./ProfielKiezen";
 
 export type Scherm =
   | { naam: "kaart" }
-  | { naam: "lezen"; reeks: string }
+  /** Een reeks oefenen: voorlezen of sommen, volgens het onderwerp. */
+  | { naam: "oefenen"; reeks: string }
   | { naam: "beloning"; reeks: string; eerste: boolean }
   /** De kast, of bij een vogel het landschap; `nieuw` is net gewonnen. */
   | { naam: "kast"; nieuw?: string }
@@ -27,6 +32,8 @@ export function App({ aanmelden }: { aanmelden: Aanmeldopties }) {
   const spel = useSpel();
   const sync = useSyncStatus();
   const [scherm, zetScherm] = useState<Scherm>({ naam: "kaart" });
+  // Welk onderwerp elk profiel open heeft (enkel nodig als er meer dan één is).
+  const [gekozen, zetGekozen] = useState<Record<string, string | null>>({});
 
   useEffect(() => {
     void startSync();
@@ -72,9 +79,22 @@ export function App({ aanmelden }: { aanmelden: Aanmeldopties }) {
     return <AvatarKiezen spel={spel} klaar={() => zetScherm({ naam: scherm.naam === "pop" ? "kast" : "kaart" })} />;
   }
 
+  // Het leerjaar bepaalt de onderwerpen; heeft de ouder het niet ingesteld,
+  // dan kiest het kind het zelf.
+  const onderwerpen = onderwerpenVoor(spel.leerjaar);
+  if (onderwerpen.length === 0) return <LeerjaarKiezen spel={spel} />;
+  const profiel = staat.actief ?? "";
+  const kiesOnderwerp = (id: string | null) => zetGekozen((g) => ({ ...g, [profiel]: id }));
+  const onderwerp =
+    onderwerpen.find((o) => o.id === gekozen[profiel]) ?? (onderwerpen.length === 1 ? onderwerpen[0] : undefined);
+
   switch (scherm.naam) {
-    case "lezen":
-      return <Lezen key={scherm.reeks} spel={spel} reeksId={scherm.reeks} ga={zetScherm} />;
+    case "oefenen":
+      return vindReeks(scherm.reeks)?.onderwerp.soort === "som" ? (
+        <Rekenen key={scherm.reeks} spel={spel} reeksId={scherm.reeks} ga={zetScherm} />
+      ) : (
+        <Lezen key={scherm.reeks} spel={spel} reeksId={scherm.reeks} ga={zetScherm} />
+      );
     case "beloning":
       return <Beloning spel={spel} reeksId={scherm.reeks} eerste={scherm.eerste} ga={zetScherm} />;
     case "kast":
@@ -84,6 +104,14 @@ export function App({ aanmelden }: { aanmelden: Aanmeldopties }) {
         <Kast spel={spel} ga={zetScherm} />
       );
     default:
-      return <Kaart spel={spel} ga={zetScherm} />;
+      if (!onderwerp) return <OnderwerpKiezen spel={spel} onderwerpen={onderwerpen} kies={kiesOnderwerp} />;
+      return (
+        <Kaart
+          spel={spel}
+          onderwerp={onderwerp}
+          anderOnderwerp={onderwerpen.length > 1 ? () => kiesOnderwerp(null) : undefined}
+          ga={zetScherm}
+        />
+      );
   }
 }

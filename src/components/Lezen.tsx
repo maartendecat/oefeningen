@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/avatar/Avatar";
 import type { Stemming } from "@/avatar/Pop";
-import { vindReeks } from "@/data/levels";
+import { leesReeks } from "@/data/onderwerpen";
 import { nogEens, pling } from "@/lib/geluid";
 import { hak, isKlinker, kaal, woorden } from "@/lib/klanken";
 import { reeksKlaar, type Spel } from "@/lib/state";
@@ -19,7 +19,7 @@ export function Lezen({
   reeksId: string;
   ga: (s: Scherm) => void;
 }) {
-  const plek = vindReeks(reeksId);
+  const reeks = leesReeks(reeksId);
   const [stap, zetStap] = useState(0);
   const [klankjes, zetKlankjes] = useState(false);
   const [schud, zetSchud] = useState(0);
@@ -37,7 +37,7 @@ export function Lezen({
     terugNaarRust.current = setTimeout(() => zetStemming("rust"), duur);
   };
 
-  if (!plek) {
+  if (!reeks) {
     return (
       <main className="scherm">
         <button className="groot-knop" onClick={() => ga({ naam: "kaart" })}>🏠</button>
@@ -45,7 +45,7 @@ export function Lezen({
     );
   }
 
-  const oefeningen = plek.reeks.oefeningen;
+  const oefeningen = reeks.oefeningen;
   const tekst = oefeningen[stap];
 
   const goed = () => {

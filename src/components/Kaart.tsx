@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { Avatar } from "@/avatar/Avatar";
 import { ITEMS } from "@/avatar/items";
 import { VOGELS } from "@/avatar/vogels";
-import { ALLE_REEKSEN, LEVELS } from "@/data/levels";
+import { reeksenVan, type Onderwerp } from "@/data/onderwerpen";
 import { klik } from "@/lib/geluid";
 import { kiesProfiel, themaVan, useStaat, zetStil, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
@@ -15,9 +15,21 @@ const KLEUREN = {
   vogels: ["#5f9e3a", "#2f86b8", "#d99a2b", "#2e7d5b", "#56a8d8", "#d4622a"],
 };
 
-export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
-  const volgende = ALLE_REEKSEN.find((p) => !spel.klaar.includes(p.reeks.id));
-  const volgendeIndex = volgende?.index ?? ALLE_REEKSEN.length;
+export function Kaart({
+  spel,
+  onderwerp,
+  anderOnderwerp,
+  ga,
+}: {
+  spel: Spel;
+  onderwerp: Onderwerp;
+  /** Enkel als het leerjaar meer dan één onderwerp heeft. */
+  anderOnderwerp?: () => void;
+  ga: (s: Scherm) => void;
+}) {
+  const reeksen = reeksenVan(onderwerp);
+  const volgende = reeksen.find((p) => !spel.klaar.includes(p.reeksId));
+  const volgendeIndex = volgende?.index ?? reeksen.length;
   const huidigRef = useRef<HTMLButtonElement>(null);
   const vogels = themaVan(spel) === "vogels";
   const teller = vogels
@@ -46,6 +58,11 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
           {teller.icoon} {teller.gewonnen} / {teller.totaal}
         </button>
         <div className="balk-rechts">
+          {anderOnderwerp && (
+            <button className="knop-rond" onClick={() => { tik(); anderOnderwerp(); }} aria-label="ander onderwerp">
+              {onderwerp.icoon}
+            </button>
+          )}
           <button className="knop-rond" onClick={() => zetStil(!spel.stil)} aria-label="geluid">
             {spel.stil ? "🔇" : "🔊"}
           </button>
@@ -61,19 +78,19 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
       </header>
 
       <div className="pad">
-        {LEVELS.map((level, li) => {
+        {onderwerp.levels.map((level, li) => {
           const kleuren = KLEUREN[themaVan(spel)];
           const kleur = kleuren[li % kleuren.length];
           return (
             <section key={level.id} className="level" style={{ ["--kleur" as string]: kleur }}>
               <div className="level-kop">
-                {level.nieuw.map((k) => (
-                  <span key={k} className="letter-tegel">{k}</span>
+                {level.tegels.map((k) => (
+                  <span key={k} className={`letter-tegel ${k.length > 2 ? "breed" : ""}`}>{k}</span>
                 ))}
               </div>
               <div className="bolletjes">
                 {level.reeksen.map((reeks) => {
-                  const plek = ALLE_REEKSEN.find((p) => p.reeks.id === reeks.id)!;
+                  const plek = reeksen.find((p) => p.reeksId === reeks.id)!;
                   const klaar = spel.klaar.includes(reeks.id);
                   const open = plek.index <= volgendeIndex;
                   const huidig = plek.index === volgendeIndex;
@@ -84,7 +101,7 @@ export function Kaart({ spel, ga }: { spel: Spel; ga: (s: Scherm) => void }) {
                         ref={huidig ? huidigRef : undefined}
                         disabled={!open}
                         className={`bolletje ${klaar ? "klaar" : ""} ${huidig ? "huidig" : ""}`}
-                        onClick={() => { tik(); ga({ naam: "lezen", reeks: reeks.id }); }}
+                        onClick={() => { tik(); ga({ naam: "oefenen", reeks: reeks.id }); }}
                       >
                         {klaar ? "⭐" : open ? plek.index + 1 : "🔒"}
                       </button>
