@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { HELDEN, HELD_PORTRET, Held } from "@/avatar/Held";
 import { BASISSEN, PORTRET, Pop } from "@/avatar/Pop";
 import { Vogel } from "@/avatar/Vogel";
 import { STARTKLEREN } from "@/avatar/items";
@@ -40,13 +41,16 @@ export function Aanmelden({ opties }: { opties: Aanmeldopties }) {
   return (
     <main className="scherm aanmelden">
       <div className="aanmelden-avatars" aria-hidden="true">
-        {/* Om beurt een pop en een vogel: er zijn twee thema's. */}
-        {BASISSEN.slice(0, 3).flatMap((b, i) => [
-          <span key={b.id} className="profiel-portret klein" style={{ animationDelay: `${i * 0.24}s` }}>
+        {/* Om beurt een pop, een vogel en een held: er zijn drie thema's. */}
+        {BASISSEN.slice(0, 2).flatMap((b, i) => [
+          <span key={b.id} className="profiel-portret klein" style={{ animationDelay: `${i * 0.36}s` }}>
             <Pop basis={b} aan={STARTKLEREN} kader={PORTRET} />
           </span>,
-          <span key={STARTVOGELS[i].id} className="profiel-portret klein vogel-portret" style={{ animationDelay: `${i * 0.24 + 0.12}s` }}>
+          <span key={STARTVOGELS[i].id} className="profiel-portret klein vogel-portret" style={{ animationDelay: `${i * 0.36 + 0.12}s` }}>
             <Vogel soort={STARTVOGELS[i]} kader="portret" />
+          </span>,
+          <span key={HELDEN[i].id} className="profiel-portret klein held-portret" style={{ animationDelay: `${i * 0.36 + 0.24}s` }}>
+            <Held basis={HELDEN[i]} kader={HELD_PORTRET} />
           </span>,
         ])}
       </div>

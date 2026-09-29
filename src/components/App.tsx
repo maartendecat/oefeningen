@@ -22,7 +22,7 @@ export type Scherm =
   /** Een reeks oefenen: voorlezen of sommen, volgens het onderwerp. */
   | { naam: "oefenen"; reeks: string }
   | { naam: "beloning"; reeks: string; eerste: boolean }
-  /** De kast, of bij een vogel het landschap; `nieuw` is net gewonnen. */
+  /** De kast, bij een vogel het landschap, bij een held het hoofdkwartier; `nieuw` is net gewonnen. */
   | { naam: "kast"; nieuw?: string }
   | { naam: "pop" }
   | { naam: "ouder" };
@@ -39,10 +39,11 @@ export function App({ aanmelden }: { aanmelden: Aanmeldopties }) {
     void startSync();
   }, []);
 
-  // Met een vogel als avatar krijgt de hele app natuurkleuren (zie globals.css).
+  // Met een vogel als avatar krijgt de hele app natuurkleuren, met een held
+  // stripkleuren (zie globals.css).
   const thema = spel?.avatar ? themaVan(spel) : null;
   useEffect(() => {
-    if (thema === "vogels") document.documentElement.dataset.thema = "vogels";
+    if (thema === "vogels" || thema === "helden") document.documentElement.dataset.thema = thema;
     else delete document.documentElement.dataset.thema;
   }, [thema]);
 

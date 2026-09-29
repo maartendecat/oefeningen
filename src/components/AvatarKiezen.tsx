@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Avatar } from "@/avatar/Avatar";
+import { HELDEN, HELD_PORTRET, Held } from "@/avatar/Held";
 import { BASISSEN, PORTRET, Pop } from "@/avatar/Pop";
 import { Vogel } from "@/avatar/Vogel";
 import { STARTVOGELS } from "@/avatar/vogels";
@@ -36,7 +37,7 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
     );
   }
 
-  // Alles in één keer: bovenaan de poppen (kleren), daaronder de vogels.
+  // Alles in één keer: bovenaan de poppen (kleren), dan de vogels en de helden.
   return (
     <main className="scherm kiezen">
       <h1 className="titel">kies je avatar</h1>
@@ -61,6 +62,18 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
             aria-label={v.naam}
           >
             <Vogel soort={v} className="pop-klein" />
+          </button>
+        ))}
+      </div>
+      <div className="kiezen-rij helden">
+        {HELDEN.map((h) => (
+          <button
+            key={h.id}
+            className={`kaartje pop-kaartje held-kaartje ${spel.avatar === h.id ? "gekozen" : ""}`}
+            onClick={() => kies(h.id)}
+            aria-label={`held ${h.naam}`}
+          >
+            <Held basis={h} aan={spel.heldAan} kader={HELD_PORTRET} className="pop-klein" />
           </button>
         ))}
       </div>

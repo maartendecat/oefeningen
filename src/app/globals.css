@@ -24,6 +24,15 @@
   --balk-rand: #b8d8a4;
 }
 
+/* Met een held als avatar: stripkleuren, heldenrood en blauw. */
+:root[data-thema="helden"] {
+  --roze: #e63946;
+  --paars: #2f6fe0;
+  --zacht: #d8e4ff;
+  --balk: #e2ebffe6;
+  --balk-rand: #b3c6f0;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -45,6 +54,18 @@ body {
     radial-gradient(circle at 12% 92%, #fff0ad 0 13%, transparent 13.2%),
     radial-gradient(circle at 55% 50%, #ffffff66 0 1.5px, transparent 2px) 0 0 / 28px 28px,
     #ffe8f3;
+  background-attachment: fixed;
+}
+
+/* Een stripachtergrond: grote kleurvlakken en rasterpuntjes, zoals gedrukt. */
+:root[data-thema="helden"] body {
+  background:
+    radial-gradient(circle at 8% 18%, #ffe27a 0 12%, transparent 12.2%),
+    radial-gradient(circle at 92% 8%, #ffc2c6 0 10%, transparent 10.2%),
+    radial-gradient(circle at 88% 82%, #bcd3ff 0 16%, transparent 16.2%),
+    radial-gradient(circle at 12% 92%, #ffd0a8 0 13%, transparent 13.2%),
+    radial-gradient(circle at 50% 50%, #9fb8ee55 0 2px, transparent 2.4px) 0 0 / 14px 14px,
+    #e6eeff;
   background-attachment: fixed;
 }
 
@@ -1628,13 +1649,16 @@ button:disabled {
 /* "Kies je avatar": een rij poppen (als portret) en daaronder een rij
    vogels, allemaal even grote vierkantjes op één lijn. */
 .kiezen-rij.poppen,
-.kiezen-rij.vogels {
+.kiezen-rij.vogels,
+.kiezen-rij.helden {
   flex-wrap: nowrap;
 }
 
+/* Drie rijen (poppen, vogels, helden) moeten samen op het scherm passen. */
 .kiezen-rij.poppen .pop-kaartje,
-.kiezen-rij.vogels .pop-kaartje {
-  width: clamp(56px, min(17vw, 24dvh), 170px);
+.kiezen-rij.vogels .pop-kaartje,
+.kiezen-rij.helden .pop-kaartje {
+  width: clamp(56px, min(17vw, 19dvh), 170px);
   aspect-ratio: 1;
   padding: 4px;
   justify-content: center;
@@ -2245,4 +2269,133 @@ button:disabled {
   .letter-tegel.breed {
     font-size: 28px;
   }
+}
+
+/* ---- Heldenthema ---- */
+
+.pop-kaartje.held-kaartje:nth-child(5n + 1) { background: #ffe9a8; }
+.pop-kaartje.held-kaartje:nth-child(5n + 2) { background: #ffd0c4; }
+.pop-kaartje.held-kaartje:nth-child(5n + 3) { background: #cfe6ff; }
+.pop-kaartje.held-kaartje:nth-child(5n + 4) { background: #cff3ea; }
+.pop-kaartje.held-kaartje:nth-child(5n + 5) { background: #e2d6ff; }
+
+.profiel-portret.held-portret {
+  background:
+    radial-gradient(circle at 50% 50%, #ffffff88 0 1.6px, transparent 2px) 0 0 / 9px 9px,
+    radial-gradient(circle at 50% 38%, #ffffff 0 30%, #ffe27a 70%);
+}
+
+/* Het hoofdkwartier: een stad bij zonsondergang, met rasterpuntjes in de lucht. */
+.hoofdkwartier .kast-pop {
+  background:
+    linear-gradient(#3b4f9a, #3b4f9a) bottom / 100% 26px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120' preserveAspectRatio='none'%3E%3Cpath d='M0 120V60h30V30h36v40h24V14h40v56h20V44h34v30h26V20h44v50h22V50h30v24h26V34h36v36h32v50Z' fill='%233b4f9a'/%3E%3Cg fill='%23ffe27a'%3E%3Crect x='40' y='40' width='6' height='8'/%3E%3Crect x='52' y='56' width='6' height='8'/%3E%3Crect x='100' y='26' width='6' height='8'/%3E%3Crect x='114' y='44' width='6' height='8'/%3E%3Crect x='224' y='32' width='6' height='8'/%3E%3Crect x='240' y='52' width='6' height='8'/%3E%3Crect x='330' y='46' width='6' height='8'/%3E%3C/g%3E%3C/svg%3E") bottom 26px left / 100% 120px no-repeat,
+    radial-gradient(circle at 50% 50%, #ffffff55 0 1.6px, transparent 2px) 0 0 / 12px 12px,
+    linear-gradient(#8ec5ff, #ffd98a 78%);
+}
+
+/* Acht soorten uitrusting: iets smallere tabs, zodat ze op één rij passen. */
+.hoofdkwartier .tabs {
+  gap: 8px;
+}
+.hoofdkwartier .tab {
+  min-width: 60px;
+  padding: 6px 8px 4px;
+}
+
+.hoofdkwartier .vakje.dicht {
+  background: repeating-linear-gradient(45deg, #e6eeff 0 12px, #d0dcff 12px 24px);
+}
+
+.held-prent {
+  overflow: visible;
+}
+
+/* De cape wappert zacht mee; bij een sprong des te meer. */
+.cape-wapper {
+  transform-origin: 100px 104px;
+  animation: cape 2.6s ease-in-out infinite;
+  animation-delay: var(--wieg, 0s);
+}
+.stemming-juich .cape-wapper,
+.stemming-blij .cape-wapper {
+  animation-duration: 0.9s;
+}
+.stemming-zwaar .cape-wapper {
+  animation: none;
+  transform: scaleX(0.94);
+}
+
+.gloei {
+  animation: gloei 1.8s ease-in-out infinite;
+}
+
+.scan {
+  animation: scan 1.6s ease-in-out infinite alternate;
+}
+
+.antenne-links,
+.antenne-rechts {
+  animation: wieg 1.4s ease-in-out infinite;
+}
+.antenne-links {
+  transform-origin: 86px 38px;
+}
+.antenne-rechts {
+  transform-origin: 114px 38px;
+  animation-direction: reverse;
+}
+
+.linten {
+  transform-origin: 124px 48px;
+  animation: staart 1.6s ease-in-out infinite;
+}
+
+.raketvlam,
+.flakker {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: flakker 0.35s ease-in-out infinite alternate;
+}
+.flakker {
+  transform-origin: 50% 100%;
+}
+
+.kwispel {
+  transform-origin: 184px 352px;
+  animation: kwispel 0.5s ease-in-out infinite alternate;
+}
+
+.zweef-traag {
+  animation: zweef-traag 2.4s ease-in-out infinite;
+}
+
+@keyframes cape {
+  0%, 100% { transform: skewX(0deg) scaleX(1); }
+  50% { transform: skewX(-2.5deg) scaleX(1.03); }
+}
+
+@keyframes gloei {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes scan {
+  from { transform: translateX(0); }
+  to { transform: translateX(42px); }
+}
+
+@keyframes flakker {
+  from { transform: scaleY(0.8); }
+  to { transform: scaleY(1.15); }
+}
+
+@keyframes kwispel {
+  from { transform: rotate(-14deg); }
+  to { transform: rotate(14deg); }
+}
+
+@keyframes zweef-traag {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }

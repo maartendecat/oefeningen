@@ -53,6 +53,13 @@ export function klik() {
   toon(660, 0, 0.08, "sine", 0.1);
 }
 
+/** Een held die voorbijvliegt: een zoevende glijtoon en een klein heldendeuntje. */
+export function woesj() {
+  glij(180, 1400, 0, 0.32, "sawtooth", 0.05);
+  glij(240, 1800, 0.02, 0.3, "triangle", 0.12);
+  [784, 1047, 1319].forEach((f, i) => toon(f, 0.3 + i * 0.09, 0.22, "square", 0.05));
+}
+
 // ---- Vogels -------------------------------------------------------------------
 
 /** Een toon die van f1 naar f2 glijdt: de bouwsteen van getjilp en gefluit. */

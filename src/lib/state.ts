@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { HELD_ITEMS, HELD_UITTREKBAAR } from "@/avatar/heldenitems";
 import { ITEMS, UITTREKBAAR } from "@/avatar/items";
 import { VOGELS } from "@/avatar/vogels";
 import { isLeeg, lees, nieuwSpel, themaVan, type Spel } from "./spel";
@@ -220,10 +221,35 @@ export function winVogel(id: string) {
   pasAan((s) => (s.vogels.includes(id) ? s : { ...s, vogels: [...s.vogels, id] }));
 }
 
+/** Voegt een heldenspul toe aan het hoofdkwartier en doet het de held meteen aan. */
+export function winUitrusting(id: string) {
+  pasAan((s) => {
+    const uitrusting = s.uitrusting.includes(id) ? s.uitrusting : [...s.uitrusting, id];
+    return rustUitIn({ ...s, uitrusting }, id);
+  });
+}
+
 /** Wint een beloning in het thema van de avatar. */
 export function winBeloning(s: Spel, id: string) {
-  if (themaVan(s) === "vogels") winVogel(id);
+  const thema = themaVan(s);
+  if (thema === "vogels") winVogel(id);
+  else if (thema === "helden") winUitrusting(id);
   else winItem(id);
+}
+
+/** Doet de held iets aan, of weer uit (als dat mag). */
+export function rustUit(id: string) {
+  pasAan((s) => rustUitIn(s, id));
+}
+
+function rustUitIn(s: Spel, id: string): Spel {
+  const item = HELD_ITEMS.find((i) => i.id === id);
+  if (!item) return s;
+  const heldAan = { ...s.heldAan };
+  const cat = item.categorie;
+  if (heldAan[cat] === id && HELD_UITTREKBAAR.includes(cat)) delete heldAan[cat];
+  else heldAan[cat] = id;
+  return { ...s, heldAan };
 }
 
 export function trekAan(id: string) {
@@ -248,8 +274,12 @@ function trekAanIn(s: Spel, id: string): Spel {
 
 /** Wat er nog te winnen is in het thema van de avatar, met de groep om te spreiden. */
 function nogTeWinnen(s: Spel): { id: string; groep: string }[] {
-  if (themaVan(s) === "vogels") {
+  const thema = themaVan(s);
+  if (thema === "vogels") {
     return VOGELS.filter((v) => !s.vogels.includes(v.id)).map((v) => ({ id: v.id, groep: v.gebied }));
+  }
+  if (thema === "helden") {
+    return HELD_ITEMS.filter((i) => !i.start && !s.uitrusting.includes(i.id)).map((i) => ({ id: i.id, groep: i.categorie }));
   }
   return ITEMS.filter((i) => !i.start && !s.kast.includes(i.id)).map((i) => ({ id: i.id, groep: i.categorie }));
 }
@@ -275,7 +305,7 @@ export function kiesVerrassingen(s: Spel, aantal = 3): string[] {
 /**
  * Oudermenu: zet de voortgang van één onderwerp (`reeksIds`, in
  * speelvolgorde) zo dat de reeksen vóór `aantalKlaar` gedaan zijn. Voor elke
- * reeks die zo extra klaar raakt, komt er een willekeurig item (of vogel) bij;
+ * reeks die zo extra klaar raakt, komt er een willekeurig item (of vogel, of heldenspul) bij;
  * terugzetten neemt niets af. Andere onderwerpen blijven zoals ze waren.
  */
 export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
@@ -283,7 +313,7 @@ export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
     const nieuw = reeksIds.slice(0, aantalKlaar);
     const klaar = [...s.klaar.filter((id) => !reeksIds.includes(id)), ...nieuw];
     const extra = nieuw.filter((id) => !s.klaar.includes(id)).length;
-    const veld = themaVan(s) === "vogels" ? "vogels" : "kast";
+    const veld = ({ kleren: "kast", vogels: "vogels", helden: "uitrusting" } as const)[themaVan(s)];
     let lijst = s[veld];
     for (let i = 0; i < extra; i++) {
       const [nieuw] = kiesVerrassingen({ ...s, [veld]: lijst }, 1);

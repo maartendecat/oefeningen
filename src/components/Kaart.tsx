@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/avatar/Avatar";
+import { HELD_ITEMS } from "@/avatar/heldenitems";
 import { ITEMS } from "@/avatar/items";
 import { VOGELS } from "@/avatar/vogels";
 import { reeksenVan, type Onderwerp } from "@/data/onderwerpen";
@@ -13,6 +14,8 @@ const KLEUREN = {
   kleren: ["#ff4fa3", "#7b3fe4", "#4d9dfe", "#3ddc97", "#ff9f1c", "#e63946"],
   // Natuurkleuren: mos, meer, oker, dennengroen, lucht, roodborst.
   vogels: ["#5f9e3a", "#2f86b8", "#d99a2b", "#2e7d5b", "#56a8d8", "#d4622a"],
+  // Stripkleuren: heldenrood, blauw, geel, paars, turkoois, oranje.
+  helden: ["#e63946", "#2f6fe0", "#e0a100", "#6a3fc4", "#12a3a0", "#ff7a1a"],
 };
 
 export function Kaart({
@@ -31,10 +34,19 @@ export function Kaart({
   const volgende = reeksen.find((p) => !spel.klaar.includes(p.reeksId));
   const volgendeIndex = volgende?.index ?? reeksen.length;
   const huidigRef = useRef<HTMLButtonElement>(null);
-  const vogels = themaVan(spel) === "vogels";
-  const teller = vogels
-    ? { icoon: "🐦", gewonnen: spel.vogels.length, totaal: VOGELS.length, naam: "mijn vogels" }
-    : { icoon: "👗", gewonnen: spel.kast.length, totaal: ITEMS.filter((i) => !i.start).length, naam: "mijn kast" };
+  const thema = themaVan(spel);
+  const teller = {
+    vogels: { icoon: "🐦", gewonnen: spel.vogels.length, totaal: VOGELS.length, naam: "mijn vogels" },
+    helden: {
+      icoon: "🦸",
+      gewonnen: spel.uitrusting.length,
+      totaal: HELD_ITEMS.filter((i) => !i.start).length,
+      naam: "mijn hoofdkwartier",
+    },
+    kleren: { icoon: "👗", gewonnen: spel.kast.length, totaal: ITEMS.filter((i) => !i.start).length, naam: "mijn kast" },
+  }[thema];
+  // De pop past helemaal in het knopje; een vogel of held toont zijn portret.
+  const portret = thema !== "kleren";
 
   useEffect(() => {
     huidigRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -52,7 +64,7 @@ export function Kaart({
     <main className="scherm kaart">
       <header className="balk">
         <button className="knop-rond pop-knop" onClick={() => { tik(); ga({ naam: "kast" }); }} aria-label={teller.naam}>
-          <Avatar spel={spel} naam={spel.naam} kader={vogels ? "portret" : "volledig"} className={vogels ? "vogel-mini" : "pop-mini"} />
+          <Avatar spel={spel} naam={spel.naam} kader={portret ? "portret" : "volledig"} className={portret ? "vogel-mini" : "pop-mini"} />
         </button>
         <span className="naam-label">{spel.naam}</span>
         <button className="kast-teller" onClick={() => { tik(); ga({ naam: "kast" }); }}>
@@ -114,7 +126,7 @@ export function Kaart({
 
       <div className="pad">
         {onderwerp.levels.map((level, li) => {
-          const kleuren = KLEUREN[themaVan(spel)];
+          const kleuren = KLEUREN[thema];
           const kleur = kleuren[li % kleuren.length];
           return (
             <section key={level.id} className="level" style={{ ["--kleur" as string]: kleur }}>

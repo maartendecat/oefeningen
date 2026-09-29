@@ -208,7 +208,7 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
     <section className="paneel">
       <h2>Profielen</h2>
       <p className="uitleg">
-        Elk kind heeft een eigen avatar, voortgang en kast (of vogels). Wisselen kan het kind zelf. Het leerjaar
+        Elk kind heeft een eigen avatar, voortgang en kast (of vogels, of een hoofdkwartier vol heldenspullen). Wisselen kan het kind zelf. Het leerjaar
         bepaalt wat er te oefenen valt; laat je het open, dan kiest het kind het zelf.
       </p>
       <ul className="profiel-lijst">
@@ -248,7 +248,7 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
             </span>
             <Bevestig
               className="knop rood klein"
-              vraag={`Het profiel van "${spel.naam ?? "?"}" met alle voortgang, kleren en vogels verwijderen?`}
+              vraag={`Het profiel van "${spel.naam ?? "?"}" met alle voortgang, kleren, vogels en heldenspullen verwijderen?`}
               doe={async () => {
                 await wisProfiel(id);
                 meld("Profiel verwijderd.");
@@ -300,12 +300,14 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
       <section className="paneel">
         <h2>Voortgang van {naam}</h2>
         <p>
-          {klaar} van {totaal} reeksen gedaan, {spel.kast.length} {spel.kast.length === 1 ? "item" : "items"} en{" "}
-          {spel.vogels.length} {spel.vogels.length === 1 ? "vogel" : "vogels"} gewonnen.
+          {klaar} van {totaal} reeksen gedaan, {spel.kast.length} {spel.kast.length === 1 ? "item" : "items"},{" "}
+          {spel.vogels.length} {spel.vogels.length === 1 ? "vogel" : "vogels"} en {spel.uitrusting.length}{" "}
+          {spel.uitrusting.length === 1 ? "heldenspul" : "heldenspullen"} gewonnen.
         </p>
         <p className="uitleg">
           Laat {naam} ergens verder starten. Alle reeksen daarvoor tellen dan als gedaan en leveren elk een
-          willekeurig item op (of een vogel, als {naam} een vogel als avatar heeft). Teruggaan neemt niets af.
+          willekeurig item op (of een vogel of heldenspul, als {naam} een vogel of held als avatar heeft). Teruggaan
+          neemt niets af.
         </p>
         {onderwerpenVoor(spel.leerjaar).map((onderwerp) => {
           const reeksen = reeksenVan(onderwerp);
@@ -380,7 +382,7 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
       <section className="paneel gevaar">
         <h2>Opnieuw beginnen</h2>
         <Bevestig
-          vraag={`Alle voortgang, kleren, vogels en de avatar van ${naam} wissen? De naam en het leerjaar blijven.`}
+          vraag={`Alle voortgang, kleren, vogels, heldenspullen en de avatar van ${naam} wissen? De naam en het leerjaar blijven.`}
           doe={() => {
             wisVoortgang();
             ga({ naam: "kaart" });

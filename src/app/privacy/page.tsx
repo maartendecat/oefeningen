@@ -18,7 +18,7 @@ export default function Privacy() {
           <h2>Wat we bewaren</h2>
           <ul>
             <li>het e-mailadres van de ouder, om het gezin te herkennen;</li>
-            <li>per profiel: de naam die de ouder koos, de gekozen avatar, welke leesreeksen gedaan zijn en welke kleren en vogels gewonnen zijn.</li>
+            <li>per profiel: de naam die de ouder koos, de gekozen avatar, welke leesreeksen gedaan zijn en welke kleren, vogels en heldenspullen gewonnen zijn.</li>
           </ul>
           <p>
             We vragen Google enkel om je naam en e-mailadres. We gebruiken geen advertenties of trackers en delen niets

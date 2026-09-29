@@ -84,6 +84,32 @@ describe("voortgang inlezen", () => {
   it("weigert een kapotte vogelverzameling", () => {
     expect(lees({ ...geldig, versie: 2, vogels: "kea" })).toBeNull();
   });
+
+  it("geeft voortgang van voor de helden een lege uitrusting en de startuitrusting", () => {
+    const s = lees({ ...geldig, versie: 3, vogels: [], leerjaar: 1 })!;
+    expect(s.uitrusting).toEqual([]);
+    expect(s.heldAan).toEqual({ pakken: "heldenpak-start", laarzen: "laarzen-start", handschoenen: "handschoenen-start" });
+  });
+
+  it("ruimt heldenspullen op die niet meer bestaan, en houdt de held aangekleed", () => {
+    const s = lees({
+      ...nieuwSpel(),
+      uitrusting: ["rode-cape", "jetpack", "rode-cape"],
+      heldAan: { capes: "rode-cape", pakken: "jetpack", maskers: "cardigan" },
+    })!;
+    expect(s.uitrusting).toEqual(["rode-cape"]);
+    expect(s.heldAan).toEqual({
+      capes: "rode-cape",
+      pakken: "heldenpak-start",
+      laarzen: "laarzen-start",
+      handschoenen: "handschoenen-start",
+    });
+  });
+
+  it("weigert een kapotte heldenuitrusting", () => {
+    expect(lees({ ...nieuwSpel(), uitrusting: "rode-cape" })).toBeNull();
+    expect(lees({ ...nieuwSpel(), heldAan: [] })).toBeNull();
+  });
 });
 
 describe("thema", () => {
@@ -91,6 +117,7 @@ describe("thema", () => {
     expect(themaVan({ avatar: "noor" })).toBe("kleren");
     expect(themaVan({ avatar: null })).toBe("kleren");
     expect(themaVan({ avatar: "kea" })).toBe("vogels");
+    expect(themaVan({ avatar: "komeet" })).toBe("helden");
     // Een verzamelvogel is geen avatar.
     expect(themaVan({ avatar: "merel" })).toBe("kleren");
   });

@@ -3,14 +3,17 @@
 Een leesspelletje voor het eerste leerjaar, volgens de lettervolgorde van
 *Veilig leren lezen* (kim-versie). Het kind leest reeksen van vijftien woordjes en
 zinnetjes luidop voor, een ouder tikt ✓ of ↻, en na elke reeks mag het kind een
-beloning kiezen. Er zijn twee thema's, en het kind kiest zelf:
+beloning kiezen. Er zijn drie thema's, en het kind kiest zelf:
 
 - een **pop om aan te kleden**: na elke reeks een nieuw kledingstuk voor de kast;
 - een **vogel** (kea, oehoe, zeearend, papegaaiduiker of ijsvogel), naar het
   bordspel *Wingspan*: na elke reeks een nieuwe vogel voor het landschap met
-  bos, veld en water. Zie [docs/vogels.md](docs/vogels.md) voor het ontwerp.
+  bos, veld en water. Zie [docs/vogels.md](docs/vogels.md) voor het ontwerp;
+- een **superheld** (bliksem, vlam, ijs, wervel of komeet), in stripstijl: na
+  elke reeks een nieuw stuk uitrusting voor het hoofdkwartier, van capes en
+  maskers tot een heldenhond. Zie [docs/superhelden.md](docs/superhelden.md).
 
-Wisselen kan altijd; de kleren en de vogels blijven allebei bewaard.
+Wisselen kan altijd; de kleren, de vogels en de heldenspullen blijven alle drie bewaard.
 
 Wat er te oefenen valt, hangt af van het **leerjaar** van het profiel: het
 lezen voor het eerste leerjaar, de maaltafels (en deeltafels) voor het derde.
@@ -52,16 +55,17 @@ npm run lint
 | `src/avatar/` | De avatar (`Pop.tsx`) en alle kleren (`items.tsx`), als SVG. |
 | `src/avatar/vogels.tsx` | Alle vogels: leefgebied, weetje, kleuren en tekening. Ze gebruiken de lichaamsvormen uit `vogelvormen.ts` en worden getekend door `Vogel.tsx`. |
 | `src/avatar/decor.tsx` | Het landschap en de vaste plek van elke vogel erin. |
-| `src/avatar/Avatar.tsx` | Tekent de avatar van een profiel: pop of vogel. |
-| `src/components/` | De schermen: avatar kiezen en een naam geven, levelkaart, lezen, beloning, kast of landschap, oudermenu. |
+| `src/avatar/Held.tsx` | De vijf superhelden, in stripstijl. De maten van de pose staan in `heldvormen.tsx`, de uitrusting in `heldenitems.tsx`. |
+| `src/avatar/Avatar.tsx` | Tekent de avatar van een profiel: pop, vogel of held. |
+| `src/components/` | De schermen: avatar kiezen en een naam geven, levelkaart, lezen, beloning, kast (of hoofdkwartier) of landschap, oudermenu. |
 
 ### Nieuwe letters toevoegen
 
 Voeg in `src/data/levels.ts` een level toe met de nieuwe klank(en) in `nieuw`
 en een paar reeksen van vijftien oefeningen. `npm test` zegt meteen of er een woord
 tussen zit dat nog niet leesbaar is. Voor elke extra reeks is het leuk om ook
-een extra item in `src/avatar/items.tsx` en een extra vogel in
-`src/avatar/vogels.tsx` te tekenen, zodat er genoeg te winnen blijft. Een
+een extra item in `src/avatar/items.tsx`, een extra heldenspul in
+`src/avatar/heldenitems.tsx` en een extra vogel in `src/avatar/vogels.tsx` te tekenen, zodat er genoeg te winnen blijft. Een
 nieuwe vogel heeft ook een plek nodig in `PLEKKEN` (`src/avatar/decor.tsx`).
 
 ### De vorm van de voortgang veranderen

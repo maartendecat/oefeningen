@@ -1,7 +1,8 @@
-// De avatar van een profiel: een pop met kleren of een vogel, afhankelijk
-// van wat het kind koos. Schermen tekenen de avatar via dit bestand, zodat
+// De avatar van een profiel: een pop met kleren, een vogel of een superheld,
+// afhankelijk van wat het kind koos. Schermen tekenen de avatar via dit bestand, zodat
 // ze niet hoeven te weten welk thema het is.
 
+import { HELD_PORTRET, Held, isHeld, vindHeld } from "./Held";
 import { PORTRET, Pop, STRAK, VOLLEDIG, vindBasis, type Stemming } from "./Pop";
 import { Vogel } from "./Vogel";
 import { vindVogel } from "./vogels";
@@ -16,7 +17,7 @@ export function Avatar({
   className,
   naam,
 }: {
-  spel: Pick<Spel, "avatar" | "aan">;
+  spel: Pick<Spel, "avatar" | "aan" | "heldAan">;
   stemming?: Stemming;
   kader?: Kader;
   className?: string;
@@ -29,6 +30,18 @@ export function Avatar({
         soort={vogel}
         stemming={stemming}
         kader={kader === "portret" ? "portret" : "volledig"}
+        className={className}
+        naam={naam}
+      />
+    );
+  }
+  if (isHeld(spel.avatar)) {
+    return (
+      <Held
+        basis={vindHeld(spel.avatar)}
+        aan={spel.heldAan}
+        stemming={stemming}
+        kader={kader === "portret" ? HELD_PORTRET : undefined}
         className={className}
         naam={naam}
       />

@@ -41,7 +41,7 @@ export function ProfielKiezen({ ga }: { ga: (s: Scherm) => void }) {
           {profielen.map(([id, spel], i) => (
             <button key={id} className="profiel-keuze" onClick={() => kies(id)}>
               <span
-                className={`profiel-portret ${themaVan(spel) === "vogels" ? "vogel-portret" : ""}`}
+                className={`profiel-portret ${{ kleren: "", vogels: "vogel-portret", helden: "held-portret" }[themaVan(spel)]}`}
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
                 {spel.avatar ? (

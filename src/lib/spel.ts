@@ -3,18 +3,20 @@
 // de server gebruiken dit bestand.
 
 import { ITEMS, STARTKLEREN, type Categorie } from "@/avatar/items";
+import { isHeld } from "@/avatar/Held";
+import { HELD_ITEMS, HELD_START, type HeldAan, type HeldCategorie } from "@/avatar/heldenitems";
 import { VOGELS, isStartvogel } from "@/avatar/vogels";
 
 /**
  * Verhoog dit enkel samen met een stap in MIGRATIES, anders kan oude
  * voortgang niet meer ingelezen worden.
  */
-export const VERSIE = 3;
+export const VERSIE = 4;
 
 export type Aan = Partial<Record<Categorie, string>>;
 
-/** Kleren om aan te trekken of vogels om te verzamelen; volgt uit de avatar. */
-export type Thema = "kleren" | "vogels";
+/** Kleren om aan te trekken, vogels om te verzamelen of een held om uit te rusten; volgt uit de avatar. */
+export type Thema = "kleren" | "vogels" | "helden";
 
 export type Spel = {
   versie: number;
@@ -30,6 +32,10 @@ export type Spel = {
   aan: Aan;
   /** Ids van gewonnen vogels. Blijft bewaard, ook als het kind terug een pop kiest. */
   vogels: string[];
+  /** Ids van gewonnen heldenspullen (zonder de startuitrusting). Blijft ook bewaard. */
+  uitrusting: string[];
+  /** Wat de held aanheeft. */
+  heldAan: HeldAan;
   stil: boolean;
   /** Tijdstip (ms) van de laatste wijziging; de nieuwste versie wint bij synchroniseren. */
   bijgewerkt?: number;
@@ -45,6 +51,8 @@ export function nieuwSpel(): Spel {
     kast: [],
     aan: { ...STARTKLEREN },
     vogels: [],
+    uitrusting: [],
+    heldAan: { ...HELD_START },
     stil: false,
     bijgewerkt: 0,
   };
@@ -52,11 +60,15 @@ export function nieuwSpel(): Spel {
 
 /** Nog niets gebeurd: geen avatar gekozen en geen reeks gedaan. */
 export function isLeeg(s: Spel): boolean {
-  return !s.avatar && s.klaar.length === 0 && s.kast.length === 0 && s.vogels.length === 0;
+  return (
+    !s.avatar && s.klaar.length === 0 && s.kast.length === 0 && s.vogels.length === 0 && s.uitrusting.length === 0
+  );
 }
 
 export function themaVan(s: Pick<Spel, "avatar">): Thema {
-  return isStartvogel(s.avatar) ? "vogels" : "kleren";
+  if (isStartvogel(s.avatar)) return "vogels";
+  if (isHeld(s.avatar)) return "helden";
+  return "kleren";
 }
 
 type Ruw = Record<string, unknown>;
@@ -67,7 +79,11 @@ export const MIGRATIES: Record<number, (oud: Ruw) => Ruw> = {
   1: (oud) => ({ ...oud, vogels: [] }),
   // Leerjaren: wie al speelde, deed het lezen van het eerste leerjaar.
   2: (oud) => ({ ...oud, leerjaar: 1 }),
+  // Het heldenthema: nog niets gewonnen, de held draagt zijn startuitrusting.
+  3: (oud) => ({ ...oud, uitrusting: [], heldAan: { ...HELD_START } }),
 };
+
+const isObject = (x: unknown): boolean => !!x && typeof x === "object" && !Array.isArray(x);
 
 const isTekstLijst = (x: unknown): x is string[] =>
   Array.isArray(x) && x.length <= 1000 && x.every((v) => typeof v === "string" && v.length <= 64);
@@ -80,15 +96,15 @@ function isGeldig(d: Ruw): boolean {
     isTekstLijst(d.klaar) &&
     isTekstLijst(d.kast) &&
     isTekstLijst(d.vogels) &&
-    !!d.aan &&
-    typeof d.aan === "object" &&
-    !Array.isArray(d.aan)
+    isTekstLijst(d.uitrusting) &&
+    isObject(d.aan) &&
+    isObject(d.heldAan)
   );
 }
 
 /**
- * Ruimt kleren en vogels op die niet meer bestaan (bv. na het hertekenen
- * van de kleerkast) en zorgt dat de avatar altijd iets aanheeft.
+ * Ruimt kleren, vogels en heldenspullen op die niet meer bestaan (bv. na
+ * het hertekenen van de kleerkast) en zorgt dat de avatar altijd iets aanheeft.
  */
 export function herstel(s: Spel): Spel {
   const bestaat = (id: string) => ITEMS.some((i) => i.id === id && !i.start);
@@ -99,6 +115,14 @@ export function herstel(s: Spel): Spel {
   for (const [cat, id] of Object.entries(STARTKLEREN) as [Categorie, string][]) {
     aan[cat] ??= id;
   }
+  const heldAan: HeldAan = {};
+  for (const [cat, id] of Object.entries(s.heldAan) as [HeldCategorie, unknown][]) {
+    if (HELD_ITEMS.some((i) => i.id === id && i.categorie === cat)) heldAan[cat] = id as string;
+  }
+  for (const [cat, id] of Object.entries(HELD_START) as [HeldCategorie, string][]) {
+    heldAan[cat] ??= id;
+  }
+  const heldBestaat = (id: string) => HELD_ITEMS.some((i) => i.id === id && !i.start);
   return {
     versie: VERSIE,
     avatar: s.avatar,
@@ -108,6 +132,8 @@ export function herstel(s: Spel): Spel {
     kast: [...new Set(s.kast.filter(bestaat))],
     aan,
     vogels: [...new Set(s.vogels.filter((id) => VOGELS.some((v) => v.id === id)))],
+    uitrusting: [...new Set(s.uitrusting.filter(heldBestaat))],
+    heldAan,
     stil: s.stil === true,
     bijgewerkt: typeof s.bijgewerkt === "number" ? s.bijgewerkt : 0,
   };

@@ -405,7 +405,7 @@ function Gezicht({ v, stemming }: { v: Verf; stemming: Stemming }) {
 // ---- Effecten per stemming ---------------------------------------------------
 
 /** "Pfff": windje uit de mond, een wolkje en een zweetdruppel. */
-function Windje() {
+export function Windje() {
   return (
     <g>
       <g className="windje" fill="none" stroke="#5f9fe0" strokeWidth={2.4} strokeLinecap="round">
@@ -452,7 +452,7 @@ function Juichen() {
   );
 }
 
-function Blij() {
+export function Blij() {
   return (
     <g>
       <path className="fonkel-kort" d={vonkPad(68, 44, 6)} fill="#f7d774" />
@@ -462,7 +462,7 @@ function Blij() {
   );
 }
 
-function Verrast() {
+export function Verrast() {
   return (
     <g className="flits" fill="none" stroke="#f7a8c8" strokeWidth={2.4} strokeLinecap="round">
       <path d="M100 2 L100 10 M76 8 L81 15 M124 8 L119 15" />
