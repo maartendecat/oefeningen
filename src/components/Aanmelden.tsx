@@ -54,7 +54,8 @@ export function Aanmelden({ opties }: { opties: Aanmeldopties }) {
           </span>,
         ])}
       </div>
-      <h1 className="titel groot">lezen!</h1>
+      <h1 className="titel groot">oefenen!</h1>
+      <p className="ondertitel">lezen, rekenen en nog veel meer</p>
 
       <section className="paneel aanmelden-paneel">
         <h2>Voor ouders</h2>
@@ -85,7 +86,7 @@ export function Aanmelden({ opties }: { opties: Aanmeldopties }) {
         </div>
         {(fout || sync.offline) && <p className="fout">{fout ?? "Geen verbinding met internet."}</p>}
         <p className="uitleg">
-          We bewaren enkel je e-mailadres, de namen van de profielen en hun leesvoortgang.{" "}
+          We bewaren enkel je e-mailadres, de namen van de profielen en hun voortgang.{" "}
           <a href="/privacy">Privacy</a>
         </p>
       </section>
