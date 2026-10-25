@@ -4,9 +4,11 @@
 // verzameling (zie docs/leerjaren.md).
 
 import { LEVELS } from "./levels";
-import { TAFEL_LEVELS, type Som } from "./maaltafels";
+import { TAFEL_LEVELS } from "./maaltafels";
+import { REKEN_LEVELS } from "./rekenen";
+import type { Som } from "./sommen";
 
-export type { Som } from "./maaltafels";
+export type { Som } from "./sommen";
 
 export type Reeks<T> = { id: string; oefeningen: T[] };
 
@@ -27,7 +29,8 @@ type Basis = {
 /**
  * De soort bepaalt hoe het kind antwoordt:
  * - voorlezen: het kind leest luidop, een ouder tikt ✓ of ↻;
- * - som: het kind tikt het antwoord in, de app kijkt zelf na.
+ * - som: het kind tikt het antwoord in, de app kijkt zelf na (een som in
+ *   tekst, een getalbeeld of een splitshuis, zie sommen.ts).
  */
 export type Onderwerp =
   | (Basis & { soort: "voorlezen"; levels: Level<string>[] })
@@ -41,6 +44,14 @@ export const ONDERWERPEN: Onderwerp[] = [
     leerjaren: [1],
     soort: "voorlezen",
     levels: LEVELS.map((l) => ({ id: l.id, tegels: l.nieuw, reeksen: l.reeksen })),
+  },
+  {
+    id: "rekenen",
+    naam: "rekenen",
+    icoon: "🔢",
+    leerjaren: [1],
+    soort: "som",
+    levels: REKEN_LEVELS,
   },
   {
     id: "maaltafels",

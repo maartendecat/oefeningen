@@ -17,10 +17,11 @@ Elke avatar heeft zijn eigen verzameling, met 0 tot 3 sterren naargelang hoe vol
 die is. Bij ★★ mag het kind er een nieuwe avatar bij kiezen, uit alle thema's;
 de vorige blijven bewaard. Zie [docs/avatars.md](docs/avatars.md).
 
-Wat er te oefenen valt, hangt af van het **leerjaar** van het profiel: het
-lezen voor het eerste leerjaar, de maaltafels (en deeltafels) voor het derde.
-Bij de maaltafels tikt het kind het antwoord in en kijkt de app zelf na. Zie
-[docs/leerjaren.md](docs/leerjaren.md).
+Wat er te oefenen valt, hangt af van het **leerjaar** van het profiel: lezen
+en rekenen (getalbeelden en splitsen) voor het eerste leerjaar, de maaltafels
+(en deeltafels) voor het derde. Bij rekenen en de maaltafels tikt het kind het
+antwoord in en kijkt de app zelf na. Zie [docs/leerjaren.md](docs/leerjaren.md)
+en [docs/rekenen.md](docs/rekenen.md).
 
 Een ouder logt in met Google en maakt voor elk kind een profiel, met een
 eigen avatar, voortgang en kast. Bij het openen kiest het kind zelf wie er

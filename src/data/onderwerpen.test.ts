@@ -9,7 +9,7 @@ describe("onderwerpen", () => {
 
   it("geeft elk leerjaar met inhoud minstens één onderwerp", () => {
     expect(LEERJAREN).toEqual([1, 3]);
-    expect(onderwerpenVoor(1).map((o) => o.id)).toEqual(["lezen"]);
+    expect(onderwerpenVoor(1).map((o) => o.id)).toEqual(["lezen", "rekenen"]);
     expect(onderwerpenVoor(3).map((o) => o.id)).toEqual(["maaltafels"]);
     expect(onderwerpenVoor(null)).toEqual([]);
   });
@@ -17,5 +17,6 @@ describe("onderwerpen", () => {
   it("vindt een reeks en haar onderwerp terug", () => {
     expect(vindReeks("ikms-1")?.onderwerp.id).toBe("lezen");
     expect(vindReeks("tafel-7-2")?.onderwerp.soort).toBe("som");
+    expect(vindReeks("reken-7-1")?.onderwerp.id).toBe("rekenen");
   });
 });

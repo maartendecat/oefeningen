@@ -1611,6 +1611,121 @@ button:disabled {
   background: #f1ebfb;
 }
 
+/* Een getalbeeld: het tienveld met "= ?" ernaast. */
+.getalbeeld {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vw, 28px);
+}
+
+.tienveld {
+  display: block;
+  width: clamp(200px, 38vw, 380px);
+  height: auto;
+}
+
+/* Een staand tienveld is smal en hoog: dan bepaalt de hoogte de maat. */
+.tienveld.staand {
+  width: auto;
+  height: clamp(220px, 42dvh, 380px);
+}
+
+.tienveld.staand.dubbel {
+  height: clamp(220px, 40dvh, 360px);
+}
+
+/* Het tienveld krimpt mee als de kaart te smal is; "= ?" niet. */
+.getalbeeld .tienveld {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.getalbeeld .somtekst {
+  flex: none;
+  font-size: clamp(44px, 8vw, 96px);
+}
+
+/* Het splitshuis: een smalle toren als dak boven de middelste van drie kamers. */
+.splitshuis {
+  --kamer: clamp(78px, 15vw, 150px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: clamp(44px, 8vw, 88px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.huis-dak,
+.huis-kamer {
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 4px solid var(--inkt);
+}
+
+.huis-dak {
+  width: var(--kamer);
+  height: calc(var(--kamer) * 1.2);
+  margin-bottom: -4px;
+  border-radius: 14px 14px 0 0;
+}
+
+.huis-kamers {
+  display: grid;
+  grid-template-columns: repeat(3, var(--kamer));
+}
+
+.huis-kamer {
+  height: calc(var(--kamer) * 1.15);
+}
+
+/* De middelste kamer houdt haar randen, zodat ze precies onder de toren staat;
+   de buitenste kamers hebben geen rand aan de kant van het midden. */
+.huis-kamer:first-child {
+  border-right: 0;
+  border-radius: 14px 0 0 14px;
+}
+
+.huis-kamer:last-child {
+  border-left: 0;
+  border-radius: 0 14px 14px 0;
+}
+
+.huis-kamer .antwoord {
+  min-width: 1em;
+  text-align: center;
+}
+
+.huis-bewoner {
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #ffffff 0 30%, var(--zacht) 70%);
+}
+
+.huis-bewoner .pop,
+.huis-bewoner .vogel,
+.huis-bewoner .held {
+  width: 100%;
+  height: 100%;
+}
+
+.som-kaart.som-splitshuis,
+.som-kaart.som-getalbeeld {
+  padding: clamp(14px, 3vw, 28px);
+}
+
+/* Tot 10: één tik op een grote knop is het antwoord. */
+.klavier.klein {
+  grid-template-columns: repeat(6, clamp(48px, 12vw, 96px));
+}
+
+.klavier.klein .toets {
+  height: clamp(52px, 9dvh, 84px);
+  border-radius: 20px;
+  font-size: clamp(22px, 6vw, 40px);
+}
+
 /* Smal scherm: het maatje boven de som, zodat lange sommen passen. */
 @media (max-width: 480px) {
   .som-vak {
@@ -1624,6 +1739,36 @@ button:disabled {
 
   .somtekst {
     font-size: clamp(34px, 11vw, 52px);
+  }
+
+  .getalbeeld {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .tienveld {
+    width: min(78vw, 300px);
+  }
+
+  /* Een staand tienveld is smal: "= ?" kan ernaast blijven. */
+  .getalbeeld.staand {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .tienveld.staand,
+  .tienveld.staand.dubbel {
+    width: auto;
+    height: min(26dvh, 220px);
+  }
+
+  .rekenen .klavier:not(.klein) .toets {
+    height: clamp(56px, 9.5dvh, 84px);
+  }
+
+  .splitshuis {
+    --kamer: min(24vw, 96px);
+    font-size: clamp(36px, 10vw, 52px);
   }
 }
 
