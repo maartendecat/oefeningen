@@ -2,13 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/avatar/Avatar";
-import { HELD_ITEMS } from "@/avatar/heldenitems";
-import { ITEMS } from "@/avatar/items";
-import { VOGELS } from "@/avatar/vogels";
 import { reeksenVan, type Onderwerp } from "@/data/onderwerpen";
 import { klik } from "@/lib/geluid";
-import { kiesProfiel, themaVan, useStaat, zetStil, type Spel } from "@/lib/state";
+import { kiesProfiel, spullenVan, sterrenVan, themaVan, useStaat, verzamelingVan, zetStil, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
+import { Sterren } from "./Icoon";
 
 const KLEUREN = {
   kleren: ["#ff4fa3", "#7b3fe4", "#4d9dfe", "#3ddc97", "#ff9f1c", "#e63946"],
@@ -36,15 +34,12 @@ export function Kaart({
   const huidigRef = useRef<HTMLButtonElement>(null);
   const thema = themaVan(spel);
   const teller = {
-    vogels: { icoon: "🐦", gewonnen: spel.vogels.length, totaal: VOGELS.length, naam: "mijn vogels" },
-    helden: {
-      icoon: "🦸",
-      gewonnen: spel.uitrusting.length,
-      totaal: HELD_ITEMS.filter((i) => !i.start).length,
-      naam: "mijn hoofdkwartier",
-    },
-    kleren: { icoon: "👗", gewonnen: spel.kast.length, totaal: ITEMS.filter((i) => !i.start).length, naam: "mijn kast" },
+    vogels: { icoon: "🐦", naam: "mijn vogels" },
+    helden: { icoon: "🦸", naam: "mijn hoofdkwartier" },
+    kleren: { icoon: "👗", naam: "mijn kast" },
   }[thema];
+  const gewonnen = verzamelingVan(spel).gewonnen.length;
+  const totaal = spullenVan(thema).length;
   // De pop past helemaal in het knopje; een vogel of held toont zijn portret.
   const portret = thema !== "kleren";
 
@@ -68,7 +63,7 @@ export function Kaart({
         </button>
         <span className="naam-label">{spel.naam}</span>
         <button className="kast-teller" onClick={() => { tik(); ga({ naam: "kast" }); }}>
-          {teller.icoon} {teller.gewonnen} / {teller.totaal}
+          {teller.icoon} {gewonnen} / {totaal} <Sterren aantal={sterrenVan(spel)} />
         </button>
         <div className="balk-rechts">
           {anderOnderwerp && (

@@ -4,7 +4,7 @@ import { huidigeOuder } from "@/lib/ouder";
 import { MAX_PROFIELEN, isGeldigId, opslag } from "@/lib/opslag";
 import { lees } from "@/lib/spel";
 
-const MAX_GROOTTE = 20_000;
+const MAX_GROOTTE = 50_000;
 
 export async function PUT(request: Request, ctx: RouteContext<"/api/profielen/[id]">) {
   const ouder = await huidigeOuder();

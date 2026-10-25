@@ -6,7 +6,7 @@ import { HELD_PORTRET, Held, isHeld, vindHeld } from "./Held";
 import { PORTRET, Pop, STRAK, VOLLEDIG, vindBasis, type Stemming } from "./Pop";
 import { Vogel } from "./Vogel";
 import { vindVogel } from "./vogels";
-import type { Spel } from "@/lib/spel";
+import { verzamelingVan, type Spel } from "@/lib/spel";
 
 export type Kader = "volledig" | "strak" | "portret";
 
@@ -17,13 +17,14 @@ export function Avatar({
   className,
   naam,
 }: {
-  spel: Pick<Spel, "avatar" | "aan" | "heldAan">;
+  spel: Pick<Spel, "avatar" | "avatars">;
   stemming?: Stemming;
   kader?: Kader;
   className?: string;
   naam?: string | null;
 }) {
   const vogel = vindVogel(spel.avatar);
+  const { aan } = verzamelingVan(spel);
   if (vogel?.start) {
     return (
       <Vogel
@@ -39,7 +40,7 @@ export function Avatar({
     return (
       <Held
         basis={vindHeld(spel.avatar)}
-        aan={spel.heldAan}
+        aan={aan}
         stemming={stemming}
         kader={kader === "portret" ? HELD_PORTRET : undefined}
         className={className}
@@ -50,7 +51,7 @@ export function Avatar({
   return (
     <Pop
       basis={vindBasis(spel.avatar)}
-      aan={spel.aan}
+      aan={aan}
       stemming={stemming}
       kader={kader === "portret" ? PORTRET : kader === "strak" ? STRAK : VOLLEDIG}
       className={className}

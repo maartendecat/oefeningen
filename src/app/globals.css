@@ -2408,3 +2408,59 @@ button:disabled {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-6px); }
 }
+
+/* Sterren: hoe vol de verzameling van een avatar is. */
+.sterren {
+  display: inline-flex;
+  gap: 1px;
+  vertical-align: middle;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.ster {
+  color: #ffffff;
+  -webkit-text-stroke: 1.5px var(--inkt);
+}
+
+.ster.aan {
+  color: #ff7a00;
+}
+
+/* Mijn avatars: sterren onderaan een begonnen avatar, een slotje op een nieuwe die nog niet mag. */
+.pop-kaartje {
+  position: relative;
+}
+
+.kaartje-sterren {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #ffffffdd;
+  font-size: clamp(12px, 2.2vw, 20px);
+}
+
+.pop-kaartje.dicht {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.kaartje-slot {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: clamp(14px, 2.4vw, 24px);
+}
+
+.nieuwe-avatar {
+  background: var(--geel);
+  font-size: clamp(18px, 3vw, 24px);
+  padding: 10px 20px;
+}
+
+.pop-kaartje.vol {
+  opacity: 0.55;
+}

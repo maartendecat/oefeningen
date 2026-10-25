@@ -7,7 +7,7 @@ import type { Stemming } from "@/avatar/Pop";
 import { Vogel } from "@/avatar/Vogel";
 import { LEEFGEBIEDEN, VOGELS, vindVogel, type Leefgebied, type Soort } from "@/avatar/vogels";
 import { klik, pling, zingVogel } from "@/lib/geluid";
-import type { Spel } from "@/lib/state";
+import { verzamelingVan, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
 
 const TIK_REACTIES: [Stemming, number][] = [
@@ -96,7 +96,8 @@ export function Landschap({ spel, nieuw, ga }: { spel: Spel; nieuw?: string; ga:
   };
 
   // Scroll naar de nieuwe of laatst gewonnen vogel.
-  const doel = nieuw ?? spel.vogels.at(-1);
+  const vogels = verzamelingVan(spel).gewonnen;
+  const doel = nieuw ?? vogels.at(-1);
   const naarX = (x: number, gedrag: ScrollBehavior) => {
     const el = scroller.current;
     if (!el) return;
@@ -116,7 +117,7 @@ export function Landschap({ spel, nieuw, ga }: { spel: Spel; nieuw?: string; ga:
     zetOpen(soort);
   };
 
-  const heeft = (id: string) => spel.vogels.includes(id);
+  const heeft = (id: string) => vogels.includes(id);
   const telling = (g: Leefgebied) => {
     const inGebied = VOGELS.filter((v) => v.gebied === g);
     return `${inGebied.filter((v) => heeft(v.id)).length}/${inGebied.length}`;

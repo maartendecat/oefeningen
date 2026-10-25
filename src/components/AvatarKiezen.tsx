@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Avatar } from "@/avatar/Avatar";
 import { HELDEN, HELD_PORTRET, Held } from "@/avatar/Held";
 import { BASISSEN, PORTRET, Pop } from "@/avatar/Pop";
 import { Vogel } from "@/avatar/Vogel";
 import { STARTVOGELS } from "@/avatar/vogels";
 import { klik, pling } from "@/lib/geluid";
-import { kiesAvatar, zetNaam, type Spel } from "@/lib/state";
-import { Vink } from "./Icoon";
+import {
+  begonnenAvatars,
+  isVol,
+  kiesAvatar,
+  magNieuweAvatar,
+  sterrenVan,
+  verzamelingVan,
+  zetNaam,
+  type Spel,
+} from "@/lib/state";
+import { Sterren, Vink } from "./Icoon";
 
 const MAX_NAAM = 12;
 
@@ -37,47 +46,78 @@ export function AvatarKiezen({ spel, klaar }: { spel: Spel; klaar: () => void })
     );
   }
 
-  // Alles in één keer: bovenaan de poppen (kleren), dan de vogels en de helden.
+  const begonnen = begonnenAvatars(spel);
   return (
     <main className="scherm kiezen">
-      <h1 className="titel">kies je avatar</h1>
+      <h1 className="titel">{begonnen.length > 0 ? "mijn avatars" : "kies je avatar"}</h1>
+      {!magNieuweAvatar(spel) && <p className="ondertitel">verzamel eerst ★★ voor een nieuwe avatar</p>}
+      <AvatarRaster spel={spel} kies={kies} />
+    </main>
+  );
+}
+
+/**
+ * Alle avatars in één keer: bovenaan de poppen (kleren), dan de vogels en de
+ * helden. Een begonnen avatar toont zijn sterren; een nieuwe heeft een
+ * slotje zolang hij niet mag. `zonderVolle` sluit ook volle avatars uit (om
+ * te kiezen met wie het kind verder verzamelt).
+ */
+export function AvatarRaster({
+  spel,
+  kies,
+  zonderVolle = false,
+}: {
+  spel: Spel;
+  kies: (id: string) => void;
+  zonderVolle?: boolean;
+}) {
+  const begonnen = begonnenAvatars(spel);
+  const nieuwMag = magNieuweAvatar(spel);
+  const kaartje = (id: string, soort: string, label: string, prent: ReactNode) => {
+    const bezig = begonnen.includes(id) || spel.avatar === id;
+    const opSlot = !bezig && !nieuwMag;
+    const vol = zonderVolle && isVol(spel, id);
+    return (
+      <button
+        key={id}
+        className={`kaartje pop-kaartje ${soort} ${spel.avatar === id && !zonderVolle ? "gekozen" : ""} ${opSlot ? "dicht" : ""} ${vol ? "vol" : ""}`}
+        onClick={() => kies(id)}
+        disabled={opSlot || vol}
+        aria-label={label}
+      >
+        {prent}
+        {begonnen.includes(id) && <Sterren aantal={sterrenVan(spel, id)} className="kaartje-sterren" />}
+        {opSlot && (
+          <span className="kaartje-slot" aria-hidden="true">
+            🔒
+          </span>
+        )}
+      </button>
+    );
+  };
+  const aanVan = (id: string) => verzamelingVan(spel, id).aan;
+
+  return (
+    <>
       <div className="kiezen-rij poppen">
-        {BASISSEN.map((b) => (
-          <button
-            key={b.id}
-            className={`kaartje pop-kaartje ${spel.avatar === b.id ? "gekozen" : ""}`}
-            onClick={() => kies(b.id)}
-            aria-label={`avatar ${BASISSEN.indexOf(b) + 1}`}
-          >
-            <Pop basis={b} aan={spel.aan} kader={PORTRET} className="pop-klein" />
-          </button>
-        ))}
+        {BASISSEN.map((b, i) =>
+          kaartje(b.id, "", `avatar ${i + 1}`, <Pop basis={b} aan={aanVan(b.id)} kader={PORTRET} className="pop-klein" />),
+        )}
       </div>
       <div className="kiezen-rij vogels">
-        {STARTVOGELS.map((v) => (
-          <button
-            key={v.id}
-            className={`kaartje pop-kaartje vogel-kaartje ${spel.avatar === v.id ? "gekozen" : ""}`}
-            onClick={() => kies(v.id)}
-            aria-label={v.naam}
-          >
-            <Vogel soort={v} className="pop-klein" />
-          </button>
-        ))}
+        {STARTVOGELS.map((v) => kaartje(v.id, "vogel-kaartje", v.naam, <Vogel soort={v} className="pop-klein" />))}
       </div>
       <div className="kiezen-rij helden">
-        {HELDEN.map((h) => (
-          <button
-            key={h.id}
-            className={`kaartje pop-kaartje held-kaartje ${spel.avatar === h.id ? "gekozen" : ""}`}
-            onClick={() => kies(h.id)}
-            aria-label={`held ${h.naam}`}
-          >
-            <Held basis={h} aan={spel.heldAan} kader={HELD_PORTRET} className="pop-klein" />
-          </button>
-        ))}
+        {HELDEN.map((h) =>
+          kaartje(
+            h.id,
+            "held-kaartje",
+            `held ${h.naam}`,
+            <Held basis={h} aan={aanVan(h.id)} kader={HELD_PORTRET} className="pop-klein" />,
+          ),
+        )}
       </div>
-    </main>
+    </>
   );
 }
 

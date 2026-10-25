@@ -7,8 +7,13 @@ import {
   exporteer,
   hernoemProfiel,
   importeer,
+  begonnenAvatars,
   maakProfiel,
+  spullenVan,
+  sterrenVan,
+  themaVan,
   useStaat,
+  verzamelingVan,
   wisVoortgang,
   zetStil,
   zetLeerjaarVan,
@@ -208,7 +213,8 @@ function Profielen({ meld }: { meld: (t: string) => void }) {
     <section className="paneel">
       <h2>Profielen</h2>
       <p className="uitleg">
-        Elk kind heeft een eigen avatar, voortgang en kast (of vogels, of een hoofdkwartier vol heldenspullen). Wisselen kan het kind zelf. Het leerjaar
+        Elk kind heeft een eigen voortgang en verzamelt spullen voor zijn avatar: kleren, vogels of heldenspullen. Is
+        een avatar voor twee derde gevuld (★★), dan mag het kind er een nieuwe bij kiezen. Het leerjaar
         bepaalt wat er te oefenen valt; laat je het open, dan kiest het kind het zelf.
       </p>
       <ul className="profiel-lijst">
@@ -300,14 +306,20 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
       <section className="paneel">
         <h2>Voortgang van {naam}</h2>
         <p>
-          {klaar} van {totaal} reeksen gedaan, {spel.kast.length} {spel.kast.length === 1 ? "item" : "items"},{" "}
-          {spel.vogels.length} {spel.vogels.length === 1 ? "vogel" : "vogels"} en {spel.uitrusting.length}{" "}
-          {spel.uitrusting.length === 1 ? "heldenspul" : "heldenspullen"} gewonnen.
+          {klaar} van {totaal} reeksen gedaan.
+          {spel.avatar && (
+            <>
+              {" "}
+              De huidige avatar heeft {verzamelingVan(spel).gewonnen.length} van {spullenVan(themaVan(spel)).length}{" "}
+              {{ kleren: "kleren", vogels: "vogels", helden: "heldenspullen" }[themaVan(spel)]} (
+              {"★".repeat(sterrenVan(spel)) + "☆".repeat(3 - sterrenVan(spel))}).
+            </>
+          )}
+          {begonnenAvatars(spel).length > 1 && <> {begonnenAvatars(spel).length} avatars begonnen.</>}
         </p>
         <p className="uitleg">
           Laat {naam} ergens verder starten. Alle reeksen daarvoor tellen dan als gedaan en leveren elk een
-          willekeurig item op (of een vogel of heldenspul, als {naam} een vogel of held als avatar heeft). Teruggaan
-          neemt niets af.
+          willekeurige beloning op voor de huidige avatar, tot die vol is. Teruggaan neemt niets af.
         </p>
         {onderwerpenVoor(spel.leerjaar).map((onderwerp) => {
           const reeksen = reeksenVan(onderwerp);
@@ -382,7 +394,7 @@ function Instellingen({ spel, meld, ga }: { spel: Spel; meld: (t: string) => voi
       <section className="paneel gevaar">
         <h2>Opnieuw beginnen</h2>
         <Bevestig
-          vraag={`Alle voortgang, kleren, vogels, heldenspullen en de avatar van ${naam} wissen? De naam en het leerjaar blijven.`}
+          vraag={`Alle voortgang en alle avatars van ${naam} wissen? De naam en het leerjaar blijven.`}
           doe={() => {
             wisVoortgang();
             ga({ naam: "kaart" });

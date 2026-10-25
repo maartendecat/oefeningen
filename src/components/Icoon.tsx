@@ -27,6 +27,19 @@ export function Opnieuw({ className = "icoon" }: { className?: string }) {
   );
 }
 
+/** 0 tot 3 sterren: hoe vol de verzameling van een avatar is. */
+export function Sterren({ aantal, className = "" }: { aantal: number; className?: string }) {
+  return (
+    <span className={`sterren ${className}`} role="img" aria-label={`${aantal} van 3 sterren`}>
+      {[0, 1, 2].map((i) => (
+        <span key={i} className={`ster ${i < aantal ? "aan" : ""}`} aria-hidden="true">
+          ★
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function Pijl({ className = "icoon" }: { className?: string }) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
