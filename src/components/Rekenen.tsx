@@ -8,13 +8,18 @@ import { klik, nogEens, pling } from "@/lib/geluid";
 import { reeksKlaar, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
 import { Vink } from "./Icoon";
+import { Splitshuis, Tienveld } from "./Splitshuis";
 
-const MAX_CIJFERS = 3;
 /** Na zoveel foute pogingen toont de app het juiste antwoord. */
 const MAX_FOUT = 2;
+/** Zo lang blijft een getalbeeld staan dat maar even getoond wordt. */
+const EVEN_TONEN_MS = 2000;
+/** Tot dit antwoord volstaat één rij grote knoppen (één tik is het antwoord). */
+const KLEIN_KLAVIER_TOT = 10;
 
 /**
- * Sommen oefenen: het kind tikt het antwoord in en de app kijkt zelf na.
+ * Sommen oefenen: het kind tikt het antwoord in en de app kijkt zelf na. Een
+ * som is tekst (6 × 7), een getalbeeld of een splitshuis (zie sommen.ts).
  * Fout: nog eens proberen. Twee keer fout: de app toont het juiste antwoord
  * en de som komt achteraan de reeks terug. De reeks is klaar als elke som
  * een keer juist beantwoord is.
@@ -44,6 +49,18 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
 
   const huidig = wachtrij[plek];
   const som = reeks?.oefeningen[huidig];
+  const grootste = Math.max(0, ...(reeks?.oefeningen.map((s) => s.antwoord) ?? []));
+  const maxCijfers = String(grootste).length;
+  const kleinKlavier = grootste <= KLEIN_KLAVIER_TOT;
+
+  // Een getalbeeld dat maar even getoond wordt, verdwijnt na een tijdje (bij
+  // de oefening op plek `verstopt`); na een fout komt het terug.
+  const [verstopt, zetVerstopt] = useState<number | null>(null);
+  useEffect(() => {
+    if (som?.vorm !== "getalbeeld" || !som.evenTonen) return;
+    const t = setTimeout(() => zetVerstopt(plek), EVEN_TONEN_MS);
+    return () => clearTimeout(t);
+  }, [plek, som]);
 
   const volgende = (nieuweWachtrij: number[], nieuwGoed: Set<number>) => {
     zetInvoer("");
@@ -61,9 +78,10 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
     }
   };
 
-  const kijkNa = () => {
-    if (!som || toon || invoer === "") return;
-    if (Number(invoer) === som.antwoord) {
+  const kijkNa = (waarde = invoer) => {
+    if (!som || toon || waarde === "") return;
+    zetInvoer(waarde);
+    if (Number(waarde) === som.antwoord) {
       if (!spel.stil) pling();
       reageer("blij", 900);
       const nieuwGoed = new Set(goed).add(huidig);
@@ -74,6 +92,7 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
     }
     if (!spel.stil) nogEens();
     zetSchud((n) => n + 1);
+    zetVerstopt(null);
     if (fouten + 1 < MAX_FOUT) {
       zetFouten(fouten + 1);
       zetInvoer("");
@@ -92,7 +111,7 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
   const tik = (cijfer: string) => {
     if (toon) return;
     if (!spel.stil) klik();
-    zetInvoer((i) => (i.length < MAX_CIJFERS ? (i === "0" ? cijfer : i + cijfer) : i));
+    zetInvoer((i) => (i.length < maxCijfers ? (i === "0" ? cijfer : i + cijfer) : i));
   };
   const wis = () => {
     if (toon) return;
@@ -100,9 +119,9 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
   };
 
   // Ook met het toetsenbord, voor wie op een computer oefent.
-  const toetsen = useRef({ tik, wis, kijkNa });
+  const toetsen = useRef({ tik, wis, kijkNa: () => kijkNa() });
   useEffect(() => {
-    toetsen.current = { tik, wis, kijkNa };
+    toetsen.current = { tik, wis, kijkNa: () => kijkNa() };
   });
   useEffect(() => {
     const opToets = (e: KeyboardEvent) => {
@@ -122,6 +141,9 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
     );
   }
 
+  const maatje = <Avatar key={puls} spel={spel} stemming={stemming} kader="portret" />;
+  const antwoord = <span className={`antwoord ${toon ?? ""} ${invoer ? "" : "leeg"}`}>{invoer || "?"}</span>;
+
   return (
     <main className="scherm rekenen">
       <header className="balk">
@@ -137,34 +159,53 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
       </header>
 
       <div className="som-vak">
-        <div className="rekenmaatje" aria-hidden="true">
-          <Avatar key={puls} spel={spel} stemming={stemming} kader="portret" />
-        </div>
-        <div key={`${plek}-${schud}`} className={`lees-kaart som-kaart ${schud ? "schud" : ""}`}>
-          <p className="somtekst">
-            <span>{som.vraag}</span> <span className="is">=</span>{" "}
-            <span className={`antwoord ${toon ?? ""} ${invoer ? "" : "leeg"}`}>{invoer || "?"}</span>
-          </p>
+        {/* In een splitshuis woont het maatje in de middelste kamer. */}
+        {som.vorm !== "splitshuis" && <div className="rekenmaatje" aria-hidden="true">{maatje}</div>}
+        <div key={`${plek}-${schud}`} className={`lees-kaart som-kaart som-${som.vorm} ${schud ? "schud" : ""}`}>
+          {som.vorm === "splitshuis" ? (
+            <Splitshuis som={som} antwoord={antwoord} bewoner={maatje} />
+          ) : som.vorm === "getalbeeld" ? (
+            <div className={`getalbeeld ${som.staand ? "staand" : ""}`}>
+              <Tienveld aantal={som.aantal} staand={som.staand} verborgen={verstopt === plek} />
+              <p className="somtekst">
+                <span className="is">=</span> {antwoord}
+              </p>
+            </div>
+          ) : (
+            <p className="somtekst">
+              <span>{som.vraag}</span> <span className="is">=</span> {antwoord}
+            </p>
+          )}
           {toon === "hulp" && <p className="som-hulp">kijk goed: deze som komt straks nog eens terug</p>}
         </div>
       </div>
 
-      <div className="klavier" role="group" aria-label="cijfers">
-        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((c) => (
-          <button key={c} className="toets" onClick={() => tik(c)} disabled={!!toon}>
-            {c}
+      {kleinKlavier ? (
+        <div className="klavier klein" role="group" aria-label="antwoorden">
+          {Array.from({ length: KLEIN_KLAVIER_TOT + 1 }, (_, n) => (
+            <button key={n} className="toets" onClick={() => kijkNa(String(n))} disabled={!!toon}>
+              {n}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="klavier" role="group" aria-label="cijfers">
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((c) => (
+            <button key={c} className="toets" onClick={() => tik(c)} disabled={!!toon}>
+              {c}
+            </button>
+          ))}
+          <button className="toets wis" onClick={wis} disabled={!!toon || !invoer} aria-label="wissen">
+            ⌫
           </button>
-        ))}
-        <button className="toets wis" onClick={wis} disabled={!!toon || !invoer} aria-label="wissen">
-          ⌫
-        </button>
-        <button className="toets" onClick={() => tik("0")} disabled={!!toon}>
-          0
-        </button>
-        <button className="toets klaar" onClick={kijkNa} disabled={!!toon || !invoer} aria-label="klaar">
-          <Vink />
-        </button>
-      </div>
+          <button className="toets" onClick={() => tik("0")} disabled={!!toon}>
+            0
+          </button>
+          <button className="toets klaar" onClick={() => kijkNa()} disabled={!!toon || !invoer} aria-label="klaar">
+            <Vink />
+          </button>
+        </div>
+      )}
     </main>
   );
 }

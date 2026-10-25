@@ -15,11 +15,7 @@
 // reeks bestaat dus altijd uit dezelfde sommen. Zie maaltafels.test.ts voor
 // wat er bewaakt wordt, en docs/leerjaren.md voor het ontwerp.
 
-export type Som = {
-  /** Zoals ze getoond wordt: "6 × 7" of "42 : 6". */
-  vraag: string;
-  antwoord: number;
-};
+import { willekeur, type TekstSom as Som, type Willekeur } from "./sommen";
 
 export type TafelLevel = {
   id: string;
@@ -30,31 +26,6 @@ export type TafelLevel = {
 
 const PER_REEKS = 15;
 const MAX_ANTWOORD = 999;
-
-// ---- Vaste willekeur ---------------------------------------------------------
-
-function zaad(tekst: string): number {
-  let h = 2166136261;
-  for (const c of tekst) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
-  return h >>> 0;
-}
-
-/** mulberry32: klein, snel en altijd dezelfde reeks getallen voor hetzelfde zaad. */
-function willekeur(tekst: string) {
-  let a = zaad(tekst);
-  const volgende = () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  return {
-    kies: <T,>(lijst: T[]): T => lijst[Math.floor(volgende() * lijst.length)],
-    kans: (p: number) => volgende() < p,
-  };
-}
-
-type Willekeur = ReturnType<typeof willekeur>;
 
 // ---- Sommen ------------------------------------------------------------------
 
@@ -71,9 +42,11 @@ function som(r: Willekeur, a: number, b: number, deel: number): Som {
   if (r.kans(deel) && a !== 0 && b !== 0) {
     const delers = [a, b].filter(eenvoudigeDeler);
     const deler = delers.length ? r.kies(delers) : Math.min(a, b);
-    return { vraag: `${product} : ${deler}`, antwoord: product / deler };
+    return { vorm: "tekst", vraag: `${product} : ${deler}`, antwoord: product / deler };
   }
-  return r.kans(0.5) ? { vraag: `${a} × ${b}`, antwoord: product } : { vraag: `${b} × ${a}`, antwoord: product };
+  return r.kans(0.5)
+    ? { vorm: "tekst", vraag: `${a} × ${b}`, antwoord: product }
+    : { vorm: "tekst", vraag: `${b} × ${a}`, antwoord: product };
 }
 
 /** Maakt één som; `deel` is de kans op een deling. */
@@ -106,7 +79,7 @@ function deling(uitkomsten: number[], delers: number[]): Maker {
   return (r) => {
     const a = r.kies(uitkomsten);
     const b = r.kies(delers);
-    return { vraag: `${a * b} : ${b}`, antwoord: a };
+    return { vorm: "tekst", vraag: `${a * b} : ${b}`, antwoord: a };
   };
 }
 
