@@ -49,7 +49,8 @@ profiel ── leerjaar (1–6)
   dus niet omgezet te worden.
 - **Eén verzameling beloningen per profiel.** Het thema dat het kind koos
   (vogels of kleren) geldt voor alle onderwerpen: elke gedane reeks levert
-  iets op voor dezelfde kast of hetzelfde landschap.
+  iets op voor dezelfde kast of hetzelfde landschap. (Intussen heeft elke
+  avatar zijn eigen verzameling, zie `docs/avatars.md`.)
 - Elk onderwerp telt ongeveer evenveel reeksen als er beloningen zijn (44
   reeksen, 50 vogels). Doet één kind ooit meerdere onderwerpen, dan zijn er
   meer beloningen nodig (zie "Later").

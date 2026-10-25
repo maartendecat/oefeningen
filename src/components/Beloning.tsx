@@ -10,7 +10,20 @@ import { vindItem } from "@/avatar/items";
 import { LEEFGEBIEDEN, vindVogel } from "@/avatar/vogels";
 import { reeksenVan, vindReeks } from "@/data/onderwerpen";
 import { fanfare, pling, woesj, zingVogel } from "@/lib/geluid";
-import { kiesVerrassingen, themaVan, winBeloning, type Spel, type Thema } from "@/lib/state";
+import {
+  AVATARS,
+  begonnenAvatars,
+  isVol,
+  kiesAvatar,
+  kiesVerrassingen,
+  magNieuweAvatar,
+  themaVan,
+  verzamelingVan,
+  winBeloning,
+  type Spel,
+  type Thema,
+} from "@/lib/state";
+import { AvatarRaster } from "./AvatarKiezen";
 import type { Scherm } from "./App";
 import { Pijl } from "./Icoon";
 
@@ -49,8 +62,13 @@ export function Beloning({
   eerste: boolean;
   ga: (s: Scherm) => void;
 }) {
+  // Is de avatar vol, dan kiest het kind eerst met wie het verder verzamelt
+  // (als er nog iemand is om mee te verzamelen).
+  const [kiesAvatarEerst, zetKiesAvatarEerst] = useState(() => eerste && isVol(spel) && kanVerder(spel));
   // Eén keer bepalen, anders wisselen de verrassingen bij elke render.
-  const [keuzes] = useState(() => (eerste ? kiesVerrassingen(spel) : []));
+  const [keuzes, zetKeuzes] = useState(() => (eerste && !isVol(spel) ? kiesVerrassingen(spel) : []));
+  // Kwam er met dit cadeau een nieuwe avatar vrij?
+  const [nieuweVrij, zetNieuweVrij] = useState(false);
   const [gekozen, zetGekozen] = useState<string | null>(null);
   // Eerst even verrast om het nieuwe cadeau, dan juichen.
   const [stemming, zetStemming] = useState<Stemming>(eerste ? "verrast" : "juich");
@@ -72,7 +90,12 @@ export function Beloning({
   }, [reeksId]);
 
   const kies = (id: string) => {
-    winBeloning(spel, id);
+    if (!magNieuweAvatar(spel) && spel.avatar) {
+      const v = verzamelingVan(spel);
+      const na = { ...spel.avatars, [spel.avatar]: { ...v, gewonnen: [...v.gewonnen, id] } };
+      zetNieuweVrij(magNieuweAvatar({ avatar: spel.avatar, avatars: na }));
+    }
+    winBeloning(id);
     zetGekozen(id);
     if (!spel.stil) {
       const vogel = vindVogel(id);
@@ -106,6 +129,31 @@ export function Beloning({
     </div>
   );
 
+  if (kiesAvatarEerst) {
+    return (
+      <main className="scherm kiezen beloning">
+        <h1 className="titel">{spel.naam ?? "je avatar"} is helemaal klaar!</h1>
+        <p className="ondertitel">met wie verzamel je verder?</p>
+        <AvatarRaster
+          spel={spel}
+          zonderVolle
+          kies={(id) => {
+            if (!spel.stil) pling();
+            kiesAvatar(id);
+            zetKeuzes(kiesVerrassingen({ avatar: id, avatars: spel.avatars }));
+            zetKiesAvatarEerst(false);
+          }}
+        />
+      </main>
+    );
+  }
+
+  const vrij = nieuweVrij && (
+    <button className="groot-knop klein-tekst nieuwe-avatar" onClick={() => ga({ naam: "pop" })}>
+      🎉 je mag een nieuwe avatar kiezen!
+    </button>
+  );
+
   if (keuzes.length === 0) {
     return (
       <main className="scherm beloning">
@@ -133,6 +181,7 @@ export function Beloning({
         ) : (
           <Avatar spel={spel} naam={spel.naam} stemming={stemming} className="pop-groot" />
         )}
+        {vrij}
         {verder}
       </main>
     );
@@ -175,4 +224,13 @@ export function Beloning({
       </div>
     </main>
   );
+}
+
+/** Is er nog een avatar die niet vol is en die het kind mag kiezen? */
+function kanVerder(spel: Spel): boolean {
+  const begonnen = begonnenAvatars(spel);
+  const nieuwMag = magNieuweAvatar(spel);
+  return Object.values(AVATARS)
+    .flat()
+    .some((id) => !isVol(spel, id) && (begonnen.includes(id) || nieuwMag));
 }

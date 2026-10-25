@@ -4,10 +4,31 @@ import { useSyncExternalStore } from "react";
 import { HELD_ITEMS, HELD_UITTREKBAAR } from "@/avatar/heldenitems";
 import { ITEMS, UITTREKBAAR } from "@/avatar/items";
 import { VOGELS } from "@/avatar/vogels";
-import { isLeeg, lees, nieuwSpel, themaVan, type Spel } from "./spel";
+import {
+  isAvatar,
+  isLeeg,
+  lees,
+  magNieuweAvatar,
+  nieuweVerzameling,
+  nieuwSpel,
+  themaVan,
+  verzamelingVan,
+  type Spel,
+  type Thema,
+  type Verzameling,
+} from "./spel";
 
-export type { Aan, Spel, Thema } from "./spel";
-export { themaVan } from "./spel";
+export type { Aan, Spel, Thema, Verzameling } from "./spel";
+export {
+  AVATARS,
+  begonnenAvatars,
+  isVol,
+  magNieuweAvatar,
+  spullenVan,
+  sterrenVan,
+  themaVan,
+  verzamelingVan,
+} from "./spel";
 
 // Alle profielen van het gezin staan ook in localStorage: zo werkt de app
 // meteen, ook zonder internet, en kan een kind van profiel wisselen zonder
@@ -188,8 +209,20 @@ export function pasAan(f: (s: Spel) => Spel) {
   if (s.actief && spel) bewaarProfiel(s.actief, f(spel));
 }
 
+/**
+ * Speelt verder met een avatar. Een nieuwe avatar mag enkel als alle
+ * begonnen avatars minstens twee sterren hebben; een avatar die nog niets
+ * won, verdwijnt als het kind een andere kiest (zie docs/avatars.md).
+ */
 export function kiesAvatar(id: string) {
-  pasAan((s) => ({ ...s, avatar: id }));
+  pasAan((s) => {
+    if (!isAvatar(id)) return s;
+    if (!s.avatars[id] && !magNieuweAvatar(s)) return s;
+    const avatars: Record<string, Verzameling> = {};
+    for (const [a, v] of Object.entries(s.avatars)) if (a === id || v.gewonnen.length > 0) avatars[a] = v;
+    avatars[id] ??= nieuweVerzameling(id);
+    return { ...s, avatar: id, avatars };
+  });
 }
 
 export function zetLeerjaar(leerjaar: number) {
@@ -208,87 +241,73 @@ export function reeksKlaar(id: string) {
   pasAan((s) => (s.klaar.includes(id) ? s : { ...s, klaar: [...s.klaar, id] }));
 }
 
-/** Voegt een item toe aan de kast en trekt het meteen aan. */
-export function winItem(id: string) {
+/** Past de verzameling van de actieve avatar aan. */
+function pasVerzamelingAan(f: (v: Verzameling, thema: Thema) => Verzameling) {
   pasAan((s) => {
-    const kast = s.kast.includes(id) ? s.kast : [...s.kast, id];
-    return trekAanIn({ ...s, kast }, id);
+    if (!s.avatar) return s;
+    return { ...s, avatars: { ...s.avatars, [s.avatar]: f(verzamelingVan(s), themaVan(s)) } };
   });
-}
-
-/** Voegt een vogel toe aan het landschap. */
-export function winVogel(id: string) {
-  pasAan((s) => (s.vogels.includes(id) ? s : { ...s, vogels: [...s.vogels, id] }));
-}
-
-/** Voegt een heldenspul toe aan het hoofdkwartier en doet het de held meteen aan. */
-export function winUitrusting(id: string) {
-  pasAan((s) => {
-    const uitrusting = s.uitrusting.includes(id) ? s.uitrusting : [...s.uitrusting, id];
-    return rustUitIn({ ...s, uitrusting }, id);
-  });
-}
-
-/** Wint een beloning in het thema van de avatar. */
-export function winBeloning(s: Spel, id: string) {
-  const thema = themaVan(s);
-  if (thema === "vogels") winVogel(id);
-  else if (thema === "helden") winUitrusting(id);
-  else winItem(id);
-}
-
-/** Doet de held iets aan, of weer uit (als dat mag). */
-export function rustUit(id: string) {
-  pasAan((s) => rustUitIn(s, id));
-}
-
-function rustUitIn(s: Spel, id: string): Spel {
-  const item = HELD_ITEMS.find((i) => i.id === id);
-  if (!item) return s;
-  const heldAan = { ...s.heldAan };
-  const cat = item.categorie;
-  if (heldAan[cat] === id && HELD_UITTREKBAAR.includes(cat)) delete heldAan[cat];
-  else heldAan[cat] = id;
-  return { ...s, heldAan };
-}
-
-export function trekAan(id: string) {
-  pasAan((s) => trekAanIn(s, id));
-}
-
-function trekAanIn(s: Spel, id: string): Spel {
-  const item = ITEMS.find((i) => i.id === id);
-  if (!item) return s;
-  const aan = { ...s.aan };
-  const cat = item.categorie;
-
-  if (aan[cat] === id && UITTREKBAAR.includes(cat)) {
-    delete aan[cat];
-    return { ...s, aan };
-  }
-  aan[cat] = id;
-  // Een kleedje vervangt truitje en rok; wie die weer kiest, doet het kleedje uit.
-  if (cat === "truitjes" || cat === "onder") delete aan.kleedjes;
-  return { ...s, aan };
-}
-
-/** Wat er nog te winnen is in het thema van de avatar, met de groep om te spreiden. */
-function nogTeWinnen(s: Spel): { id: string; groep: string }[] {
-  const thema = themaVan(s);
-  if (thema === "vogels") {
-    return VOGELS.filter((v) => !s.vogels.includes(v.id)).map((v) => ({ id: v.id, groep: v.gebied }));
-  }
-  if (thema === "helden") {
-    return HELD_ITEMS.filter((i) => !i.start && !s.uitrusting.includes(i.id)).map((i) => ({ id: i.id, groep: i.categorie }));
-  }
-  return ITEMS.filter((i) => !i.start && !s.kast.includes(i.id)).map((i) => ({ id: i.id, groep: i.categorie }));
 }
 
 /**
- * Kiest drie verrassingen, zoveel mogelijk uit verschillende categorieën
- * (bij de vogels: uit verschillende leefgebieden).
+ * Wint een beloning voor de actieve avatar: een vogel voor het landschap, of
+ * kleren of heldenspul dat de avatar meteen aantrekt.
  */
-export function kiesVerrassingen(s: Spel, aantal = 3): string[] {
+export function winBeloning(id: string) {
+  pasVerzamelingAan((v, thema) => {
+    const gewonnen = v.gewonnen.includes(id) ? v.gewonnen : [...v.gewonnen, id];
+    return pasAanIn({ ...v, gewonnen }, thema, id);
+  });
+}
+
+/** Trekt de pop of held iets aan, of weer uit (als dat mag). */
+export function trekAan(id: string) {
+  pasVerzamelingAan((v, thema) => pasAanIn(v, thema, id));
+}
+
+function pasAanIn(v: Verzameling, thema: Thema, id: string): Verzameling {
+  if (thema === "helden") {
+    const item = HELD_ITEMS.find((i) => i.id === id);
+    if (!item) return v;
+    const aan = { ...v.aan };
+    const cat = item.categorie;
+    if (aan[cat] === id && HELD_UITTREKBAAR.includes(cat)) delete aan[cat];
+    else aan[cat] = id;
+    return { ...v, aan };
+  }
+  if (thema === "kleren") {
+    const item = ITEMS.find((i) => i.id === id);
+    if (!item) return v;
+    const aan = { ...v.aan };
+    const cat = item.categorie;
+    if (aan[cat] === id && UITTREKBAAR.includes(cat)) {
+      delete aan[cat];
+      return { ...v, aan };
+    }
+    aan[cat] = id;
+    // Een kleedje vervangt truitje en rok; wie die weer kiest, doet het kleedje uit.
+    if (cat === "truitjes" || cat === "onder") delete aan.kleedjes;
+    return { ...v, aan };
+  }
+  return v;
+}
+
+/** Wat de actieve avatar nog kan winnen, met de groep om te spreiden. */
+function nogTeWinnen(s: Pick<Spel, "avatar" | "avatars">): { id: string; groep: string }[] {
+  const { gewonnen } = verzamelingVan(s);
+  const thema = themaVan(s);
+  if (thema === "vogels") {
+    return VOGELS.filter((v) => !gewonnen.includes(v.id)).map((v) => ({ id: v.id, groep: v.gebied }));
+  }
+  const items: { id: string; categorie: string; start?: boolean }[] = thema === "helden" ? HELD_ITEMS : ITEMS;
+  return items.filter((i) => !i.start && !gewonnen.includes(i.id)).map((i) => ({ id: i.id, groep: i.categorie }));
+}
+
+/**
+ * Kiest drie verrassingen voor de actieve avatar, zoveel mogelijk uit
+ * verschillende categorieën (bij de vogels: uit verschillende leefgebieden).
+ */
+export function kiesVerrassingen(s: Pick<Spel, "avatar" | "avatars">, aantal = 3): string[] {
   const open = nogTeWinnen(s).sort(() => Math.random() - 0.5);
   const gekozen: typeof open = [];
   for (const item of open) {
@@ -305,21 +324,22 @@ export function kiesVerrassingen(s: Spel, aantal = 3): string[] {
 /**
  * Oudermenu: zet de voortgang van één onderwerp (`reeksIds`, in
  * speelvolgorde) zo dat de reeksen vóór `aantalKlaar` gedaan zijn. Voor elke
- * reeks die zo extra klaar raakt, komt er een willekeurig item (of vogel, of heldenspul) bij;
- * terugzetten neemt niets af. Andere onderwerpen blijven zoals ze waren.
+ * reeks die zo extra klaar raakt, krijgt de actieve avatar een willekeurige
+ * beloning, tot hij vol is; terugzetten neemt niets af. Andere onderwerpen
+ * blijven zoals ze waren.
  */
 export function zetVoortgang(reeksIds: string[], aantalKlaar: number) {
   pasAan((s) => {
     const nieuw = reeksIds.slice(0, aantalKlaar);
     const klaar = [...s.klaar.filter((id) => !reeksIds.includes(id)), ...nieuw];
     const extra = nieuw.filter((id) => !s.klaar.includes(id)).length;
-    const veld = ({ kleren: "kast", vogels: "vogels", helden: "uitrusting" } as const)[themaVan(s)];
-    let lijst = s[veld];
+    if (!s.avatar) return { ...s, klaar };
+    let v = verzamelingVan(s);
     for (let i = 0; i < extra; i++) {
-      const [nieuw] = kiesVerrassingen({ ...s, [veld]: lijst }, 1);
-      if (nieuw) lijst = [...lijst, nieuw];
+      const [id] = kiesVerrassingen({ avatar: s.avatar, avatars: { [s.avatar]: v } }, 1);
+      if (id) v = { ...v, gewonnen: [...v.gewonnen, id] };
     }
-    return { ...s, klaar, [veld]: lijst };
+    return { ...s, klaar, avatars: { ...s.avatars, [s.avatar]: v } };
   });
 }
 

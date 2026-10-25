@@ -7,7 +7,7 @@ import { HELD_CATEGORIEEN, HELD_ITEMS } from "@/avatar/heldenitems";
 import { ItemPrent, vindBasis, type Stemming } from "@/avatar/Pop";
 import { CATEGORIEEN, ITEMS } from "@/avatar/items";
 import { klik, pling, woesj } from "@/lib/geluid";
-import { rustUit, themaVan, trekAan, type Spel } from "@/lib/state";
+import { themaVan, trekAan, verzamelingVan, type Spel } from "@/lib/state";
 import type { Scherm } from "./App";
 
 const TIK_REACTIES: [Stemming, number][] = [
@@ -29,15 +29,16 @@ type Rek = {
 };
 
 function rekVan(spel: Spel): Rek {
+  const { gewonnen, aan } = verzamelingVan(spel);
   if (themaVan(spel) === "helden") {
     const huid = vindHeld(spel.avatar).huid;
     return {
       titel: "hoofdkwartier",
       categorieen: HELD_CATEGORIEEN,
       items: HELD_ITEMS,
-      gewonnen: spel.uitrusting,
-      aan: spel.heldAan,
-      pas: rustUit,
+      gewonnen,
+      aan,
+      pas: trekAan,
       prent: (id) => <HeldItemPrent item={HELD_ITEMS.find((i) => i.id === id)!} huid={huid} naam={spel.naam} className="prent" />,
       tikGeluid: woesj,
     };
@@ -47,8 +48,8 @@ function rekVan(spel: Spel): Rek {
     titel: "mijn kast",
     categorieen: CATEGORIEEN,
     items: ITEMS,
-    gewonnen: spel.kast,
-    aan: spel.aan,
+    gewonnen,
+    aan,
     pas: trekAan,
     prent: (id) => <ItemPrent item={ITEMS.find((i) => i.id === id)!} huid={huid} className="prent" />,
     tikGeluid: pling,

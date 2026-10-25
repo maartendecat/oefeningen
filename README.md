@@ -13,7 +13,9 @@ beloning kiezen. Er zijn drie thema's, en het kind kiest zelf:
   elke reeks een nieuw stuk uitrusting voor het hoofdkwartier, van capes en
   maskers tot een heldenhond. Zie [docs/superhelden.md](docs/superhelden.md).
 
-Wisselen kan altijd; de kleren, de vogels en de heldenspullen blijven alle drie bewaard.
+Elke avatar heeft zijn eigen verzameling, met 0 tot 3 sterren naargelang hoe vol
+die is. Bij ★★ mag het kind er een nieuwe avatar bij kiezen, uit alle thema's;
+de vorige blijven bewaard. Zie [docs/avatars.md](docs/avatars.md).
 
 Wat er te oefenen valt, hangt af van het **leerjaar** van het profiel: het
 lezen voor het eerste leerjaar, de maaltafels (en deeltafels) voor het derde.
@@ -63,10 +65,9 @@ npm run lint
 
 Voeg in `src/data/levels.ts` een level toe met de nieuwe klank(en) in `nieuw`
 en een paar reeksen van vijftien oefeningen. `npm test` zegt meteen of er een woord
-tussen zit dat nog niet leesbaar is. Voor elke extra reeks is het leuk om ook
-een extra item in `src/avatar/items.tsx`, een extra heldenspul in
-`src/avatar/heldenitems.tsx` en een extra vogel in `src/avatar/vogels.tsx` te tekenen, zodat er genoeg te winnen blijft. Een
-nieuwe vogel heeft ook een plek nodig in `PLEKKEN` (`src/avatar/decor.tsx`).
+tussen zit dat nog niet leesbaar is. Er hoeven geen beloningen bij: is een avatar vol,
+dan verzamelt het kind verder met een nieuwe (zie [docs/avatars.md](docs/avatars.md)). Een
+nieuwe vogel heeft wel een plek nodig in `PLEKKEN` (`src/avatar/decor.tsx`).
 
 ### De vorm van de voortgang veranderen
 
