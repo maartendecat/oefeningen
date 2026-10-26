@@ -17,7 +17,7 @@ describe("rekenen", () => {
     expect(REKEN_LEVELS.map((l) => l.tegels.join(" "))).toEqual([
       "2", "3", "4", "5", "6", "7", "8", "9", "10", "≤10", "11–15", "16–20",
     ]);
-    expect(REKEN_LEVELS.map((l) => l.reeksen.length)).toEqual([2, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4]);
+    expect(REKEN_LEVELS.map((l) => l.reeksen.length)).toEqual([1, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4]);
   });
 
   it("heeft unieke reeks-ids die met reken- beginnen", () => {
@@ -26,8 +26,8 @@ describe("rekenen", () => {
     for (const id of ids) expect(id).toMatch(/^reken-/);
   });
 
-  it.each(reeksen.map((r) => [r.id, r] as const))("%s: 15 juiste oefeningen", (_, r) => {
-    expect(r.oefeningen).toHaveLength(15);
+  it.each(reeksen.map((r) => [r.id, r] as const))("%s: 15 juiste oefeningen (8 bij het getal 2)", (_, r) => {
+    expect(r.oefeningen).toHaveLength(r.id === "reken-2-1" ? 8 : 15);
     for (const s of r.oefeningen) {
       if (s.vorm === "getalbeeld") {
         expect(s.antwoord).toBe(s.aantal);
@@ -46,10 +46,14 @@ describe("rekenen", () => {
     }
   });
 
-  it("heeft vanaf het getal 3 vijftien verschillende oefeningen per reeks", () => {
-    for (const r of reeksen.slice(2)) {
-      expect(new Set(r.oefeningen.map(sleutel)).size, r.id).toBe(15);
+  it("herhaalt nooit een oefening binnen een reeks", () => {
+    for (const r of reeksen) {
+      expect(new Set(r.oefeningen.map(sleutel)).size, r.id).toBe(r.oefeningen.length);
     }
+  });
+
+  it("begint al in de tweede reeks met het getal 3", () => {
+    expect(reeksen[1].id).toBe("reken-3-1");
   });
 
   it("begint elke reeks met 8 splitsingen van het nieuwe getal (of minder bij 2)", () => {

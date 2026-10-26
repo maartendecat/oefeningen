@@ -97,8 +97,8 @@ function herhalingTot(getallen: number[], stijl: Stijl): Som[][] {
 /**
  * Een reeks: eerst `nieuw` (al in de juiste volgorde), dan aangevuld met
  * herhaling tot 15, om beurt een getalbeeld en een splitsing, zonder dezelfde
- * oefening twee keer. Is er niet genoeg verschillende herhaling (enkel bij
- * het getal 2), dan komt er toch een oefening terug.
+ * oefening twee keer. Zijn er geen 15 verschillende (enkel bij het getal 2),
+ * dan is de reeks korter.
  */
 function reeks(id: string, r: Willekeur, nieuw: Som[], herhaling: Som[][]): { id: string; oefeningen: Som[] } {
   const oefeningen = [...nieuw];
@@ -110,8 +110,6 @@ function reeks(id: string, r: Willekeur, nieuw: Som[], herhaling: Som[][]): { id
     gezien.add(sleutel(s));
     oefeningen.push(s);
   }
-  const alles = [...nieuw, ...herhaling.flat()];
-  while (oefeningen.length < PER_REEKS) oefeningen.push(r.kies(alles));
   return { id, oefeningen };
 }
 
@@ -166,8 +164,11 @@ function tientalLevel(begin: number, einde: number): RekenLevel {
   return { id, tegels: [`${begin}–${einde}`], reeksen };
 }
 
-/** Kleine getallen hebben weinig splitsingen, dus minder reeksen. */
-const REEKSEN_PER_GETAL: Record<number, number> = { 2: 2, 3: 2, 4: 3 };
+/**
+ * Kleine getallen hebben weinig splitsingen, dus minder reeksen. Bij 2 is er
+ * maar één, en die is korter: 8 verschillende oefeningen.
+ */
+const REEKSEN_PER_GETAL: Record<number, number> = { 2: 1, 3: 2, 4: 3 };
 
 export const REKEN_LEVELS: RekenLevel[] = [
   ...van(2, 10).map((n) => getalLevel(n, REEKSEN_PER_GETAL[n] ?? 4)),

@@ -53,9 +53,13 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
   const maxCijfers = String(grootste).length;
   const kleinKlavier = grootste <= KLEIN_KLAVIER_TOT;
 
-  // Een getalbeeld dat maar even getoond wordt, verdwijnt na een tijdje (bij
-  // de oefening op plek `verstopt`); na een fout komt het terug.
+  // Een getalbeeld dat maar even getoond wordt: het bonkt twee keer als een
+  // hartslag, en dan schuift er een doek over (bij de oefening op plek `verstopt`). Na een
+  // fout (op plek `terug`) komt het beeld terug en blijft het staan.
   const [verstopt, zetVerstopt] = useState<number | null>(null);
+  const [terug, zetTerug] = useState<number | null>(null);
+  const evenTonen = som?.vorm === "getalbeeld" && som.evenTonen && terug !== plek;
+  const verborgen = evenTonen && verstopt === plek;
   useEffect(() => {
     if (som?.vorm !== "getalbeeld" || !som.evenTonen) return;
     const t = setTimeout(() => zetVerstopt(plek), EVEN_TONEN_MS);
@@ -92,7 +96,7 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
     }
     if (!spel.stil) nogEens();
     zetSchud((n) => n + 1);
-    zetVerstopt(null);
+    zetTerug(plek);
     if (fouten + 1 < MAX_FOUT) {
       zetFouten(fouten + 1);
       zetInvoer("");
@@ -166,7 +170,17 @@ export function Rekenen({ spel, reeksId, ga }: { spel: Spel; reeksId: string; ga
             <Splitshuis som={som} antwoord={antwoord} bewoner={maatje} />
           ) : som.vorm === "getalbeeld" ? (
             <div className={`getalbeeld ${som.staand ? "staand" : ""}`}>
-              <Tienveld aantal={som.aantal} staand={som.staand} verborgen={verstopt === plek} />
+              <div
+                className={`beeld-vak ${evenTonen && !verborgen ? "bonkt" : ""}`}
+                style={{ animationDuration: `${EVEN_TONEN_MS}ms` }}
+              >
+                <Tienveld aantal={som.aantal} staand={som.staand} verborgen={verborgen} />
+                {verborgen && (
+                  <div className="beeld-doek" aria-label="verstopt">
+                    <span aria-hidden="true">🙈</span>
+                  </div>
+                )}
+              </div>
               <p className="somtekst">
                 <span className="is">=</span> {antwoord}
               </p>
