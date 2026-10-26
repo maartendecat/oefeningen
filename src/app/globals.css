@@ -1625,6 +1625,43 @@ button:disabled {
   height: auto;
 }
 
+/* Even tonen: het getalbeeld bonkt twee keer als een hartslag, en dan schuift er een doek over. */
+.beeld-vak {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.beeld-vak.bonkt {
+  animation-name: hartslag;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes hartslag {
+  0%, 12%, 38%, 62%, 100% { transform: scale(1); }
+  25%, 50% { transform: scale(1.08); }
+}
+
+.beeld-doek {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 4px solid var(--inkt);
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(135deg, transparent 0 14px, #ffffff55 14px 28px),
+    var(--paars);
+  font-size: clamp(36px, 7vw, 64px);
+  transform-origin: top;
+  animation: doek-zakt 0.3s ease-out;
+}
+
+@keyframes doek-zakt {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
 /* Een staand tienveld is smal en hoog: dan bepaalt de hoogte de maat. */
 .tienveld.staand {
   width: auto;
@@ -1636,9 +1673,8 @@ button:disabled {
 }
 
 /* Het tienveld krimpt mee als de kaart te smal is; "= ?" niet. */
-.getalbeeld .tienveld {
+.getalbeeld .beeld-vak {
   flex: 0 1 auto;
-  min-width: 0;
 }
 
 .getalbeeld .somtekst {

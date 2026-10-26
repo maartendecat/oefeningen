@@ -75,7 +75,12 @@ Zoals op de kaartjes in de klas:
 In de tweede helft van een level blijft een getalbeeld **2 seconden**
 staan en verdwijnt dan: het kind moet het beeld herkennen, niet tellen.
 
-- Fout geantwoord: het beeld komt terug en blijft staan.
+- Zodat het kind ziet dat het bewust is: het getalbeeld bonkt twee keer als
+  een hartslag, en daarna schuift er een gestreept doek met 🙈 over het
+  tienveld. Een klokje ernaast leidde te veel af: het kind keek naar het
+  klokje in plaats van naar het beeld.
+- Fout geantwoord: het doek gaat weg, en het beeld blijft staan (zonder te
+  bonken), ook als het kind binnen de 2 seconden fout antwoordde.
 - Een splitshuis wordt nooit verborgen.
 - Er is geen klok: antwoorden mag zo traag als het kind wil.
 
@@ -102,7 +107,7 @@ De vraag staat vooral in beeld, niet in tekst: het kind leest nog niet vlot.
 
 | Level | Tegel | Reeksen | Wat erin zit |
 |---|---|---|---|
-| 1 | `2` | 2 | splitsen van 2, getalbeelden 1 en 2 |
+| 1 | `2` | 1 (van 8) | splitsen van 2, getalbeelden 1 en 2 |
 | 2 | `3` | 2 | splitsen van 3, getalbeeld 3 |
 | 3 | `4` | 3 | splitsen van 4, getalbeeld 4 |
 | 4–9 | `5` … `10` | 4 elk | splitsen van dat getal, zijn getalbeeld |
@@ -110,8 +115,9 @@ De vraag staat vooral in beeld, niet in tekst: het kind leest nog niet vlot.
 | 11 | `11–15` | 4 | getalbeelden met twee tienvelden, splitsen in 10 en de rest |
 | 12 | `16–20` | 4 | idem tot 20 |
 
-Samen 43 reeksen. De kleine getallen krijgen minder reeksen: 2 heeft maar
-drie splitsingen, daar valt niet veel langer op te oefenen.
+Samen 42 reeksen. De kleine getallen krijgen minder reeksen: 2 heeft maar
+drie splitsingen, daar valt niet veel langer op te oefenen. Het getal 3 begint
+zo al bij de tweede reeks.
 
 ### Een reeks van 15
 
@@ -138,10 +144,10 @@ tien (eerst hun getalbeelden, dan `14 = 10 + 4`).
 
 ### Kleine getallen
 
-Bij 2 zijn er te weinig verschillende oefeningen voor 15 zonder herhaling
-(zes splitsingen: drie, telkens met links of rechts leeg, en de getalbeelden
-1 en 2). Daar komen oefeningen dus twee keer in een reeks voor. Vanaf 3 zijn
-alle 15 oefeningen van een reeks verschillend.
+Bij 2 zijn er maar 8 verschillende oefeningen: zes splitsingen (drie,
+telkens met links of rechts leeg) en de getalbeelden 1 en 2. Het getal 2
+krijgt daarom één korte reeks van die 8, in plaats van 15 met herhaling.
+Binnen een reeks komt een oefening nooit twee keer voor.
 
 ### Gegenereerd, maar vast
 
@@ -152,8 +158,8 @@ betekenen. Reeks-ids beginnen met `reken-`.
 Een test bewaakt dat:
 
 - elk antwoord klopt;
-- vanaf het getal 3 elke reeks 15 verschillende oefeningen heeft
-  (`7 = 3 + ?` en `7 = ? + 3` tellen als verschillend);
+- elke reeks 15 verschillende oefeningen heeft, behalve de korte reeks van
+  het getal 2 (`7 = 3 + ?` en `7 = ? + 3` tellen als verschillend);
 - de eerste 8 oefeningen splitsingen van het nieuwe getal zijn (levels 1 tot
   9), en de eerste reeks van 7 de volgorde van de kaartjes volgt;
 - een level enkel getallen gebruikt die al aan bod kwamen;
