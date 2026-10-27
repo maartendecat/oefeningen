@@ -25,3 +25,10 @@ export async function huidigeOuder(): Promise<Ouder | null> {
   }
   return null;
 }
+
+/** Mag deze ouder de beheerpagina zien? BEHEERDERS is een lijst e-mailadressen, gescheiden door komma's. */
+export function isBeheerder(ouder: Ouder | null): boolean {
+  if (!ouder) return false;
+  const lijst = (process.env.BEHEERDERS ?? "").split(",").map((e) => e.trim().toLowerCase());
+  return lijst.includes(ouder.email);
+}

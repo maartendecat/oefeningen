@@ -1,5 +1,7 @@
 // Eén profiel van het ingelogde gezin bewaren of verwijderen.
 
+import { after } from "next/server";
+import { dagVan, nieuweReeksen } from "@/lib/activiteit";
 import { huidigeOuder } from "@/lib/ouder";
 import { MAX_PROFIELEN, isGeldigId, opslag } from "@/lib/opslag";
 import { lees } from "@/lib/spel";
@@ -35,6 +37,22 @@ export async function PUT(request: Request, ctx: RouteContext<"/api/profielen/[i
   }
 
   await db.schrijf(ouder.email, id, spel);
+
+  // Dagtellers voor het beheer. Een profiel dat nieuw op de server komt, kan
+  // reeksen meebrengen die al eerder (zonder login) gespeeld zijn: die tellen
+  // niet als nieuw vandaag.
+  if (JSON.stringify(bestaand) !== JSON.stringify(spel)) {
+    const vorig = bestaand ? lees(bestaand) : null;
+    const reeksen = vorig ? nieuweReeksen(vorig, spel) : {};
+    after(async () => {
+      try {
+        await db.tel(dagVan(Date.now()), ouder.email, id, reeksen);
+      } catch (e) {
+        console.error("dagteller mislukt", e);
+      }
+    });
+  }
+
   return new Response(null, { status: 204 });
 }
 
