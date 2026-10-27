@@ -19,9 +19,14 @@ export default function Privacy() {
           <ul>
             <li>het e-mailadres van de ouder, om het gezin te herkennen;</li>
             <li>per profiel: de naam die de ouder koos, de gekozen avatar, welk leerjaar, welke oefenreeksen gedaan zijn en welke kleren, vogels en heldenspullen gewonnen zijn.</li>
+            <li>
+              per dag enkel totalen: hoeveel gezinnen en profielen er speelden en hoeveel oefenreeksen er per onderwerp
+              voor het eerst uitgespeeld werden. Welk gezin of kind dat was, houden we daarbij niet bij. Die tellers
+              worden na ruim een jaar gewist.
+            </li>
           </ul>
           <p>
-            We vragen Google enkel om je naam en e-mailadres. We gebruiken geen advertenties of trackers en delen niets
+            De beheerder van de app kan die gegevens inzien, om te zien hoe de app gebruikt wordt. We vragen Google enkel om je naam en e-mailadres. We gebruiken geen advertenties of trackers en delen niets
             met anderen. De gegevens staan bij Upstash (databank) en Vercel (hosting).
           </p>
           <h2>Wissen</h2>

@@ -1055,6 +1055,98 @@ button:disabled {
   padding: 6px 12px;
 }
 
+/* ---- Beheer ---- */
+
+.beheer-inhoud {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.beheer-tegels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 8px 0 16px;
+}
+
+.beheer-tegel {
+  border: 2px solid var(--inkt);
+  border-radius: 14px;
+  background: var(--papier);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.beheer-tegel strong {
+  font-size: 28px;
+}
+
+.beheer-tegel span {
+  font-size: 14px;
+  color: #6b6280;
+}
+
+.beheer-tabel {
+  overflow-x: auto;
+}
+
+.beheer-tabel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.beheer-tabel th,
+.beheer-tabel td {
+  text-align: left;
+  padding: 4px 10px 4px 0;
+  border-bottom: 1px solid #e6dff0;
+  white-space: nowrap;
+}
+
+.beheer-tabel th {
+  font-size: 13px;
+  color: #6b6280;
+  font-weight: 700;
+}
+
+.beheer-stil td {
+  color: #b3abc2;
+}
+
+.beheer-balk-kolom {
+  width: 40%;
+  min-width: 120px;
+}
+
+.beheer-balk {
+  display: inline-block;
+  height: 12px;
+  border-radius: 6px;
+  background: var(--paars);
+  vertical-align: middle;
+}
+
+.beheer-balk-getal {
+  margin-left: 6px;
+}
+
+.beheer-gezin {
+  margin-top: 16px;
+}
+
+.beheer-gezin h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  word-break: break-all;
+}
+
 /* ---- Oudermenu ---- */
 
 .ouder-inhoud,

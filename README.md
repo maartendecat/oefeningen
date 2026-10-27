@@ -55,6 +55,8 @@ npm run lint
 | `src/lib/sync.ts`, `src/lib/samenvoegen.ts` | Houdt de profielen gelijk met de server; per profiel wint de recentste versie. |
 | `src/app/api/profielen/` | API: profielen van het ingelogde gezin ophalen, bewaren en verwijderen. |
 | `src/lib/opslag.ts` | Opslag per gezin in Upstash Redis (lokaal: in het geheugen). |
+| `src/lib/activiteit.ts` | Dagtellers: actieve gezinnen en profielen (als HyperLogLog, zonder wie) en nieuwe reeksen per onderwerp. |
+| `src/app/beheer/` | Beheerpagina met de dagtellers en de stand van elk gezin, enkel voor de adressen in `BEHEERDERS`. |
 | `src/avatar/` | De avatar (`Pop.tsx`) en alle kleren (`items.tsx`), als SVG. |
 | `src/avatar/vogels.tsx` | Alle vogels: leefgebied, weetje, kleuren en tekening. Ze gebruiken de lichaamsvormen uit `vogelvormen.ts` en worden getekend door `Vogel.tsx`. |
 | `src/avatar/decor.tsx` | Het landschap en de vaste plek van elke vogel erin. |
@@ -94,6 +96,12 @@ Zonder Google-sleutels toont het loginscherm lokaal een **test-login**, en
 bewaart de dev-server de profielen in zijn geheugen (weg bij herstarten).
 Die test-login bestaat in productie niet.
 
+Op `/beheer` staat een overzicht van alle gezinnen en de dagtellers, voor de
+adressen in `BEHEERDERS` (lokaal bv. `BEHEERDERS=test@gezin.local` in
+`.env.local`). Wie niet in die lijst staat, krijgt een 404. De dagtellers
+tellen een reeks enkel de eerste keer dat ze uitgespeeld wordt; het
+oudermenu dat voortgang vooruitzet, telt ook mee.
+
 ## Hosting (Vercel)
 
 1. Importeer de GitHub-repo; Vercel herkent Next.js vanzelf.
@@ -105,8 +113,8 @@ Die test-login bestaat in productie niet.
    scherm heeft enkel de standaardscopes (naam, e-mail) nodig; vul als
    privacybeleid `https://<jouw-domein>/privacy` in.
 4. **Omgevingsvariabelen:** zie `.env.example` (`BETTER_AUTH_SECRET`,
-   `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`), en
-   herdeploy.
+   `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, en
+   `BEHEERDERS` voor `/beheer`), en herdeploy.
 
 Facebook staat klaar: met `FACEBOOK_CLIENT_ID` en `FACEBOOK_CLIENT_SECRET`
 verschijnt de knop vanzelf. Meta vraagt daarvoor wel een privacybeleid
